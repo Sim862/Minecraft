@@ -31,27 +31,28 @@ public class SFXAudioSource : MonoBehaviour
 
         if (block != null)
             this.block = block;
+
+        StartCoroutine(InactiveSFXSound());
     }
 
-    public void InactiveSFXSound()
-    {
-        StartCoroutine(WaitSoundLenght());
-    }
-    IEnumerator WaitSoundLenght()
+
+    private IEnumerator InactiveSFXSound()
     {
         count_Check = count;
         yield return new WaitForSeconds(sound.length);
         if(count_Check == count)
         {
-            gameObject.SetActive(false);
-            SoundManager.instance.InactiveSFXSound(this);
-
             if (count == int.MaxValue)
                 count = 0;
 
             if(block != null)
             {
+                block = null;
                 block.InActiveBrokenSound();
+            }
+            else
+            {
+                SoundManager.instance.InactiveSFXSound(this);
             }
         }
     }
