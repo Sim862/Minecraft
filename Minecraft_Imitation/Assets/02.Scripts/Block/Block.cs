@@ -61,9 +61,13 @@ public class Block : MonoBehaviour
             StopBroke();
 
             if (blockData.blockType == blockType)
+            {
                 typeCheck = true;
+            }
             else
+            {
                 typeCheck = false;
+            }
             strength = blockData.strength;
             corutine = CheckBreak(Power);
             StartCoroutine(corutine);
@@ -88,7 +92,9 @@ public class Block : MonoBehaviour
             breakAudioSource = SoundManager.instance.ActiveSFXSound(brokenSound, breakAudioSource, transform);
         }
         if (prefab_Block_InteractionParticle == null)
+        {
             return;
+        }
         Instantiate(prefab_Block_InteractionParticle, transform.position, Quaternion.identity);
 
         gameObject.SetActive(false);
