@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.Audio;
+using static BlockData;
 
 [System.Serializable]
-public class SFXSound
+public class Sound
 {
-    public SFXSound(AudioClip audioClip)
+    public enum AudioClipName
     {
-        if (audioClip == null)
-            return;
-        this.audioClip = audioClip;
-        length = audioClip.length;
+        None,
+        DirtBroken,
+        DirtBreak
     }
-    
+    public AudioClipName audioClipName;
     public AudioClip audioClip;
-    public float length;
+    public float clipLength;
 }
 
 public class SoundManager : MonoBehaviour
@@ -29,13 +29,20 @@ public class SoundManager : MonoBehaviour
     // 배경음악 AudioSource
     private AudioSource bgmAudioSource;
 
+    [SerializeField]
+    private Sound[] sounds;
+
+    public Dictionary<Sound.AudioClipName, Sound> soundDictionary = new Dictionary<Sound.AudioClipName, Sound>();
+
     // 효과음 AudioSource 오브젝트 리스트
     private Queue<SFXAudioSource> sfxAudioSources = new Queue<SFXAudioSource>();
     // 풀링을 위한 비활성화 효과음 AudioSource 오브젝트 리스트
     private Queue<SFXAudioSource> inactiveSFXAudioSources = new Queue<SFXAudioSource>();
 
     // 효과음 볼륨
-    private float sfxVolume = 0.5f;
+    public float sfxVolume = 0.5f;
+
+    SFXAudioSource source;
 
     private void Awake()
     {
@@ -47,8 +54,21 @@ public class SoundManager : MonoBehaviour
     private void Start()
     {
         bgmAudioSource = GetComponent<AudioSource>();
+        InitSounds();
+    }
+    
+    // 인스펙터 창에서 받아온 사운드를 Dictionary로 정리
+    private void InitSounds()
+    {
+        for (int i = 0; i < sounds.Length; i++)
+        {
+            sounds[i].clipLength = sounds[i].audioClip.length;
+            soundDictionary.Add(sounds[i].audioClipName, sounds[i]);
+        }
     }
 
+
+    
     // 효과음 볼륨 변경
     public void ChangeSFXVolum(float voluem)
     {
@@ -63,9 +83,14 @@ public class SoundManager : MonoBehaviour
     }
 
     // 효과음 audioSource 활성화
-    public SFXAudioSource ActiveSFXSound(SFXSound sound, SFXAudioSource audioSource, Transform parent, Block block = null)
+    public SFXAudioSource ActiveSFXSound(Sound.AudioClipName audioClipName, SFXAudioSource audioSource, Transform parent, bool autoInactive)
     {
-        SFXAudioSource source = null;
+        // 오디오 타입이 오지 않았다면 return
+        if (audioClipName == 0)
+        {
+            return null;
+        }
+
         if (audioSource != null) // 효과음 중복 막기
         {
             source = audioSource;
@@ -73,9 +98,10 @@ public class SoundManager : MonoBehaviour
         else
         {
             // 풀에 오브젝트가 없으면 생성
-            if(inactiveSFXAudioSources.Count == 0)
+            if (inactiveSFXAudioSources.Count == 0)
             {
                 source = Instantiate(prefab_SFXAudioSource, transform);
+                source.SetVolume(sfxVolume);
                 sfxAudioSources.Enqueue(source);
             }
             else // 풀에 오브젝트가 있으면 액티브
@@ -84,10 +110,12 @@ public class SoundManager : MonoBehaviour
                 source.gameObject.SetActive(true);
             }
         }
-
-        source.transform.SetParent(parent);
+        if (parent != null)
+        {
+            source.transform.SetParent(parent);
+        }
         source.transform.localPosition = Vector3.zero;
-        source.ActiveSound(sound , block);
+        source.ActiveSound(soundDictionary[audioClipName], autoInactive);
 
         return source;
     }
@@ -95,6 +123,7 @@ public class SoundManager : MonoBehaviour
     //  풀링을 위한 효과음 오브젝트 비활성화
     public void InactiveSFXSound(SFXAudioSource sfxAudioSource)
     {
+        sfxAudioSource.StopSound();
         sfxAudioSource.transform.SetParent(transform);
         sfxAudioSource.gameObject.SetActive(false);
         inactiveSFXAudioSources.Enqueue(sfxAudioSource);

@@ -15,6 +15,7 @@ public class GameObjectData
 
     public enum ObjectKind
     {
+        None,
         Block,
         Item,
         Mob,
@@ -29,15 +30,18 @@ public class GameObjectData
 [System.Serializable]
 public class BlockData : GameObjectData
 {
-    public BlockData(ObjectKind objectKind, BlockKind blockKind, BlockType blockType, float strength) : base(objectKind)
+    public BlockData(ObjectKind objectKind, BlockKind blockKind, BlockType blockType, float strength, Sound.AudioClipName brockBreakSound, Sound.AudioClipName brockBrokenSound) : base(objectKind)
     {
         this.blockKind = blockKind;
         this.blockType = blockType;
         this.strength = strength;
+        this.brockBreakSound = brockBreakSound;
+        this.brockBrokenSound = brockBrokenSound;
     }
 
     public enum BlockKind
     {
+        None,
         Dirt,
         Wood,
         Water,
@@ -45,6 +49,7 @@ public class BlockData : GameObjectData
     }
     public enum BlockType
     {
+        None,
         Knife,
         Ax,
         Shovel,
@@ -55,6 +60,8 @@ public class BlockData : GameObjectData
     public BlockKind blockKind;
     public BlockType blockType;
     public float strength;
+    public Sound.AudioClipName brockBreakSound;
+    public Sound.AudioClipName brockBrokenSound;
 }
 
 [System.Serializable]
@@ -67,6 +74,7 @@ public class ItemData : GameObjectData
 
     public enum ItemKind
     {
+        None,
         Knife,
         Ax,
         Shovel,
@@ -86,6 +94,7 @@ public class MobData : GameObjectData
     }
     public enum MobKind
     {
+        None,
         Pig,
         chicken,
         Creeper,

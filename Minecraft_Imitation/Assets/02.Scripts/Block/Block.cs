@@ -7,6 +7,13 @@ using UnityEngine.UIElements;
 
 public class Block : MonoBehaviour
 {
+    #region 테스트용 삭제해야 됨
+    public bool start = false;
+    public bool start1 = false;
+    public BlockData.BlockType test_Tool;
+    public float test_Power;
+    #endregion
+
     public BlockData blockData;
 
     [SerializeField]
@@ -14,29 +21,26 @@ public class Block : MonoBehaviour
 
     [SerializeField]
     private Block_InteractionParticle prefab_Block_InteractionParticle; // 블럭 파괴시 나오는 잔해
-    [SerializeField]
-    private SFXSound brokenSound;
-    private SFXAudioSource breakAudioSource = null;
+
+    private Sound brokenSound;
+    private SFXAudioSource sfxAudioSource = null;
     
 
     private bool broken = false;
     private float strength;
     private bool typeCheck = false;
 
-    private IEnumerator corutine;
+    private IEnumerator checkBreak_Coroutine;
 
     private void OnEnable()
     {
         strength = blockData.strength;
     }
 
-    public bool start = false;
-    public BlockData.BlockType tool;
-    public float power;
 
     private void Start()
     {
-        blockData = new BlockData(GameObjectData.ObjectKind.Block, BlockData.BlockKind.Dirt, BlockData.BlockType.Pick, 100);
+        blockData = new BlockData(GameObjectData.ObjectKind.Block, BlockData.BlockKind.Dirt, BlockData.BlockType.Pick, 100, Sound.AudioClipName.DirtBreak, Sound.AudioClipName.DirtBroken);
         strength = blockData.strength;
     }
 
@@ -45,16 +49,32 @@ public class Block : MonoBehaviour
         if (start)
         {
             start = false;
-            Broke(tool, power);
+            Break(test_Tool, test_Power);
+        }
+        if (start1)
+        {
+            start1 = false; 
+            StopBroke();
         }
     }
 
     private void OnDisable()
     {
+        ResetCoroutine();
+    }
+
+    private void ResetCoroutine()
+    {
+        checkBreak_Coroutine = null;
         StopAllCoroutines();
     }
 
-    public void Broke(BlockData.BlockType blockType, float Power)
+    private void OnDestroy()
+    {
+        InActiveSFXSound();
+    }
+
+    public void Break(BlockData.BlockType blockType, float Power)
     {
         if (canBreak)
         {
@@ -68,54 +88,68 @@ public class Block : MonoBehaviour
             {
                 typeCheck = false;
             }
-            strength = blockData.strength;
-            corutine = CheckBreak(Power);
-            StartCoroutine(corutine);
+            checkBreak_Coroutine = CheckBreak(Power);
+            StartCoroutine(checkBreak_Coroutine);
         }
     }
 
     public void StopBroke()
     {
-        if (corutine != null)
+        if (checkBreak_Coroutine != null)
         {
-            print("블럭 파괴 종료");
-            StopCoroutine(corutine);
-            corutine = null;
+            print("블럭 파괴 중지"); 
+            strength = blockData.strength;
+            StopCoroutine(checkBreak_Coroutine);
+            checkBreak_Coroutine = null;
+
+            if (sfxAudioSource != null)
+            {
+                InActiveSFXSound();
+            }
         }
     }
+
 
     private void Broken() // 블럭 파괴
     {
         StopBroke();
-        if (brokenSound != null)
-        {
-            breakAudioSource = SoundManager.instance.ActiveSFXSound(brokenSound, breakAudioSource, transform);
-        }
+        SoundManager.instance.ActiveSFXSound(blockData.brockBrokenSound, sfxAudioSource, null, true);
+
         if (prefab_Block_InteractionParticle == null)
         {
             return;
         }
         Instantiate(prefab_Block_InteractionParticle, transform.position, Quaternion.identity);
 
+        print("블럭 파괴");
         gameObject.SetActive(false);
         // 쉐이더 초기화 추가
         broken = false;
     }
 
-    public void InActiveBrokenSound() // 효과음 회수
+    
+    public void InActiveSFXSound() // 효과음 회수
     {
-        if (breakAudioSource != null)
+        if (sfxAudioSource != null)
         {
-            SoundManager.instance.InactiveSFXSound(breakAudioSource);
-            breakAudioSource = null;
+            SoundManager.instance.InactiveSFXSound(sfxAudioSource);
+            sfxAudioSource = null;
         }
     }
 
     IEnumerator CheckBreak(float Power)
     {
+        print("블럭 파괴 시작");
+        sfxAudioSource = SoundManager.instance.ActiveSFXSound(blockData.brockBreakSound, sfxAudioSource, transform, false);
+        float clipLength = sfxAudioSource.GetSoundLength();
+        float clipLengthCheck = 0;
         while (!broken)
         {
-            print("블럭 파괴 중");
+            if (clipLengthCheck >= clipLength)
+            {
+                sfxAudioSource.ReplayAudio();
+                clipLengthCheck = 0;
+            }
             if (typeCheck)
             {
                 strength -= Power;
@@ -126,7 +160,9 @@ public class Block : MonoBehaviour
             }
             // 쉐이더 작동
             yield return new WaitForSeconds(0.1f);
-            if(strength <= 0)
+            clipLengthCheck += 0.1f;
+
+            if (strength <= 0)
             {
                 broken = true;
                 Broken();
