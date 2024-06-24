@@ -15,6 +15,7 @@ public class Block : MonoBehaviour
     #endregion
 
     public BlockData blockData;
+    public MeshRenderer meshRenderer;
 
     [SerializeField]
     private bool canBreak;
@@ -37,6 +38,10 @@ public class Block : MonoBehaviour
         strength = blockData.strength;
     }
 
+    private void Awake()
+    {
+        meshRenderer = GetComponent<MeshRenderer>();
+    }
 
     private void Start()
     {
@@ -72,6 +77,12 @@ public class Block : MonoBehaviour
     private void OnDestroy()
     {
         InActiveSFXSound();
+    }
+
+    public void InitBlock(BlockData blockData)
+    {
+        this.blockData = blockData;
+        this.meshRenderer.material = blockData.material;
     }
 
     public void Break(BlockData.BlockType blockType, float Power)

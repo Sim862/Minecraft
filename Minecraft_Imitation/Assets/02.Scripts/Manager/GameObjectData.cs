@@ -62,6 +62,7 @@ public class BlockData : GameObjectData
     public float strength;
     public Sound.AudioClipName brockBreakSound;
     public Sound.AudioClipName brockBrokenSound;
+    public Material material;
 }
 
 [System.Serializable]
