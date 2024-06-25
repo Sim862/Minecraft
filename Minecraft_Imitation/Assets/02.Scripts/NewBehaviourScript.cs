@@ -5,6 +5,10 @@ using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+class Test
+{
+   public Vector3 b;
+}
 public class NewBehaviourScript : MonoBehaviour
 {
     public MeshRenderer gameObject;
@@ -19,52 +23,12 @@ public class NewBehaviourScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        position = new Vector3(0, 0, 0);
-        g = new MeshRenderer[i];
-
-        for (int i = 0; i < g.Length; i++)
-        {
-            if (i % 1000 == 0)
-            {
-                position = new Vector3(0, position.y + 1, 0);
-            }
-            position += Vector3.right;
-            
-            g[i] = Instantiate(gameObject, position, Quaternion.identity, transform);
-        }
+        Vector3 a = new Vector3(1, 0, 1);
+        Test b = new Test();
+        b.b = a;
+        a += Vector3.left;
+        print(b.b);
     }
 
-    public bool check = false;
-    // Update is called once per frame
-    void Update()
-    {
-        if (check)
-        {
-            check = false;
-            if(position.z == 0)
-            {
-                position = new Vector3(0, 0, -30);
-            }
-            else
-            {
-                position = Vector3.zero;
-            }
-            watch.Start();
-            for (int i = 0; i < g.Length; i++)
-            {
-                if (i % 1000 == 0)
-                {
-                    position = new Vector3(0, position.y + 1, position.z);
-                }
-                position += Vector3.right;
-                
-                g[i].transform.position = position;
-                g[i].material = material;
-            }
-
-            watch.Stop();
-
-            print(watch.ElapsedMilliseconds + "ms");
-        }
-    }
+  
 }

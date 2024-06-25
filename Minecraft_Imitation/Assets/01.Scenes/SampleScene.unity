@@ -710,6 +710,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blockPrefab: {fileID: 794007677553812406, guid: b1c644645a7632d47a40969391e35b73, type: 3}
+  create: 0
+  chunkIndex: 4
+  i: {x: 6, y: 15, z: 6}
 --- !u!4 &1511012255
 Transform:
   m_ObjectHideFlags: 0

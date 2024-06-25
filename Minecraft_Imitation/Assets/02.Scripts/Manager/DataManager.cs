@@ -5,6 +5,11 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 
+public class PlayerData
+{
+    public Vector3 spawnPosition;
+}
+
 [System.Serializable]
 public class BlockMaterial
 {
@@ -15,6 +20,8 @@ public class BlockMaterial
 public class DataManager : MonoBehaviour
 {
     public static DataManager instance;
+    public PlayerData playerData = new PlayerData(); 
+
     public BlockMaterial[] blockMaterials;
     public BlockData[] blockDatas;
 
@@ -49,5 +56,11 @@ public class DataManager : MonoBehaviour
                 blockDictionary[blockMaterials[i].blockKind].material = blockMaterials[i].material;
             }
         }
+    }
+
+    public Vector3 PlayerPosition()
+    {
+        // 플레이어 위치 값 리턴으로 수정해야됨
+        return Vector3.one;
     }
 }
