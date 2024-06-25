@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
@@ -13,7 +13,7 @@ public class Block : MonoBehaviour
     private bool canBreak;
 
     [SerializeField]
-    private Block_InteractionParticle prefab_Block_InteractionParticle; // ºí·° ÆÄ±«½Ã ³ª¿À´Â ÀÜÇØ
+    private Block_InteractionParticle prefab_Block_InteractionParticle; // ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     [SerializeField]
     private SFXSound brokenSound;
     private SFXAudioSource breakAudioSource = null;
@@ -78,13 +78,13 @@ public class Block : MonoBehaviour
     {
         if (corutine != null)
         {
-            print("ºí·° ÆÄ±« Á¾·á");
+            print("ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½ ï¿½ï¿½ï¿½ï¿½");
             StopCoroutine(corutine);
             corutine = null;
         }
     }
 
-    private void Broken() // ºí·° ÆÄ±«
+    private void Broken() // ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½
     {
         StopBroke();
         if (brokenSound != null)
@@ -98,11 +98,11 @@ public class Block : MonoBehaviour
         Instantiate(prefab_Block_InteractionParticle, transform.position, Quaternion.identity);
 
         gameObject.SetActive(false);
-        // ½¦ÀÌ´õ ÃÊ±âÈ­ Ãß°¡
+        // ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½Ê±ï¿½È­ ï¿½ß°ï¿½
         broken = false;
     }
 
-    public void InActiveBrokenSound() // È¿°úÀ½ È¸¼ö
+    public void InActiveBrokenSound() // È¿ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½
     {
         if (breakAudioSource != null)
         {
@@ -115,7 +115,7 @@ public class Block : MonoBehaviour
     {
         while (!broken)
         {
-            print("ºí·° ÆÄ±« Áß");
+            print("ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½ ï¿½ï¿½");
             if (typeCheck)
             {
                 strength -= Power;
@@ -124,7 +124,7 @@ public class Block : MonoBehaviour
             {
                 strength -= 1;
             }
-            // ½¦ÀÌ´õ ÀÛµ¿
+            // ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½Ûµï¿½
             yield return new WaitForSeconds(0.1f);
             if(strength <= 0)
             {

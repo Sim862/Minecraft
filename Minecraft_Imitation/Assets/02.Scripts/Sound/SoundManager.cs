@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Search;
 using UnityEngine;
@@ -21,20 +21,20 @@ public class SFXSound
 
 public class SoundManager : MonoBehaviour
 {
-    // ½Ì±ÛÅÏ
+    // ï¿½Ì±ï¿½ï¿½ï¿½
     public static SoundManager instance;
 
-    // È¿°úÀ½ AudioSource Prefab
+    // È¿ï¿½ï¿½ï¿½ï¿½ AudioSource Prefab
     public SFXAudioSource prefab_SFXAudioSource;
-    // ¹è°æÀ½¾Ç AudioSource
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ AudioSource
     private AudioSource bgmAudioSource;
 
-    // È¿°úÀ½ AudioSource ¿ÀºêÁ§Æ® ¸®½ºÆ®
+    // È¿ï¿½ï¿½ï¿½ï¿½ AudioSource ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½Æ®
     private Queue<SFXAudioSource> sfxAudioSources = new Queue<SFXAudioSource>();
-    // Ç®¸µÀ» À§ÇÑ ºñÈ°¼ºÈ­ È¿°úÀ½ AudioSource ¿ÀºêÁ§Æ® ¸®½ºÆ®
+    // Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­ È¿ï¿½ï¿½ï¿½ï¿½ AudioSource ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½Æ®
     private Queue<SFXAudioSource> inactiveSFXAudioSources = new Queue<SFXAudioSource>();
 
-    // È¿°úÀ½ º¼·ý
+    // È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     private float sfxVolume = 0.5f;
 
     private void Awake()
@@ -49,7 +49,7 @@ public class SoundManager : MonoBehaviour
         bgmAudioSource = GetComponent<AudioSource>();
     }
 
-    // È¿°úÀ½ º¼·ý º¯°æ
+    // È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     public void ChangeSFXVolum(float voluem)
     {
         if (voluem > 1) voluem = 1;
@@ -62,23 +62,23 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // È¿°úÀ½ audioSource È°¼ºÈ­
+    // È¿ï¿½ï¿½ï¿½ï¿½ audioSource È°ï¿½ï¿½È­
     public SFXAudioSource ActiveSFXSound(SFXSound sound, SFXAudioSource audioSource, Transform parent, Block block = null)
     {
         SFXAudioSource source = null;
-        if (audioSource != null) // È¿°úÀ½ Áßº¹ ¸·±â
+        if (audioSource != null) // È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ßºï¿½ ï¿½ï¿½ï¿½ï¿½
         {
             source = audioSource;
         }
         else
         {
-            // Ç®¿¡ ¿ÀºêÁ§Æ®°¡ ¾øÀ¸¸é »ý¼º
+            // Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             if(inactiveSFXAudioSources.Count == 0)
             {
                 source = Instantiate(prefab_SFXAudioSource, transform);
                 sfxAudioSources.Enqueue(source);
             }
-            else // Ç®¿¡ ¿ÀºêÁ§Æ®°¡ ÀÖÀ¸¸é ¾×Æ¼ºê
+            else // Ç®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Æ¼ï¿½ï¿½
             {
                 source = inactiveSFXAudioSources.Dequeue();
                 source.gameObject.SetActive(true);
@@ -92,7 +92,7 @@ public class SoundManager : MonoBehaviour
         return source;
     }
 
-    //  Ç®¸µÀ» À§ÇÑ È¿°úÀ½ ¿ÀºêÁ§Æ® ºñÈ°¼ºÈ­
+    //  Ç®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½È°ï¿½ï¿½È­
     public void InactiveSFXSound(SFXAudioSource sfxAudioSource)
     {
         sfxAudioSource.transform.SetParent(transform);
