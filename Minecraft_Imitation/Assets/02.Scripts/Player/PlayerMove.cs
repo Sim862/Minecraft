@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class PlayerMove : MonoBehaviour
     public float yVelocity = 0f; // 수직 속력 변수
     public float jumpPower = 10f; // 점프력 변수
     public bool isJumping = false; // 점프 상태 변수
+    public int hp = 20; // 플레이어 체력 변수
+    int maxHp = 20; // 최대 체력 변수
+    public Slider hpSlider; // hp 슬라이더 변수
 
 
 
@@ -21,6 +25,14 @@ public class PlayerMove : MonoBehaviour
 
 
     void Update()
+    {
+        // 4. 현재 플레이어 hp(%)를 hp 슬라이더의 value에 반영한다.
+        hpSlider.value = (float)hp / (float)maxHp;
+
+        PlayerMoveMethod();
+    }
+
+    void PlayerMoveMethod()
     {
         // 1. 사용자의 입력을 받는다.
         float h = Input.GetAxis("Horizontal");
@@ -34,7 +46,7 @@ public class PlayerMove : MonoBehaviour
         dir = transform.TransformDirection(dir);
 
         // 만약 바닥에 다시 착지했다면
-        if(cc.collisionFlags == CollisionFlags.Below)
+        if (cc.collisionFlags == CollisionFlags.Below)
         {
             // 만약 점프 중이었다면
             if (isJumping)
@@ -64,4 +76,6 @@ public class PlayerMove : MonoBehaviour
         //transform.position += dir * moveSpeed * Time.deltaTime;
         cc.Move(dir * moveSpeed * Time.deltaTime);
     }
+
+
 }
