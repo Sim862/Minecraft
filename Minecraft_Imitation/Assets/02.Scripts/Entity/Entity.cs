@@ -99,8 +99,8 @@ public class Entity : MonoBehaviour
             local_TargetBlockIndex_z += Chunk.x * gap;
         }
 
-        current = new Node(chunk_x, chunk_z, blockIndex_x, blockIndex_y, blockIndex_z, 0, 
-            GetH(blockIndex_x, blockIndex_y, blockIndex_z,local_TargetBlockIndex_x,local_TargetBlockIndex_y,local_TargetBlockIndex_z));
+        current = new Node(chunk_x, chunk_z, blockIndex_x, blockIndex_y, blockIndex_z, 0,
+            GetH(blockIndex_x, blockIndex_y, blockIndex_z, local_TargetBlockIndex_x, local_TargetBlockIndex_y, local_TargetBlockIndex_z));
         opentNodes.Add(current);
 
         while (true)
@@ -127,7 +127,7 @@ public class Entity : MonoBehaviour
             if (current.PositionCheck(local_TargetBlockIndex_x, local_TargetBlockIndex_y, local_TargetBlockIndex_z))
                 break;
 
-            bool canJump = MapManager.instance.CheckJump(currentChunk, current.x,current.y,current.z, objectHeight);
+            bool canJump = MapManager.instance.CheckJump(currentChunk, current.x, current.y, current.z, objectHeight);
 
         }
     }
@@ -137,7 +137,7 @@ public class Entity : MonoBehaviour
     {
         int chunk_x = current.chunck_X;
         int chunk_z = current.chunck_Z;
-        if (index_x < 0) 
+        if (index_x < 0)
         {
             chunk_x--;
             index_x = 11;
@@ -161,7 +161,7 @@ public class Entity : MonoBehaviour
 
         chunk = MapManager.instance.GetChunk(chunk_x, chunk_z);
 
-        if(MapManager.instance.CheckBlockY(chunk, index_x, current.y, index_z, objectHeight, fallHeight, canJump))
+        if (MapManager.instance.CheckBlock(chunk, index_x, current.y, index_z, objectHeight, fallHeight, canJump) != int.MaxValue)
         {
 
         }

@@ -237,7 +237,7 @@ Transform:
   m_GameObject: {fileID: 385357680}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.9185371, y: -2.0204737, z: 0.089358486}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -710,9 +710,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blockPrefab: {fileID: 794007677553812406, guid: b1c644645a7632d47a40969391e35b73, type: 3}
-  create: 0
+  createBlock: 0
   chunkIndex: 4
-  i: {x: 6, y: 15, z: 6}
+  chunkBlockIndex: {x: 0, y: 0, z: 0}
+  entity: {fileID: 3606605551945705988, guid: 15d11425972b29b4e8f3e6b7d94d1d4c, type: 3}
+  move: 0
+  objectHeight: 2
+  fallHeight: 3
+  canJump: 0
 --- !u!4 &1511012255
 Transform:
   m_ObjectHideFlags: 0
@@ -722,7 +727,7 @@ Transform:
   m_GameObject: {fileID: 1511012253}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.9185371, y: -2.0204737, z: 0.089358486}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

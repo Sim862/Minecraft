@@ -19,7 +19,7 @@ public class Chunk
     public static readonly int x = 12;
     public static readonly int y = 256;
     public static readonly int z = 12;
-
+    public static readonly int defaultY = -60;
     // 생성자
     public Chunk(int chunk_x, int chunk_z, int[,,] blocks)
     {
@@ -99,17 +99,35 @@ public class MapManager : MonoBehaviour
         }
 
         SetPlayerSpawnPosition();
+
     }
 
-    public bool create = false;
+    public bool createBlock = false;
     public int chunkIndex;
-    public Vector3 i;
+    public Vector3 chunkBlockIndex;
+
+    
+    public Transform entity;
+    public bool move = false;
+    public int objectHeight;
+    public int fallHeight;
+    public bool canJump;
+
+
     private void Update()
     {
-        if (create)
+        if (createBlock)
         {
-            create = false;
-            CreateBlock(chunks[chunkIndex], BlockData.BlockKind.Dirt, (int)i.x, (int)i.y, (int)i.z);
+            createBlock = false;
+            CreateBlock(chunks[chunkIndex], BlockData.BlockKind.Dirt, (int)chunkBlockIndex.x, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z);
+        }
+
+        if (move)
+        {
+            move = false;
+            Instantiate(entity, new Vector3(chunkBlockIndex.x + chunks[chunkIndex].chunk_x * 12, chunkBlockIndex.y + Chunk.defaultY, chunkBlockIndex.z + chunks[chunkIndex].chunk_z * 12), Quaternion.identity);
+            canJump = CheckJump(chunks[chunkIndex], (int)chunkBlockIndex.x, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z, objectHeight);
+            print(CheckBlock(chunks[chunkIndex], (int)chunkBlockIndex.x+1, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z, objectHeight, fallHeight, canJump));
         }
     }
 
@@ -278,7 +296,7 @@ public class MapManager : MonoBehaviour
 
             chunk.blocksEnum[x, y, z] = (int)blockKind;
 
-            blockPosition = new Vector3(chunk.chunk_x * Chunk.x + x, y - 60, chunk.chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
+            blockPosition = new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
             block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // 블럭 오브젝트 생성
 
             blockData = DataManager.instance.blockDictionary[blockKind]; // 블럭 dictonary에서 해당되는 블럭 데이터 가져오기
@@ -311,12 +329,12 @@ public class MapManager : MonoBehaviour
     // 머리 위에 블럭이 있는지
     public bool CheckJump(Chunk chunk, int x, int y, int z, int objectHeight)
     {
-        if(y + objectHeight >= Chunk.y) // 최대 높이보다 높다면
+        if(y + objectHeight >= Chunk.y) // 월드 최대 높이보다 높다면
         {
             return false;
         }
 
-        if (chunk.blocksEnum[x,y+1,z] == 0) // 블럭이 없으면 점프 가능
+        if (chunk.blocksEnum[x,y+objectHeight,z] == 0) // 머리위에 블럭이 없으면 점프 가능
         {
             return true;
         }
@@ -324,123 +342,113 @@ public class MapManager : MonoBehaviour
         return false; ; 
     }
 
-    public int CheckBlockY(Chunk chunk, int x, int y, int z, int objectHeight, int fallHeight, bool canJump)
+    public int CheckBlock(Chunk chunk, int x, int y, int z, int objectHeight, int fallHeight, bool canJump)
     {
-        //int check = fallHeight + objectHeight; // 높이 체크용
-        //bool ground = false; // 땅이 있는지
-
-        //if ((y - fallHeight - 1) >0) 
-        //{
-        //    if (chunk.blocksEnum[x, y - fallHeight - 1,z] == 0) // 땅이 있으면 체크
-        //    {
-        //        ground = true;
-        //    }
-        //}
-
-
-        //for (int i = -fallHeight; i <= 1; i++)
-        //{
-        //    int checkY = y + i; // 이동할 블럭 높이
-
-        //    if (checkY < 0) // 이동할 블럭 높이 인덱스가 0보다 작다면 다시 반복 
-        //    {
-        //        continue;
-
-        //    }
-
-        //    if (chunk.blocksEnum[x, checkY, z] == 0) // 해당 위치에 블럭이 없다면
-        //    {
-        //        if (checkY < y) // 현재 높이보다 낮다면 
-        //        {
-        //            check--;
-        //        }
-        //        else // 현재 높이보다 이동 높이가 같거나 크다면 
-        //        {
-        //            // 현재 위치와 같거나 높아졌지만 체크가 더 크다는 것은
-        //            // 낮은 위치 중 블럭이 있었다는 것.
-        //            // 그러므로 오브젝트가 이동할 수 있는지 오브젝트의 높이만 체크하면 됨
-        //            if (checkY > objectHeight)
-        //            {
-        //                check = objectHeight;
-        //            }
-
-        //            check--;
-        //        }
-        //    }
-        //    else 
-        //    {
-        //        // 여기에 이동할 수 없는 블럭 리스트 체크 (물, 용암)
-
-
-        //        // 이동할 수 있으면
-        //        // 땅이 있음을 체크
-        //        ground = true;
-        //    }
-        //}
-        //if (!ground)
-        //{
-        //    return false; // 땅이 없음
-        //}
-
-        //if (check <= 0) // 충분히 이동 가능
-        //{
-        //    return true;
-        //}
-
-        //return false;
-        
-
-        int[] isGround = new int[fallHeight + objectHeight + 1]; // 이동할 위치에 있는 검사할 블럭 리스트
-        int index = y + objectHeight + 1; // 블럭데이터 인덱스 위부터
-        for (int i = isGround.Length-1; i <= 0; i--)
+        print(fallHeight + 1 + objectHeight);
+        int[] groundCheck = new int[fallHeight + 1 + objectHeight ]; // 이동할 위치에 있는 검사할 블럭 리스트  // 떨어질 블럭 + 내 위치 + 머리 위 블럭
+        int index = y + objectHeight; // 블럭데이터 인덱스 위부터
+        int value = 0;
+        for (int i = groundCheck.Length - 1; i >= 0; i--)
         {
-            // 이동 위치가 최대 높이보다 높으면 못감
-            if(index >= Chunk.y)
+            // 이동 위치가 월드 최대 높이보다 높으면 못감
+            if (index >= Chunk.y)
             {
-                isGround[i] = -1;
+                groundCheck[i] = -1;
                 index--;
                 continue;
             }
-            else if(index <= 0) // 이동 위치가 최소 높이보다 낮을때
+            else if (index <= 0) // 이동 위치가 월드 최소 높이보다 낮을때 해당 위치 이동 불가
             {
-                isGround[i] = -1;
+                groundCheck[i] = -1;
+                index--;
                 continue;
             }
 
-            // 현재 높이보다 이동할 위치가 높은데 점프가 안되면 못감 (가장 높음)
-            if(i == isGround.Length-1) 
+            if (i == fallHeight)
+                print("내 위치");
+            print(index + ", " + chunk.blocksEnum[x, index, z]);
+            // 블럭 검사
+            if (chunk.blocksEnum[x, index, z] == 0)
+                groundCheck[i] = 0; // 블럭 없음
+            else
+                groundCheck[i] = 1; // 블럭 있음
+
+            // 점프를 사용해야 이동할수 있는 위치
+            if (i == groundCheck.Length -1)
             {
-                if (!canJump)
+                if (!canJump) // 머리위 블럭이 있을 경우 점프를 못함 == 나보다 높은 블럭에 올라가지 못한다.
                 {
-                    isGround[i] = -1;
-                    index--;
+                    groundCheck[i] = 1; // 블럭이 있는 것으로 취급
                     continue;
                 }
-
-                if (chunk.blocksEnum[x, index, z] == 0)
-                    isGround[i] = 0;
-                else
-                    isGround[i] = -1;
-
-                index--;
             }
-            else if(i > fallHeight) // 이동할 높이가 내 위치보다 높다면 (가장 높은건 아님)
+
+            index--;
+        }
+        for (int i = groundCheck.Length - 1; i >= 0; i--)
+        {
+
+            print(i + ", " + groundCheck[i] + ", " + value);
+            if (i == groundCheck.Length - 1)
             {
-                for (int j = i; j < isGround.Length - 1; j++) //  이동할 높이보다 높은 위치에 블럭이 있으면 못감
+                if (groundCheck[i] == 0)
                 {
-                    if (isGround[i] != 0)
+                    value = 20;
+                }
+            }
+            else if (i >= fallHeight) //내 몸통 위치의 블럭 체크
+            {
+                if (objectHeight == 1)  // 오브젝크 키가 1일때
+                {
+                    if (groundCheck[i] != 0) // 내 앞에 블럭이 있을때
                     {
-                        return int.MaxValue;  // maxvalue를 줘 못감을 표시
+                        if (value != 20) // 점프가 불가능 하다면 못감
+                        {
+                            return int.MaxValue;
+                        }
+                    }
+                }
+                else
+                {
+                    //내 몸통 위치에 걸리는 블럭 있으면 못감
+                    if (i > fallHeight+1)
+                    {
+                        if (groundCheck[i] != 0)
+                        {
+                            return int.MaxValue;
+                        }
+                    }
+                    else // 내 발 앞에 
+                    {
+                        // 블럭이 있다면 
+                        if (groundCheck[i] != 0) 
+                        {
+                            // 점프가 가능하면 이동 가능
+                            if (value == 20)
+                            {
+                                return 20;
+                            }
+                            else // 점프가 불가능하면 길막혔음
+                            {
+                                return int.MaxValue;
+                            }
+                        }
                     }
                 }
             }
-
-
-            isGround[i] = chunk.blocksEnum[x, index, z];
-            index++;
+            else if (i <= fallHeight - 1) // 낙하 가능한 높이의 블럭 체크
+            {
+                if (groundCheck[i] != 0) // 블럭이 있으면 낙하 가능
+                {
+                    return 10;
+                }
+            }
         }
-    }
 
+        // 낙하 가능한 높이의 블럭도 없었으니 이동 불가
+        return int.MaxValue;
+
+    }
     #endregion
 
 
