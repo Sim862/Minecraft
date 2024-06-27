@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
 using UnityEngine;
 using static BlockData;
 
@@ -20,18 +21,19 @@ public class Chunk
     public static readonly int z = 12;
 
     // 생성자
-    public Chunk(Vector3 position, int[,,] blocks)
+    public Chunk(int chunk_x, int chunk_z, int[,,] blocks)
     {
-        this.position = position;
+        this.chunk_x = chunk_x;
+        this.chunk_z = chunk_z;
         this.blocksEnum = blocks;
-        blockParent = new GameObject(position.ToString()).transform;
+        blockParent = new GameObject(chunk_x+"-"+ chunk_z).transform;
         blockParent.SetParent(MapManager.instance.transform);
         saveRoutine = Coroutine_SaveChunk(this);
     }
 
     // 생성된 블럭 오브젝트 부모
     public Transform blockParent;
-    public Vector3 position = new Vector3(); // transform.postion 아님 청크 위치와 파일명
+    public int chunk_x, chunk_z; // 청크 위치와 파일명
     public int[,,] blocksEnum = new int[x, y, z]; // x, y, z
     public Block[,,] blockObjects = new Block[x, y, z]; // x, y, z
 
@@ -49,7 +51,7 @@ public class Chunk
             if (chunk.needSave)
             {
                 chunk.needSave = false;
-                MapManager.instance.SaveChunk("Chunk" + ((int)chunk.position.x + "_" + ((int)chunk.position.z)),this);
+                MapManager.instance.SaveChunk("Chunk" + (chunk_x + "_" + chunk_z),this);
             }
 
             yield return new WaitForSeconds(Chunk.saveTime);
@@ -75,7 +77,6 @@ public class MapManager : MonoBehaviour
 
     private int value;
 
-    int index_x, index_y, index_z;
 
     private void Awake()
     {
@@ -108,7 +109,7 @@ public class MapManager : MonoBehaviour
         if (create)
         {
             create = false;
-            CreateBlock(chunks[chunkIndex], BlockData.BlockKind.Dirt, i);
+            CreateBlock(chunks[chunkIndex], BlockData.BlockKind.Dirt, (int)i.x, (int)i.y, (int)i.z);
         }
     }
 
@@ -117,13 +118,8 @@ public class MapManager : MonoBehaviour
         for (int i = 0; i < chunks.Length; i++)
         {
             StopCoroutine(chunks[i].saveRoutine);
-            SaveChunk("Chunk" + ((int)chunks[i].position.x) + "_" + ((int)chunks[i].position.z), chunks[i]);
+            SaveChunk("Chunk" + chunks[i].chunk_x + "_" + chunks[i].chunk_x, chunks[i]);
         }
-    }
-
-    private void VectorToInt(Vector3 index)
-    {
-        index_x = (int)index.x; index_y = (int)index.y; index_z = (int)index.z;
     }
 
     #region Chunk Load, Save 메서드
@@ -143,7 +139,7 @@ public class MapManager : MonoBehaviour
             for (int x = 0; x < 3; x++)
             {
                 LoadChunk("Chunk" + (x+playerChunckVector.x) + "_" + (z + playerChunckVector.z)); // 청크파일 로드 후 blocks에서 블럭 데이터 셋팅
-                chunks[index] = new Chunk(new Vector3((x + playerChunckVector.x), 0, (z + playerChunckVector.z)), blocks);
+                chunks[index] = new Chunk((int)(x + playerChunckVector.x), (int)(z + playerChunckVector.z), blocks);
                 StartCoroutine(chunks[index].saveRoutine);
                 index++;
             }
@@ -159,7 +155,7 @@ public class MapManager : MonoBehaviour
             for (int x = 0; x < 3; x++)
             {
                 SaveChunk("Chunk" + ((int)x + playerChunckVector.x) + "_" + ((int)z + playerChunckVector.z), chunks[index]);
-                chunks[index] = new Chunk(new Vector3(((int)x + playerChunckVector.x), 0, ((int)z + playerChunckVector.z)), blocks);
+                chunks[index] = new Chunk((int)(x + playerChunckVector.x), (int)(z + playerChunckVector.z), blocks);
                 chunks[index].needSave = false;
                 index++;
             }
@@ -262,7 +258,7 @@ public class MapManager : MonoBehaviour
                 for (int z = 0; z < Chunk.z; z++)
                 {
                     blockKind = (BlockData.BlockKind)chunk.blocksEnum[x, y, z]; // 블럭 enum 가져오기
-                    CreateBlock(chunk, blockKind, new Vector3(x,y,z));
+                    CreateBlock(chunk, blockKind, x, y, z);
                     //position2 += Vector3.forward;
                 }
                 //position2 = new Vector3(position2.x, position2.y, position1.z);
@@ -273,27 +269,179 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    public void CreateBlock(Chunk chunk, BlockData.BlockKind blockKind, Vector3 index)
+    public void CreateBlock(Chunk chunk, BlockData.BlockKind blockKind, int x, int y, int z)
     {
         if (blockKind != 0)
         {
             if (!DataManager.instance.blockDictionary.ContainsKey(blockKind)) // 블럭 dictonary에 해당 블럭 데이터 없으면 메서드 탈출
                 return;
 
-            VectorToInt(index);
-            chunk.blocksEnum[index_x, index_y, index_z] = (int)blockKind;
+            chunk.blocksEnum[x, y, z] = (int)blockKind;
 
-            blockPosition = new Vector3(chunk.position.x * Chunk.x + index_x, index_y - 60, chunk.position.z * Chunk.z + index_z); // index 값을 사용해 위치 설정
+            blockPosition = new Vector3(chunk.chunk_x * Chunk.x + x, y - 60, chunk.chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
             block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // 블럭 오브젝트 생성
 
             blockData = DataManager.instance.blockDictionary[blockKind]; // 블럭 dictonary에서 해당되는 블럭 데이터 가져오기
             block.InitBlock(blockData); // 블럭 데이터의 설정값으로 블럭 오브젝트 설정
-            chunk.blockObjects[(int)index.x, (int)index.y, (int)index.z] = block; // 블럭 3차원 배열에 블럭 오브젝트 저장
+            chunk.blockObjects[x, y, z] = block; // 블럭 3차원 배열에 블럭 오브젝트 저장
             chunk.needSave = true;
 
         }
     }
 
+
+    #region 블럭 검사
+
+    public Chunk GetChunk(int x, int z)
+    {
+        for (int i = 0; i < chunks.Length; i++)
+        {
+            if (chunks[i].chunk_x == x)
+            {
+                if (chunks[i].chunk_z == z)
+                {
+                    return chunks[i];
+                }
+            }
+        }
+
+        return null; // 해당 청크를 찾지 못했음
+    }
+
+    // 머리 위에 블럭이 있는지
+    public bool CheckJump(Chunk chunk, int x, int y, int z, int objectHeight)
+    {
+        if(y + objectHeight >= Chunk.y) // 최대 높이보다 높다면
+        {
+            return false;
+        }
+
+        if (chunk.blocksEnum[x,y+1,z] == 0) // 블럭이 없으면 점프 가능
+        {
+            return true;
+        }
+
+        return false; ; 
+    }
+
+    public int CheckBlockY(Chunk chunk, int x, int y, int z, int objectHeight, int fallHeight, bool canJump)
+    {
+        //int check = fallHeight + objectHeight; // 높이 체크용
+        //bool ground = false; // 땅이 있는지
+
+        //if ((y - fallHeight - 1) >0) 
+        //{
+        //    if (chunk.blocksEnum[x, y - fallHeight - 1,z] == 0) // 땅이 있으면 체크
+        //    {
+        //        ground = true;
+        //    }
+        //}
+
+
+        //for (int i = -fallHeight; i <= 1; i++)
+        //{
+        //    int checkY = y + i; // 이동할 블럭 높이
+
+        //    if (checkY < 0) // 이동할 블럭 높이 인덱스가 0보다 작다면 다시 반복 
+        //    {
+        //        continue;
+
+        //    }
+
+        //    if (chunk.blocksEnum[x, checkY, z] == 0) // 해당 위치에 블럭이 없다면
+        //    {
+        //        if (checkY < y) // 현재 높이보다 낮다면 
+        //        {
+        //            check--;
+        //        }
+        //        else // 현재 높이보다 이동 높이가 같거나 크다면 
+        //        {
+        //            // 현재 위치와 같거나 높아졌지만 체크가 더 크다는 것은
+        //            // 낮은 위치 중 블럭이 있었다는 것.
+        //            // 그러므로 오브젝트가 이동할 수 있는지 오브젝트의 높이만 체크하면 됨
+        //            if (checkY > objectHeight)
+        //            {
+        //                check = objectHeight;
+        //            }
+
+        //            check--;
+        //        }
+        //    }
+        //    else 
+        //    {
+        //        // 여기에 이동할 수 없는 블럭 리스트 체크 (물, 용암)
+
+
+        //        // 이동할 수 있으면
+        //        // 땅이 있음을 체크
+        //        ground = true;
+        //    }
+        //}
+        //if (!ground)
+        //{
+        //    return false; // 땅이 없음
+        //}
+
+        //if (check <= 0) // 충분히 이동 가능
+        //{
+        //    return true;
+        //}
+
+        //return false;
+        
+
+        int[] isGround = new int[fallHeight + objectHeight + 1]; // 이동할 위치에 있는 검사할 블럭 리스트
+        int index = y + objectHeight + 1; // 블럭데이터 인덱스 위부터
+        for (int i = isGround.Length-1; i <= 0; i--)
+        {
+            // 이동 위치가 최대 높이보다 높으면 못감
+            if(index >= Chunk.y)
+            {
+                isGround[i] = -1;
+                index--;
+                continue;
+            }
+            else if(index <= 0) // 이동 위치가 최소 높이보다 낮을때
+            {
+                isGround[i] = -1;
+                continue;
+            }
+
+            // 현재 높이보다 이동할 위치가 높은데 점프가 안되면 못감 (가장 높음)
+            if(i == isGround.Length-1) 
+            {
+                if (!canJump)
+                {
+                    isGround[i] = -1;
+                    index--;
+                    continue;
+                }
+
+                if (chunk.blocksEnum[x, index, z] == 0)
+                    isGround[i] = 0;
+                else
+                    isGround[i] = -1;
+
+                index--;
+            }
+            else if(i > fallHeight) // 이동할 높이가 내 위치보다 높다면 (가장 높은건 아님)
+            {
+                for (int j = i; j < isGround.Length - 1; j++) //  이동할 높이보다 높은 위치에 블럭이 있으면 못감
+                {
+                    if (isGround[i] != 0)
+                    {
+                        return int.MaxValue;  // maxvalue를 줘 못감을 표시
+                    }
+                }
+            }
+
+
+            isGround[i] = chunk.blocksEnum[x, index, z];
+            index++;
+        }
+    }
+
+    #endregion
 
 
 }
