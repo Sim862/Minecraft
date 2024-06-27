@@ -35,8 +35,8 @@ public class PlayerMove : MonoBehaviour
     void PlayerMoveMethod()
     {
         // 1. 사용자의 입력을 받는다.
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
 
         // 2. 이동 방향을 설정한다.
         Vector3 dir = new Vector3(h, 0, v);

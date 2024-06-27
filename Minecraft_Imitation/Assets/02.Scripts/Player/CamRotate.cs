@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CamRotate : MonoBehaviour
 {
+    
     // 회전 속도 변수
     public float rotSpeed = 200f;
 
@@ -21,6 +22,8 @@ public class CamRotate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+
         // 사용자의 마우스 입력을 받음
         float mouse_X = Input.GetAxisRaw("Mouse X");
         float mouse_Y = Input.GetAxisRaw("Mouse Y");

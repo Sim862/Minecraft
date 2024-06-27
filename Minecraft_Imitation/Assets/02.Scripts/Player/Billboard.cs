@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CamFollow : MonoBehaviour
+public class Billboard : MonoBehaviour
 {
-
-    public Transform myPos;
+    public Transform target;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,6 +14,7 @@ public class CamFollow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = myPos.position;
+        // 자기 자신의 방향을 카메라의 방향과 일치시킨다.
+        transform.forward = target.forward;
     }
 }
