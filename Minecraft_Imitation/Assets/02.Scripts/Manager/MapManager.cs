@@ -11,6 +11,12 @@ using UnityEngine;
 using static BlockData;
 
 
+public class MoveData
+{
+    public int afterIndexY = int.MaxValue;
+    public int weight;
+}
+
 public class Chunk
 {
     public static readonly float saveTime = 12; // 청크 저장 대기시간
@@ -265,6 +271,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    // 청크에 있는 모든 블럭 스폰
     private void InitChunk_CreateBlocks(Chunk chunk)
     {
        
@@ -287,6 +294,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    // 특정 블럭 생성
     public void CreateBlock(Chunk chunk, BlockData.BlockKind blockKind, int x, int y, int z)
     {
         if (blockKind != 0)
@@ -305,6 +313,16 @@ public class MapManager : MonoBehaviour
             chunk.needSave = true;
 
         }
+    }
+
+    public Vector3 GetObjectPosition(Chunk chunk, int x, int y, int z, int height)
+    {
+        if(Chunk.y <= y + height -1) // 오브젝트 높이가 월드 최대 높이보다 높을때
+        {
+            return new Vector3(0,-100,0);
+        }
+
+        return new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY + height -1, chunk.chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
     }
 
 
@@ -342,12 +360,12 @@ public class MapManager : MonoBehaviour
         return false; ; 
     }
 
-    public int CheckBlock(Chunk chunk, int x, int y, int z, int objectHeight, int fallHeight, bool canJump)
+    public MoveData CheckBlock(Chunk chunk, int x, int y, int z, int objectHeight, int fallHeight, bool canJump)
     {
-        print(fallHeight + 1 + objectHeight);
         int[] groundCheck = new int[fallHeight + 1 + objectHeight ]; // 이동할 위치에 있는 검사할 블럭 리스트  // 떨어질 블럭 + 내 위치 + 머리 위 블럭
         int index = y + objectHeight; // 블럭데이터 인덱스 위부터
         int value = 0;
+        MoveData moveData = new MoveData();
         for (int i = groundCheck.Length - 1; i >= 0; i--)
         {
             // 이동 위치가 월드 최대 높이보다 높으면 못감
@@ -364,9 +382,6 @@ public class MapManager : MonoBehaviour
                 continue;
             }
 
-            if (i == fallHeight)
-                print("내 위치");
-            print(index + ", " + chunk.blocksEnum[x, index, z]);
             // 블럭 검사
             if (chunk.blocksEnum[x, index, z] == 0)
                 groundCheck[i] = 0; // 블럭 없음
@@ -385,10 +400,13 @@ public class MapManager : MonoBehaviour
 
             index--;
         }
+        foreach (var item in groundCheck)
+        {
+            //print(item);
+        }
         for (int i = groundCheck.Length - 1; i >= 0; i--)
         {
 
-            print(i + ", " + groundCheck[i] + ", " + value);
             if (i == groundCheck.Length - 1)
             {
                 if (groundCheck[i] == 0)
@@ -404,18 +422,27 @@ public class MapManager : MonoBehaviour
                     {
                         if (value != 20) // 점프가 불가능 하다면 못감
                         {
-                            return int.MaxValue;
+                            moveData.weight = int.MaxValue;
+                            return  moveData;
+                        }
+                        else
+                        {
+                            moveData.afterIndexY = y + 1;
+                            moveData.weight = 20;
+                            return moveData;
                         }
                     }
                 }
                 else
                 {
+                    print(i + ", " + groundCheck[i]);
                     //내 몸통 위치에 걸리는 블럭 있으면 못감
                     if (i > fallHeight+1)
                     {
                         if (groundCheck[i] != 0)
                         {
-                            return int.MaxValue;
+                            moveData.weight = int.MaxValue;
+                            return moveData;
                         }
                     }
                     else // 내 발 앞에 
@@ -426,27 +453,43 @@ public class MapManager : MonoBehaviour
                             // 점프가 가능하면 이동 가능
                             if (value == 20)
                             {
-                                return 20;
+                                moveData.afterIndexY = y + 1;
+                                moveData.weight = 20;
+                                return moveData;
                             }
                             else // 점프가 불가능하면 길막혔음
                             {
-                                return int.MaxValue;
+                                moveData.weight = int.MaxValue;
+                                return moveData;
                             }
                         }
                     }
                 }
             }
-            else if (i <= fallHeight - 1) // 낙하 가능한 높이의 블럭 체크
+            else if(i == fallHeight - 1)
             {
+                if (groundCheck[i] != 0)
+                {
+                    moveData.afterIndexY = y;
+                    moveData.weight = 10;
+                    return moveData;
+                }
+            }
+            else if (i < fallHeight - 1) // 낙하 가능한 높이의 블럭 체크
+            {
+                y--;
                 if (groundCheck[i] != 0) // 블럭이 있으면 낙하 가능
                 {
-                    return 10;
+                    moveData.afterIndexY = y;
+                    moveData.weight = 10;
+                    return moveData;
                 }
             }
         }
 
         // 낙하 가능한 높이의 블럭도 없었으니 이동 불가
-        return int.MaxValue;
+        moveData.weight = int.MaxValue;
+        return moveData;
 
     }
     #endregion
