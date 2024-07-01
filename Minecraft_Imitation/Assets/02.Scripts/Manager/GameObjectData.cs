@@ -15,11 +15,10 @@ public class GameObjectData
 
     public enum ObjectKind
     {
-        None,
         Block,
         Item,
         Mob,
-        Particle
+        ObjectParticle
     }
 
     public Sprite icon;
@@ -30,7 +29,7 @@ public class GameObjectData
 [System.Serializable]
 public class BlockData : GameObjectData
 {
-    public BlockData(ObjectKind objectKind, BlockKind blockKind, BlockType blockType, float strength, Sound.AudioClipName brockBreakSound, Sound.AudioClipName brockBrokenSound) : base(objectKind)
+    public BlockData(ObjectKind objectKind, BlockKind blockKind, BlockType blockType, float strength, Sound.AudioClipName brockBreakSound, Sound.AudioClipName brockBrokenSound) : base(ObjectKind.Block)
     {
         this.blockKind = blockKind;
         this.blockType = blockType;
@@ -49,7 +48,6 @@ public class BlockData : GameObjectData
     }
     public enum BlockType
     {
-        None,
         Knife,
         Ax,
         Shovel,
@@ -68,34 +66,23 @@ public class BlockData : GameObjectData
 [System.Serializable]
 public class ItemData : GameObjectData
 {
-    public ItemData(ObjectKind objectKind, ItemKind itemKind) : base(objectKind)
+    public ItemData(ObjectKind objectKind, BlockType blockType) : base(ObjectKind.Item)
     {
-        this.itemKind = itemKind;
+        this.blockType = blockType;
     }
 
-    public enum ItemKind
-    {
-        None,
-        Knife,
-        Ax,
-        Shovel,
-        Pick,
-        Hoe
-    }
-
-    public ItemKind itemKind;
+    public BlockType blockType;
 }
 
 [System.Serializable]
 public class MobData : GameObjectData
 {
-    public MobData(ObjectKind objectKind, MobKind mobKind) : base(objectKind)
+    public MobData(MobKind mobKind) : base(ObjectKind.Mob)
     {
         this.mobKind = mobKind;
     }
     public enum MobKind
     {
-        None,
         Pig,
         chicken,
         Creeper,
@@ -104,5 +91,30 @@ public class MobData : GameObjectData
     public MobKind mobKind;
 }
 
+
+public class ObjectParticleData : GameObjectData
+{
+    public ObjectParticleData(ObjectKind objectKind, ParticleKind particleKind) : base(ObjectKind.ObjectParticle)
+    {
+        this.particleKind = particleKind;
+    }
+    public enum ParticleKind // 플레이어가 먹거나 뱉을 수 있는 오브젝트 목록
+    {
+    //  Block ------------------------------------------------------------------------
+        Dirt,
+        Wood,
+        Water,
+        Stone,
+
+    //  Item  ----------------------------------------------------------------------- 
+        Knife,
+        Ax,
+        Shovel,
+        Pick,
+        Hoe
+    }
+
+    public ParticleKind particleKind;
+}
 
 

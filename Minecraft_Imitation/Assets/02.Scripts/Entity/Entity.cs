@@ -46,6 +46,10 @@ public class Node
 
 public class Entity : MonoBehaviour
 {
+    public MobData mobData;
+    public MobData.ObjectKind objectKind;
+    public MobData.MobKind mobKind;
+
     public int chunk_x, chunk_z;
     public int blockIndex_x, blockIndex_y, blockIndex_z;
     public int detectionDistance = 8;
@@ -72,34 +76,18 @@ public class Entity : MonoBehaviour
     private int minH;
     private int min_Index;
 
-    public bool init_test = false;
-    public bool start_test = false;
-    public int c_x, c_z;
-    public int b_x, b_y, b_z;
-    public int tc_x, tc_z;
-    public int tb_x, tb_y, tb_z;
-    public GameObject trueWay;
-    public NewBehaviourScript1 openWay;
 
 
     public Node[] testNodes;
-    private void Update()
-    {
-        if (init_test)
-        {
-            init_test = false;
-            initEnitiy(c_x, c_z, b_x, b_y, b_z);
-        }
 
-        if (start_test)
-        {
-            start_test = false;
-            testNodes = AStar(MapManager.instance.GetChunk(tc_x, tc_z), tb_x, tb_y, tb_z, null).ToArray();
-        }
+    private void Awake()
+    {
+        mobData = new MobData(mobKind);
     }
 
-    public void initEnitiy(int chunk_x, int chunk_z, int blockIndex_x, int blockIndex_y, int blockIndex_z)
+    public void initEntitiy(int chunk_x, int chunk_z, int blockIndex_x, int blockIndex_y, int blockIndex_z)
     {
+
         this.chunk_x = chunk_x;
         this.chunk_z = chunk_z;
         currentChunk = MapManager.instance.GetChunk(chunk_x, chunk_z);
@@ -130,6 +118,7 @@ public class Entity : MonoBehaviour
 
     private List<Node> AStar(Chunk targetChunk, int targetBlockIndex_x, int targetBlockIndex_y, int targetBlockIndex_z, Transform target)
     {
+        int count = 50;
         // 리스트 초기화
         nodeList = new List<Node>();
         openNodes = new List<Node>();
@@ -166,6 +155,12 @@ public class Entity : MonoBehaviour
         // 탐색 시작
         while (true)
         {
+            if(count <= 0)
+            {
+                current = null;
+                break;
+            }
+            count--;
             minF = int.MaxValue;
             minH = int.MaxValue;
             for (int i = 0; i < openNodes.Count; i++)
@@ -192,11 +187,9 @@ public class Entity : MonoBehaviour
             openNodes.RemoveAt(min_Index);
             closedNode.Add(current);
            
-            GameObject temp = Instantiate(trueWay, MapManager.instance.GetObjectPosition(MapManager.instance.GetChunk(current.chunk_X, current.chunk_Z), current.x, current.y, current.z, objectHeight), Quaternion.identity);
-
             if (current.CheckSamePosition(targetChunk.chunk_x, targetChunk.chunk_z, targetBlockIndex_x, targetBlockIndex_y, targetBlockIndex_z))
                 break;
-            temp.name = "test" + sss++.ToString();
+
             bool canJump = MapManager.instance.CheckJump(MapManager.instance.GetChunk(current.chunk_X,current.chunk_Z), current.x, current.y, current.z, objectHeight);
 
             plus_X = AddOpenNodes(current.x + 1, current.z, canJump, targetChunk, targetBlockIndex_x, targetBlockIndex_y, targetBlockIndex_z);
@@ -299,12 +292,6 @@ public class Entity : MonoBehaviour
             nodeList.Add(temp);
         }
 
-        NewBehaviourScript1 te = Instantiate(openWay, MapManager.instance.GetObjectPosition(MapManager.instance.GetChunk(chunk_x, chunk_z), index_x, 
-            moveData.afterIndexY, index_z,objectHeight),Quaternion.identity);
-        te.g = g;
-        te.h = h;
-        te.name = count.ToString();
-        count++;
         return true;
     }
 

@@ -69,6 +69,8 @@ public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
 
+    public Queue<Block> blockPool = new Queue<Block>();
+
     public Block blockPrefab;
 
     private Vector3 playerChunckVector; // transform.postion 아님 청크 위치와 파일명
@@ -82,6 +84,8 @@ public class MapManager : MonoBehaviour
     Array enumValues = System.Enum.GetValues(enumType: typeof(BlockData.BlockKind));
 
     private int value;
+
+
 
 
     private void Awake()
@@ -142,7 +146,7 @@ public class MapManager : MonoBehaviour
         for (int i = 0; i < chunks.Length; i++)
         {
             StopCoroutine(chunks[i].saveRoutine);
-            SaveChunk("Chunk" + chunks[i].chunk_x + "_" + chunks[i].chunk_x, chunks[i]);
+            SaveChunk("Chunk" + chunks[i].chunk_x + "_" + chunks[i].chunk_z, chunks[i]);
         }
     }
 
@@ -178,7 +182,7 @@ public class MapManager : MonoBehaviour
         {
             for (int x = 0; x < 3; x++)
             {
-                SaveChunk("Chunk" + ((int)x + playerChunckVector.x) + "_" + ((int)z + playerChunckVector.z), chunks[index]);
+                SaveChunk("Chunk" + (x + playerChunckVector.x) + "_" + (z + playerChunckVector.z), chunks[index]);
                 chunks[index] = new Chunk((int)(x + playerChunckVector.x), (int)(z + playerChunckVector.z), blocks);
                 chunks[index].needSave = false;
                 index++;
@@ -259,6 +263,8 @@ public class MapManager : MonoBehaviour
 
     #endregion
 
+    #region 생성 관련 메서드
+
     public void SetPlayerSpawnPosition()
     {
         for (int i = Chunk.y-1; i >= 0; i--)
@@ -315,6 +321,15 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    public void InActiveBlock(Chunk chunk,Block block ,int x, int y, int z) // 사각형 블럭만 가능
+    {
+        chunk.blocksEnum[x, y, z] = 0; // 0은 블럭이 없다는 의미 enum
+        block.gameObject.SetActive(false);
+        blockPool.Enqueue(block);
+    }
+
+    #endregion
+
     public Vector3 GetObjectPosition(Chunk chunk, int x, int y, int z, int height)
     {
         if(Chunk.y <= y + height -1) // 오브젝트 높이가 월드 최대 높이보다 높을때
@@ -325,6 +340,10 @@ public class MapManager : MonoBehaviour
         return new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY + height -1, chunk.chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
     }
 
+    public Vector3 GetBlockPosition(Chunk chunk, int x, int y, int z)
+    {
+        return new Vector3(chunk.chunk_x * Chunk.x + x, Chunk.defaultY + y, chunk.chunk_z * Chunk.z + z); 
+    }
 
     #region 블럭 검사
 
@@ -400,10 +419,7 @@ public class MapManager : MonoBehaviour
 
             index--;
         }
-        foreach (var item in groundCheck)
-        {
-            //print(item);
-        }
+
         for (int i = groundCheck.Length - 1; i >= 0; i--)
         {
 
@@ -435,7 +451,6 @@ public class MapManager : MonoBehaviour
                 }
                 else
                 {
-                    print(i + ", " + groundCheck[i]);
                     //내 몸통 위치에 걸리는 블럭 있으면 못감
                     if (i > fallHeight+1)
                     {

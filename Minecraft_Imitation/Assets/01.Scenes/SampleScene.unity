@@ -228,6 +228,8 @@ MonoBehaviour:
     brockBreakSound: 2
     brockBrokenSound: 1
     material: {fileID: 0}
+  monsterList: []
+  passiveMobList: []
 --- !u!4 &385357682
 Transform:
   m_ObjectHideFlags: 0
@@ -275,6 +277,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c68ee02d901c3544923879074d9eb92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mobData:
+    icon: {fileID: 0}
+    objectKind: 0
+    mobKind: 0
+  objectKind: 0
+  mobKind: 0
   chunk_x: 0
   chunk_z: 0
   blockIndex_x: 0
@@ -285,20 +293,6 @@ MonoBehaviour:
   fallHeight: 3
   nodeList: []
   finalNodeList: []
-  init_test: 0
-  start_test: 0
-  c_x: 1
-  c_z: 1
-  b_x: 3
-  b_y: 3
-  b_z: 3
-  tc_x: 1
-  tc_z: 1
-  tb_x: 6
-  tb_y: 4
-  tb_z: 6
-  trueWay: {fileID: 6188698296135023548, guid: 6812031f76cd6e44dbc5970c84452ed3, type: 3}
-  openWay: {fileID: 6575959772451059322, guid: 15d11425972b29b4e8f3e6b7d94d1d4c, type: 3}
   testNodes: []
 --- !u!65 &455016133
 BoxCollider:
@@ -343,7 +337,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: fb56634a2ef85ee4e8a49313020355a0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

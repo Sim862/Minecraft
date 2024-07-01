@@ -5,15 +5,18 @@ TagManager:
   serializedVersion: 2
   tags:
   - Block
+  - Monster
+  - Item
+  - ObjectParticle
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
-  - 
-  - 
+  - Non_Collision
+  - ObjectParticle
   - 
   - 
   - 

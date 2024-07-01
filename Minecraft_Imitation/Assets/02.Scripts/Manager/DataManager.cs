@@ -22,10 +22,14 @@ public class DataManager : MonoBehaviour
     public static DataManager instance;
     public PlayerData playerData = new PlayerData(); 
 
-    public BlockMaterial[] blockMaterials;
-    public BlockData[] blockDatas;
+    public BlockMaterial[] blockMaterials;  // 블럭 머테리얼 리스트
+    public BlockData[] blockDatas;  // 블럭 데이터 리스트
+    public Dictionary<BlockData.BlockKind, BlockData> blockDictionary = new Dictionary<BlockData.BlockKind, BlockData>(); // 블럭 데이터를 건내줄 Dictionary
 
-    public Dictionary<BlockData.BlockKind, BlockData> blockDictionary = new Dictionary<BlockData.BlockKind, BlockData>();
+    public Entity[] monsterList;
+    public Entity[] passiveMobList;
+    public Dictionary<MobData.MobKind, Entity> monsterDictionary = new Dictionary<MobData.MobKind, Entity>();
+    public Dictionary<MobData.MobKind, Entity> passiveMobDictionary = new Dictionary<MobData.MobKind, Entity>();
 
 
     private void Awake()

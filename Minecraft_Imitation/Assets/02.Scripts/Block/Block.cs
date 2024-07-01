@@ -7,12 +7,6 @@ using UnityEngine.UIElements;
 
 public class Block : MonoBehaviour
 {
-    #region 테스트용 삭제해야 됨
-    public bool start = false;
-    public bool start1 = false;
-    public BlockData.BlockType test_Tool;
-    public float test_Power;
-    #endregion
 
     public BlockData blockData;
     public MeshRenderer meshRenderer;
@@ -21,7 +15,7 @@ public class Block : MonoBehaviour
     private bool canBreak;
 
     [SerializeField]
-    private Block_InteractionParticle prefab_Block_InteractionParticle; // 블럭 파괴시 나오는 잔해
+    private ObjectParticle prefab_ObjectParticle; // 블럭 파괴시 나오는 아이템
 
     private Sound brokenSound;
     private SFXAudioSource sfxAudioSource = null;
@@ -47,20 +41,6 @@ public class Block : MonoBehaviour
     {
         blockData = new BlockData(GameObjectData.ObjectKind.Block, BlockData.BlockKind.Dirt, BlockData.BlockType.Pick, 100, Sound.AudioClipName.DirtBreak, Sound.AudioClipName.DirtBroken);
         strength = blockData.strength;
-    }
-
-    private void Update()
-    {
-        if (start)
-        {
-            start = false;
-            Break(test_Tool, test_Power);
-        }
-        if (start1)
-        {
-            start1 = false; 
-            StopBroke();
-        }
     }
 
     private void OnDisable()
@@ -126,11 +106,11 @@ public class Block : MonoBehaviour
         StopBroke();
         SoundManager.instance.ActiveSFXSound(blockData.brockBrokenSound, sfxAudioSource, null, true);
 
-        if (prefab_Block_InteractionParticle == null)
+        if (prefab_ObjectParticle == null)
         {
             return;
         }
-        Instantiate(prefab_Block_InteractionParticle, transform.position, Quaternion.identity);
+        Instantiate(prefab_ObjectParticle, transform.position, Quaternion.identity);
 
         print("블럭 파괴");
         gameObject.SetActive(false);
