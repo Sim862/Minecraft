@@ -18,7 +18,7 @@ public class Block : MonoBehaviour
     public MeshRenderer meshRenderer;
 
     [SerializeField]
-    private bool canBreak;
+    private bool canBreak = true;
 
     [SerializeField]
     private Block_InteractionParticle prefab_Block_InteractionParticle; // 블럭 파괴시 나오는 잔해
@@ -87,10 +87,11 @@ public class Block : MonoBehaviour
 
     public void Break(BlockData.BlockType blockType, float Power) // 한번만 호출하면 블럭 체력 까이기 시작. 피 까이는 상태.
     {
+        print("break 시작");
         if (canBreak)
         {
             StopBroke(); // CheckBreak가 실행 중이라면 실행.
-
+            print("break 시작 및 canBreak");
             if (blockData.blockType == blockType)
             {
                 typeCheck = true;

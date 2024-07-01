@@ -134,5 +134,5 @@ MonoBehaviour:
     brockBrokenSound: 0
     material: {fileID: 0}
   meshRenderer: {fileID: 0}
-  canBreak: 0
+  canBreak: 1
   prefab_Block_InteractionParticle: {fileID: 0}

@@ -9,8 +9,6 @@ public class PlayerRaycast : MonoBehaviour
     public float aimRange = 10;
     public GameObject blockFac;
     public float mouseOneCool = 1;
-    float curTime = 0;
-    bool firstAim = true;
     public float breakPower = 5;
 
     bool cursorLock = true;
@@ -20,13 +18,18 @@ public class PlayerRaycast : MonoBehaviour
 
     BlockData.BlockType test = BlockData.BlockType.Pick;
 
+    Transform nowbreakBlock = null;
+    Block nowbreakBlockCs = null;
+    bool isWork = false;
+    Vector3 normalVec;
+    RaycastHit hitInfo;
+
     // Start is called before the first frame update
     void Start()
     {
         
     }
 
-    bool walk = false;
     // Update is called once per frame
     void Update()
     {
@@ -34,14 +37,17 @@ public class PlayerRaycast : MonoBehaviour
         Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
 
         // 레이가 부딪힌 대상의 정보를 저장할 변수를 생성한다.
-        RaycastHit hitInfo = new RaycastHit();
+        hitInfo = new RaycastHit();
 
         Physics.Raycast(ray, out hitInfo, aimRange); // 에임 사정거리
-        Vector3 normalVec = hitInfo.normal;
-        if (hitInfo.transform != null && hitInfo.transform.GetComponent<Block>() != null)
+        normalVec = hitInfo.normal;
+        if (hitInfo.transform != null)
         {
             hitBlockTr = hitInfo.transform; // 에임이 보고있는 블럭 저장.
-            hitBlockCs = hitInfo.transform.GetComponent<Block>();
+            if(hitInfo.transform.GetComponent<Block>() != null)
+            {
+                hitBlockCs = hitInfo.transform.GetComponent<Block>();
+            }
         }
         if (Input.GetMouseButtonDown(1)) // 마우스 우클릭시 설치 및 사용
         {
@@ -49,12 +55,11 @@ public class PlayerRaycast : MonoBehaviour
             block.transform.position = hitInfo.transform.position + normalVec*SizeVector(hitInfo);
 
         }
-        Transform nowbreakBlock = null;
-        Block nowbreakBlockCs = null;
-        bool isWork = false;
-        if (Input.GetMouseButton(0))
+
+        #region 좌클릭 이벤트
+        /*if (Input.GetMouseButton(0)) // 좌클릭하면
         {
-            if(nowbreakBlock == null && hitBlockTr != null)
+            if(nowbreakBlock == null && hitBlockTr != null) // 에임에 블럭이 있고 과거 블럭이 저장 안되있다면
             {
                 print("Break 실행.");
                 print(hitBlockTr + " / " + nowbreakBlock);
@@ -63,38 +68,40 @@ public class PlayerRaycast : MonoBehaviour
                 nowbreakBlockCs.Break(test, breakPower);
                 isWork = true;
             }
-            if (isWork)
+            if (isWork) // 블럭이 저장 됐다면
             {
-                if(nowbreakBlock != hitBlockTr)
+                if(nowbreakBlock != hitBlockTr) // 지금 가리키는 블럭이 바뀌었다면
                 {
                     print("대상 바뀜");
                     nowbreakBlockCs.StopBroke();
                     nowbreakBlock = hitBlockTr;
                     nowbreakBlockCs = nowbreakBlock.GetComponent<Block>();
-                    if(nowbreakBlock != null)
+                    if(nowbreakBlock != null) // 가리키는 블럭이 바뀌고 부수던 블럭이 사라지지 않았다면
                     {
                         nowbreakBlockCs.Break(test, breakPower);
                         print("대상 바뀐 후 다시 Break 실행.");
                         print("대상 바뀐 후 : " + hitBlockTr + " / " + nowbreakBlock);
                     }
-                    else
+                    else // 부수던 블럭이 사라졌다면
                     {
                         isWork = false;
                     }
                 }
             }
         }
-        else
+        else // 좌클릭을 뗐을때
         {
-            if (isWork)
+            if (isWork) // 블럭을 저장하고 에임이 벗어나지 않은 상태에서 좌클릭만 떼면
             {
                 print("마우스를 떼서 멈춤.");
                 nowbreakBlockCs.StopBroke();
-                nowbreakBlock = null;
+                
                 isWork = false;
             }
+            nowbreakBlock = null;
         }
-        
+        // 좌클릭하면 캐기 시작한 블럭 저장.*/
+        #endregion
 
         CursurLockMethod();
 
