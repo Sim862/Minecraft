@@ -45,17 +45,26 @@ public class PlayerMove : MonoBehaviour
         // 2-1. 메인 카메라를 기준으로 방향을 변환한다. -> 캐릭터 기준으로 변경
         dir = transform.TransformDirection(dir);
 
-        // 만약 바닥에 다시 착지했다면
+        // 만약 바닥에 다시 착지했다면 == 땅에 닿고있다면
         if (cc.collisionFlags == CollisionFlags.Below)
         {
+            if(yVelocity < -10)
+            {
+                hp -= (int)((Mathf.Abs(yVelocity) - 5));
+                print("데미지 받음");
+            }
             // 만약 점프 중이었다면
             if (isJumping)
             {
                 // 점프 전 상태로 초기화
                 isJumping = false;
-                // 캐릭터 수직 속도를 0으로 만든다.
-                yVelocity = 0;
             }
+            // 캐릭터 수직 속도를 0으로 만든다.
+            yVelocity = 0;
+        }
+        else
+        {
+            yVelocity += gravity * Time.deltaTime;
         }
 
         // 2-2. 만약 키보드 spacebar 키를 눌렀다면, 그리고 점프상태가 아니라면
@@ -68,7 +77,6 @@ public class PlayerMove : MonoBehaviour
         }
 
         // 2-3. 캐릭터 수직 속도에 중력 값을 적용한다.
-        yVelocity += gravity * Time.deltaTime;
         dir.y = yVelocity;
 
 

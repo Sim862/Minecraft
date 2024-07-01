@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 public class Block : MonoBehaviour
 {
-    #region Å×½ºÆ®¿ë »èÁ¦ÇØ¾ß µÊ
+    #region í…ŒìŠ¤íŠ¸ìš© ì‚­ì œí•´ì•¼ ë¨
     public bool start = false;
     public bool start1 = false;
     public BlockData.BlockType test_Tool;
@@ -21,7 +21,7 @@ public class Block : MonoBehaviour
     private bool canBreak;
 
     [SerializeField]
-    private Block_InteractionParticle prefab_Block_InteractionParticle; // ºí·° ÆÄ±«½Ã ³ª¿À´Â ÀÜÇØ
+    private Block_InteractionParticle prefab_Block_InteractionParticle; // ë¸”ëŸ­ íŒŒê´´ì‹œ ë‚˜ì˜¤ëŠ” ì”í•´
 
     private Sound brokenSound;
     private SFXAudioSource sfxAudioSource = null;
@@ -85,11 +85,11 @@ public class Block : MonoBehaviour
         this.meshRenderer.material = blockData.material;
     }
 
-    public void Break(BlockData.BlockType blockType, float Power)
+    public void Break(BlockData.BlockType blockType, float Power) // í•œë²ˆë§Œ í˜¸ì¶œí•˜ë©´ ë¸”ëŸ­ ì²´ë ¥ ê¹Œì´ê¸° ì‹œì‘. í”¼ ê¹Œì´ëŠ” ìƒíƒœ.
     {
         if (canBreak)
         {
-            StopBroke();
+            StopBroke(); // CheckBreakê°€ ì‹¤í–‰ ì¤‘ì´ë¼ë©´ ì‹¤í–‰.
 
             if (blockData.blockType == blockType)
             {
@@ -99,16 +99,16 @@ public class Block : MonoBehaviour
             {
                 typeCheck = false;
             }
-            checkBreak_Coroutine = CheckBreak(Power);
+            checkBreak_Coroutine = CheckBreak(Power); // ë¸”ëŸ­íŒŒê´´ ì‹œì‘ í•¨ìˆ˜.
             StartCoroutine(checkBreak_Coroutine);
         }
     }
 
-    public void StopBroke()
+    public void StopBroke() // ë¸”ëŸ­ ìºëŠ”ê±° ì¤‘ë‹¨. ì¤‘ë‹¨ë˜ëŠ” ê²½ìš°ë•Œ ë¬´ì¡°ê±´ í˜¸ì¶œí•´ì•¼í•¨. í”¼ ê¹Œì´ëŠ”ê±° ì¤‘ë‹¨ìœ¼ë¡œ ë°”ê¿”ì£¼ëŠ” í•¨ìˆ˜.
     {
-        if (checkBreak_Coroutine != null)
+        if (checkBreak_Coroutine != null) // CheckBreakê°€ ì‹¤í–‰ ì¤‘ì´ë¼ë©´
         {
-            print("ºí·° ÆÄ±« ÁßÁö"); 
+            print("ë¸”ëŸ­ íŒŒê´´ ì¤‘ì§€"); 
             strength = blockData.strength;
             StopCoroutine(checkBreak_Coroutine);
             checkBreak_Coroutine = null;
@@ -121,7 +121,7 @@ public class Block : MonoBehaviour
     }
 
 
-    private void Broken() // ºí·° ÆÄ±«
+    private void Broken() // ë¸”ëŸ­ íŒŒê´´
     {
         StopBroke();
         SoundManager.instance.ActiveSFXSound(blockData.brockBrokenSound, sfxAudioSource, null, true);
@@ -132,14 +132,14 @@ public class Block : MonoBehaviour
         }
         Instantiate(prefab_Block_InteractionParticle, transform.position, Quaternion.identity);
 
-        print("ºí·° ÆÄ±«");
+        print("ë¸”ëŸ­ íŒŒê´´");
         gameObject.SetActive(false);
-        // ½¦ÀÌ´õ ÃÊ±âÈ­ Ãß°¡
+        // ì‰ì´ë” ì´ˆê¸°í™” ì¶”ê°€
         broken = false;
     }
 
     
-    public void InActiveSFXSound() // È¿°úÀ½ È¸¼ö
+    public void InActiveSFXSound() // íš¨ê³¼ìŒ íšŒìˆ˜
     {
         if (sfxAudioSource != null)
         {
@@ -150,7 +150,7 @@ public class Block : MonoBehaviour
 
     IEnumerator CheckBreak(float Power)
     {
-        print("ºí·° ÆÄ±« ½ÃÀÛ");
+        print("ë¸”ëŸ­ íŒŒê´´ ì‹œì‘");
         sfxAudioSource = SoundManager.instance.ActiveSFXSound(blockData.brockBreakSound, sfxAudioSource, transform, false);
         float clipLength = sfxAudioSource.GetSoundLength();
         float clipLengthCheck = 0;
@@ -169,7 +169,7 @@ public class Block : MonoBehaviour
             {
                 strength -= 1;
             }
-            // ½¦ÀÌ´õ ÀÛµ¿
+            // ì‰ì´ë” ì‘ë™
             yield return new WaitForSeconds(0.1f);
             clipLengthCheck += 0.1f;
 
