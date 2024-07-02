@@ -11,7 +11,7 @@ public class PlayerRaycast : MonoBehaviour
     public float mouseOneCool = 1;
     public float breakPower = 5;
 
-    bool cursorLock = true;
+    
     Transform hitNowBlock; // 클릭할때
     Transform hitBlockTr;
     Block hitBlockCs;
@@ -56,7 +56,7 @@ public class PlayerRaycast : MonoBehaviour
 
         }
 
-        #region 좌클릭 이벤트
+        #region 좌클릭 이벤트 EventWithBox.cs에 구현함.
         /*if (Input.GetMouseButton(0)) // 좌클릭하면
         {
             if(nowbreakBlock == null && hitBlockTr != null) // 에임에 블럭이 있고 과거 블럭이 저장 안되있다면
@@ -103,7 +103,7 @@ public class PlayerRaycast : MonoBehaviour
         // 좌클릭하면 캐기 시작한 블럭 저장.*/
         #endregion
 
-        CursurLockMethod();
+        
 
     }
 
@@ -127,19 +127,5 @@ public class PlayerRaycast : MonoBehaviour
         }
     }
 
-    void CursurLockMethod()
-    {
-        if (Input.GetKeyDown(KeyCode.Q)) // q를 누르면 부수는 행위
-        {
-            cursorLock = !cursorLock;
-        }
-        if (cursorLock)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-        }
-    }
+    
 }

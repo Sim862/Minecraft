@@ -14,6 +14,7 @@ public class PlayerMove : MonoBehaviour
     public int hp = 20; // 플레이어 체력 변수
     int maxHp = 20; // 최대 체력 변수
     public Slider hpSlider; // hp 슬라이더 변수
+    PlayerDamaged damagedCs;
 
 
 
@@ -21,6 +22,7 @@ public class PlayerMove : MonoBehaviour
     {
         // 캐릭터 컨트롤러 컴포넌트 받아오기.
         cc = GetComponent<CharacterController>();
+        damagedCs = gameObject.GetComponent<PlayerDamaged>();
     }
 
 
@@ -51,6 +53,7 @@ public class PlayerMove : MonoBehaviour
             if(yVelocity < -10)
             {
                 hp -= (int)((Mathf.Abs(yVelocity) - 5));
+                damagedCs.DamagedEff();
                 print("데미지 받음");
             }
             // 만약 점프 중이었다면

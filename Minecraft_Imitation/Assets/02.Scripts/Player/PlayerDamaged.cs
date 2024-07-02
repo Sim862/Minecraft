@@ -17,6 +17,10 @@ public class PlayerDamaged : MonoBehaviour
     {
         
     }
+    public void DamagedEff()
+    {
+        StartCoroutine(PlayDamagedEff());
+    }
 
     IEnumerator PlayDamagedEff()
     {
@@ -30,11 +34,12 @@ public class PlayerDamaged : MonoBehaviour
         damagedEffect.SetActive(false);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if(collision.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        if(hit.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
             StartCoroutine(PlayDamagedEff());
         }
     }
+   
 }
