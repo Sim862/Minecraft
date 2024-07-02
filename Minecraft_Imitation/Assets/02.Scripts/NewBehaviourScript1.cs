@@ -5,5 +5,5 @@ using UnityEngine;
 public class NewBehaviourScript1 : MonoBehaviour
 {
     public int g;
-    public int h;
+    public float h;
 }

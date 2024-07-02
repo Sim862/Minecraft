@@ -14,9 +14,6 @@ public class Block : MonoBehaviour
     [SerializeField]
     private bool canBreak;
 
-    [SerializeField]
-    private ObjectParticle prefab_ObjectParticle; // 블럭 파괴시 나오는 아이템
-
     private Sound brokenSound;
     private SFXAudioSource sfxAudioSource = null;
     
@@ -39,7 +36,7 @@ public class Block : MonoBehaviour
 
     private void Start()
     {
-        blockData = new BlockData(GameObjectData.ObjectKind.Block, BlockData.BlockKind.Dirt, BlockData.BlockType.Pick, 100, Sound.AudioClipName.DirtBreak, Sound.AudioClipName.DirtBroken);
+        blockData = new BlockData(BlockData.BlockKind.Dirt, BlockData.BlockType.Pick, 100, Sound.AudioClipName.DirtBreak, Sound.AudioClipName.DirtBroken);
         strength = blockData.strength;
     }
 
@@ -105,12 +102,11 @@ public class Block : MonoBehaviour
     {
         StopBroke();
         SoundManager.instance.ActiveSFXSound(blockData.brockBrokenSound, sfxAudioSource, null, true);
-
-        if (prefab_ObjectParticle == null)
+        ObjectParticle objectParticle = DataManager.instance.GetObjectParticlePrefab(blockData.objectParticle); // 데이터 매니저에게 아이템 확인
+        if (objectParticle != null)
         {
-            return;
+            Instantiate(objectParticle, transform.position, objectParticle.transform.rotation);
         }
-        Instantiate(prefab_ObjectParticle, transform.position, Quaternion.identity);
 
         print("블럭 파괴");
         gameObject.SetActive(false);

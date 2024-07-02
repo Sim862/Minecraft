@@ -9,6 +9,38 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using UnityEngine;
 using static BlockData;
+public class PositionData
+{
+    public PositionData(int chunk_X, int chunk_Z, int blockIndex_x, int blockIndex_y, int blockIndex_z)
+    {
+        this.chunk_X = chunk_X;
+        this.chunk_Z = chunk_Z;
+        this.blockIndex_x = blockIndex_x;
+        this.blockIndex_y = blockIndex_y;
+        this.blockIndex_z = blockIndex_z;
+    }
+    public bool CheckSamePosition(PositionData positionData)
+    {
+        if (this.chunk_X != positionData.chunk_X)
+            return false;
+        if (this.chunk_Z != positionData.chunk_Z)
+            return false;
+        if (this.blockIndex_x != positionData.blockIndex_x)
+            return false;
+        if (this.blockIndex_y != positionData.blockIndex_y)
+            return false;
+        if (this.blockIndex_z != positionData.blockIndex_z)
+            return false;
+        return true;
+    }
+
+    public Chunk chunk { get => MapManager.instance.GetChunk(chunk_X, chunk_Z); }
+    public int chunk_X;
+    public int chunk_Z;
+    public int blockIndex_x;
+    public int blockIndex_y;
+    public int blockIndex_z;
+}
 
 
 public class MoveData
@@ -130,14 +162,6 @@ public class MapManager : MonoBehaviour
         {
             createBlock = false;
             CreateBlock(chunks[chunkIndex], BlockData.BlockKind.Dirt, (int)chunkBlockIndex.x, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z);
-        }
-
-        if (move)
-        {
-            move = false;
-            Instantiate(entity, new Vector3(chunkBlockIndex.x + chunks[chunkIndex].chunk_x * 12, chunkBlockIndex.y + Chunk.defaultY, chunkBlockIndex.z + chunks[chunkIndex].chunk_z * 12), Quaternion.identity);
-            canJump = CheckJump(chunks[chunkIndex], (int)chunkBlockIndex.x, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z, objectHeight);
-            print(CheckBlock(chunks[chunkIndex], (int)chunkBlockIndex.x+1, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z, objectHeight, fallHeight, canJump));
         }
     }
 
@@ -330,19 +354,27 @@ public class MapManager : MonoBehaviour
 
     #endregion
 
-    public Vector3 GetObjectPosition(Chunk chunk, int x, int y, int z, int height)
+    public Vector3 GetObjectPosition(Chunk chunk, int x, int y, int z)
     {
-        if(Chunk.y <= y + height -1) // 오브젝트 높이가 월드 최대 높이보다 높을때
-        {
-            return new Vector3(0,-100,0);
-        }
-
-        return new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY + height -1, chunk.chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
+        return new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
     }
 
     public Vector3 GetBlockPosition(Chunk chunk, int x, int y, int z)
     {
         return new Vector3(chunk.chunk_x * Chunk.x + x, Chunk.defaultY + y, chunk.chunk_z * Chunk.z + z); 
+    }
+
+    public PositionData PositionToChunkData(Vector3 objectPosition)
+    {
+        int chunk_X = (int)objectPosition.x / Chunk.x;
+        int chunk_Z = (int)objectPosition.z / Chunk.z;
+
+        int blockIndex_X = (int)objectPosition.x % Chunk.x;
+        int blockIndex_Z = (int)objectPosition.z % Chunk.z;
+
+        PositionData positionData = new PositionData(chunk_X,chunk_Z,blockIndex_X,(int)objectPosition.y,blockIndex_Z);
+
+        return positionData;
     }
 
     #region 블럭 검사
@@ -351,12 +383,9 @@ public class MapManager : MonoBehaviour
     {
         for (int i = 0; i < chunks.Length; i++)
         {
-            if (chunks[i].chunk_x == x)
+            if (chunks[i].chunk_x == x && chunks[i].chunk_z == z)
             {
-                if (chunks[i].chunk_z == z)
-                {
-                    return chunks[i];
-                }
+                return chunks[i];
             }
         }
 
@@ -364,14 +393,14 @@ public class MapManager : MonoBehaviour
     }
 
     // 머리 위에 블럭이 있는지
-    public bool CheckJump(Chunk chunk, int x, int y, int z, int objectHeight)
+    public bool CheckJump(PositionData positionData, int objectHeight)
     {
-        if(y + objectHeight >= Chunk.y) // 월드 최대 높이보다 높다면
+        if(positionData.blockIndex_y + objectHeight >= Chunk.y) // 월드 최대 높이보다 높다면
         {
             return false;
         }
 
-        if (chunk.blocksEnum[x,y+objectHeight,z] == 0) // 머리위에 블럭이 없으면 점프 가능
+        if (positionData.chunk.blocksEnum[positionData.blockIndex_x, positionData.blockIndex_y + objectHeight, positionData.blockIndex_z] == 0) // 머리위에 블럭이 없으면 점프 가능
         {
             return true;
         }

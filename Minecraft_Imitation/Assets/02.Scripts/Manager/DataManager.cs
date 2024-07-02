@@ -5,31 +5,22 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 
-public class PlayerData
-{
-    public Vector3 spawnPosition;
-}
-
-[System.Serializable]
-public class BlockMaterial
-{
-    public BlockData.BlockKind blockKind;
-    public Material material;
-}
-
 public class DataManager : MonoBehaviour
 {
     public static DataManager instance;
-    public PlayerData playerData = new PlayerData(); 
 
     public BlockMaterial[] blockMaterials;  // 블럭 머테리얼 리스트
     public BlockData[] blockDatas;  // 블럭 데이터 리스트
     public Dictionary<BlockData.BlockKind, BlockData> blockDictionary = new Dictionary<BlockData.BlockKind, BlockData>(); // 블럭 데이터를 건내줄 Dictionary
 
     public Entity[] monsterList;
-    public Entity[] passiveMobList;
     public Dictionary<MobData.MobKind, Entity> monsterDictionary = new Dictionary<MobData.MobKind, Entity>();
+
+    public Entity[] passiveMobList;
     public Dictionary<MobData.MobKind, Entity> passiveMobDictionary = new Dictionary<MobData.MobKind, Entity>();
+
+    public ObjectParticle[] objectParticles;
+    public Dictionary<ObjectParticleData.ParticleKind, ObjectParticle> objectParticleDictionary = new Dictionary<ObjectParticleData.ParticleKind, ObjectParticle>();
 
 
     private void Awake()
@@ -62,9 +53,20 @@ public class DataManager : MonoBehaviour
         }
     }
 
-    public Vector3 PlayerPosition()
+    private void InitObjectParticleList()
     {
-        // 플레이어 위치 값 리턴으로 수정해야됨
-        return Vector3.one;
+        for (int i = 0; i < objectParticles.Length; i++)
+        {
+            objectParticleDictionary.Add(objectParticles[i].particleKind, objectParticles[i]);
+        }
+    }
+
+    public ObjectParticle GetObjectParticlePrefab(ObjectParticleData.ParticleKind particleKind)
+    {
+        if (objectParticleDictionary.ContainsKey(particleKind))
+        {
+            return objectParticleDictionary[particleKind];
+        }
+        return null;
     }
 }

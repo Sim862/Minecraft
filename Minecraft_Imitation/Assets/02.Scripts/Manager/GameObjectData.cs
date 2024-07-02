@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static BlockData;
 using static GameObjectData;
-using static ItemData;
+using static ToolData;
 
 [System.Serializable]
 public class GameObjectData
@@ -16,12 +16,10 @@ public class GameObjectData
     public enum ObjectKind
     {
         Block,
-        Item,
+        Tool,
         Mob,
         ObjectParticle
     }
-
-    public Sprite icon;
     public ObjectKind objectKind;
 
 }
@@ -29,7 +27,7 @@ public class GameObjectData
 [System.Serializable]
 public class BlockData : GameObjectData
 {
-    public BlockData(ObjectKind objectKind, BlockKind blockKind, BlockType blockType, float strength, Sound.AudioClipName brockBreakSound, Sound.AudioClipName brockBrokenSound) : base(ObjectKind.Block)
+    public BlockData(BlockKind blockKind, BlockType blockType, float strength, Sound.AudioClipName brockBreakSound, Sound.AudioClipName brockBrokenSound) : base(ObjectKind.Block)
     {
         this.blockKind = blockKind;
         this.blockType = blockType;
@@ -61,17 +59,20 @@ public class BlockData : GameObjectData
     public Sound.AudioClipName brockBreakSound;
     public Sound.AudioClipName brockBrokenSound;
     public Material material;
+    public ObjectParticleData.ParticleKind objectParticle; // 블럭 파괴시 나오는 아이템
 }
 
 [System.Serializable]
-public class ItemData : GameObjectData
+public class ToolData : GameObjectData
 {
-    public ItemData(ObjectKind objectKind, BlockType blockType) : base(ObjectKind.Item)
+    public ToolData(BlockType blockType, float power) : base(ObjectKind.Tool)
     {
         this.blockType = blockType;
+        this.power = power;
     }
 
     public BlockType blockType;
+    public float power;
 }
 
 [System.Serializable]
@@ -94,7 +95,7 @@ public class MobData : GameObjectData
 
 public class ObjectParticleData : GameObjectData
 {
-    public ObjectParticleData(ObjectKind objectKind, ParticleKind particleKind) : base(ObjectKind.ObjectParticle)
+    public ObjectParticleData(ParticleKind particleKind) : base(ObjectKind.ObjectParticle)
     {
         this.particleKind = particleKind;
     }
@@ -117,4 +118,17 @@ public class ObjectParticleData : GameObjectData
     public ParticleKind particleKind;
 }
 
+[System.Serializable]
+public class BlockMaterial
+{
+    public BlockData.BlockKind blockKind;
+    public Material material;
+}
+
+[System.Serializable]
+public class UIItem
+{
+    public ObjectParticleData.ParticleKind particleKind;
+    public Sprite icon;
+}
 
