@@ -19,7 +19,7 @@ public class ObjectParticle : MonoBehaviour
     
     public ObjectParticleData.ParticleKind particleKind; // 오브젝트 파티클 종류
     public int count = 1;
-    private Sprite icon;
+    public Sprite icon;
     private Transform target;
     private bool onTarget = false;
 

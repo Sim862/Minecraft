@@ -30,8 +30,8 @@ public class PlayerMove : MonoBehaviour
     {
         // 4. 현재 플레이어 hp(%)를 hp 슬라이더의 value에 반영한다.
         hpSlider.value = (float)hp / (float)maxHp;
-
         PlayerMoveMethod();
+
     }
 
     void PlayerMoveMethod()
@@ -48,7 +48,7 @@ public class PlayerMove : MonoBehaviour
         dir = transform.TransformDirection(dir);
 
         // 만약 바닥에 다시 착지했다면 == 땅에 닿고있다면
-        if (cc.collisionFlags == CollisionFlags.Below)
+        if (cc.collisionFlags == CollisionFlags.Below || cc.isGrounded)
         {
             if(yVelocity < -10)
             {

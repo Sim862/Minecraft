@@ -38,7 +38,7 @@ public class PlayerDamaged : MonoBehaviour
     {
         if(hit.gameObject.layer == LayerMask.NameToLayer("Enemy"))
         {
-            StartCoroutine(PlayDamagedEff());
+            DamagedEff();
         }
     }
    

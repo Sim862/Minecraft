@@ -49,12 +49,8 @@ public class PlayerRaycast : MonoBehaviour
                 hitBlockCs = hitInfo.transform.GetComponent<Block>();
             }
         }
-        if (Input.GetMouseButtonDown(1)) // 마우스 우클릭시 설치 및 사용
-        {
-            GameObject block = Instantiate(blockFac);
-            block.transform.position = hitInfo.transform.position + normalVec*SizeVector(hitInfo);
 
-        }
+        MouseRitghtClick();
 
         #region 좌클릭 이벤트 EventWithBox.cs에 구현함.
         /*if (Input.GetMouseButton(0)) // 좌클릭하면
@@ -102,9 +98,7 @@ public class PlayerRaycast : MonoBehaviour
         }
         // 좌클릭하면 캐기 시작한 블럭 저장.*/
         #endregion
-
         
-
     }
 
     float SizeVector(RaycastHit hitInfo) // 사이즈별 설치 실험
@@ -124,6 +118,21 @@ public class PlayerRaycast : MonoBehaviour
         else
         {
             return 0;
+        }
+    }
+
+    void MouseRitghtClick() // 우클릭시 일어나는 함수.
+    {
+        if (Input.GetMouseButtonDown(1)) // 마우스 우클릭시 설치 및 사용
+        {
+            GameObject block = Instantiate(blockFac);
+            block.transform.position = hitInfo.transform.position + normalVec * SizeVector(hitInfo);
+
+            int slotnumber = PlayerManager.instance.usingSlot; // 현재 사용중인 슬롯넘버 저장.
+            GameObject nowUsingObject = InventoryStatic.instance.slots[slotnumber];
+            ItemImage nowItemImage = nowUsingObject.GetComponentInChildren<ItemImage>();
+            nowItemImage.UseItemOne();
+
         }
     }
 
