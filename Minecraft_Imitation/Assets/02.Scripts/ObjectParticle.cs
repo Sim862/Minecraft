@@ -17,7 +17,7 @@ public class ObjectParticle : MonoBehaviour
     float runningTime = 0f; 
     float y = 0f;
     
-    public ObjectParticleData.ParticleKind particleKind; // ¿ÀºêÁ§Æ® ÆÄÆ¼Å¬ Á¾·ù
+    public ObjectParticleData.ParticleKind particleKind; // ì˜¤ë¸Œì íŠ¸ íŒŒí‹°í´ ì¢…ë¥˜
     public int count = 1;
     private Sprite icon;
     private Transform target;
@@ -40,7 +40,6 @@ public class ObjectParticle : MonoBehaviour
     public void InitParticle(int count)
     {
         this.count = count;
-        icon = DataManager.instance.GetUIItemIcon(particleKind);
     }
 
     private void Movement()
@@ -62,7 +61,7 @@ public class ObjectParticle : MonoBehaviour
         
     }
 
-    private void MovementPosY() // YÃà ÀÌµ¿
+    private void MovementPosY() // Yì¶• ì´ë™
     {
         runningTime += Time.deltaTime * rotatingSpeed;
         y = Mathf.Sin(runningTime) * rotatingLength;
@@ -70,7 +69,7 @@ public class ObjectParticle : MonoBehaviour
 
     }
 
-    private void ParticleObjectMovement() // È¸Àü
+    private void ParticleObjectMovement() // íšŒì „
     {
         particleObject.Rotate(Vector3.up * rotatingSpeed * Time.deltaTime);
         
@@ -78,7 +77,7 @@ public class ObjectParticle : MonoBehaviour
 
     private void CollisionParticle(ObjectParticle other)
     {
-        if (particleKind != other.particleKind) // °°Àº Á¾·ùÀÇ ¾ÆÀÌÅÛÀÌ ¾Æ´Ï¸é ¸®ÅÏ
+        if (particleKind != other.particleKind) // ê°™ì€ ì¢…ë¥˜ì˜ ì•„ì´í…œì´ ì•„ë‹ˆë©´ ë¦¬í„´
             return;
 
         if(other.count > count)
@@ -114,7 +113,7 @@ public class ObjectParticle : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
 
-        if (target == null) // ÀÌ¹Ì Ãæµ¹ÇØ Å¸°ÙÇÑÅ× ÀÌµ¿ ÁßÀÌ¸é ¸®ÅÏ
+        if (target == null) // ì´ë¯¸ ì¶©ëŒí•´ íƒ€ê²Ÿí•œí…Œ ì´ë™ ì¤‘ì´ë©´ ë¦¬í„´
         {
             if (other.CompareTag("ObjectParticle"))
             {

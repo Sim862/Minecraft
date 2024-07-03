@@ -51,14 +51,14 @@ public class MoveData
 
 public class Chunk
 {
-    public static readonly float saveTime = 12; // Ã»Å© ÀúÀå ´ë±â½Ã°£
+    public static readonly float saveTime = 12; // ì²­í¬ ì €ì¥ ëŒ€ê¸°ì‹œê°„
 
-    // Ã»Å© Å©±â
+    // ì²­í¬ í¬ê¸°
     public static readonly int x = 12;
     public static readonly int y = 256;
     public static readonly int z = 12;
     public static readonly int defaultY = -60;
-    // »ı¼ºÀÚ
+    // ìƒì„±ì
     public Chunk(int chunk_x, int chunk_z, int[,,] blocks)
     {
         this.chunk_x = chunk_x;
@@ -69,19 +69,19 @@ public class Chunk
         saveRoutine = Coroutine_SaveChunk(this);
     }
 
-    // »ı¼ºµÈ ºí·° ¿ÀºêÁ§Æ® ºÎ¸ğ
+    // ìƒì„±ëœ ë¸”ëŸ­ ì˜¤ë¸Œì íŠ¸ ë¶€ëª¨
     public Transform blockParent;
-    public int chunk_x, chunk_z; // Ã»Å© À§Ä¡¿Í ÆÄÀÏ¸í
+    public int chunk_x, chunk_z; // ì²­í¬ ìœ„ì¹˜ì™€ íŒŒì¼ëª…
     public int[,,] blocksEnum = new int[x, y, z]; // x, y, z
     public Block[,,] blockObjects = new Block[x, y, z]; // x, y, z
 
-    // ¸Ê º¯°æ»çÇ× ÀÖ´ÂÁö Ã¼Å©
+    // ë§µ ë³€ê²½ì‚¬í•­ ìˆëŠ”ì§€ ì²´í¬
     public bool needSave = false;
 
-    // ÄÚ·çÆ¾
+    // ì½”ë£¨í‹´
     public IEnumerator saveRoutine;
 
-    // º¯°æ»çÇ×ÀÌ »ı±â¸é 12ÃÊ ¸¶´Ù ÀúÀå
+    // ë³€ê²½ì‚¬í•­ì´ ìƒê¸°ë©´ 12ì´ˆ ë§ˆë‹¤ ì €ì¥
     private IEnumerator Coroutine_SaveChunk(Chunk chunk)
     {
         while (true)
@@ -105,7 +105,7 @@ public class MapManager : MonoBehaviour
 
     public Block blockPrefab;
 
-    private Vector3 playerChunckVector; // transform.postion ¾Æ´Ô Ã»Å© À§Ä¡¿Í ÆÄÀÏ¸í
+    private Vector3 playerChunckVector; // transform.postion ì•„ë‹˜ ì²­í¬ ìœ„ì¹˜ì™€ íŒŒì¼ëª…
     private Chunk[] chunks = new Chunk[9];
     public int[,,] blocks = new int[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
     private BlockData blockData;
@@ -140,7 +140,7 @@ public class MapManager : MonoBehaviour
             InitChunk_CreateBlocks(chunks[i]);
         }
 
-        SetPlayerSpawnPosition();
+        //SetPlayerSpawnPosition();
 
     }
 
@@ -174,23 +174,23 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    #region Chunk Load, Save ¸Ş¼­µå
+    #region Chunk Load, Save ë©”ì„œë“œ
 
-    private void SetPlayerChunk() // ÇÃ·¹ÀÌ¾î°¡ À§Ä¡ÇÑ Ã»Å© °ª ¼³Á¤
-    {
-        playerChunckVector = DataManager.instance.PlayerPosition();
-        playerChunckVector = new Vector3((int)playerChunckVector.x / Chunk.x, 0, (int)playerChunckVector.z / Chunk.y);
-    }
+    //private void SetPlayerChunk() // í”Œë ˆì´ì–´ê°€ ìœ„ì¹˜í•œ ì²­í¬ ê°’ ì„¤ì •
+    //{
+    //    playerChunckVector = DataManager.instance.PlayerPosition();
+    //    playerChunckVector = new Vector3((int)playerChunckVector.x / Chunk.x, 0, (int)playerChunckVector.z / Chunk.y);
+    //}
 
     public void Load_9Chunks()
     {
-        SetPlayerChunk();
+        //SetPlayerChunk();
         int index = 0;
         for (int z = 0; z < 3; z++)
         {
             for (int x = 0; x < 3; x++)
             {
-                LoadChunk("Chunk" + (x+playerChunckVector.x) + "_" + (z + playerChunckVector.z)); // Ã»Å©ÆÄÀÏ ·Îµå ÈÄ blocks¿¡¼­ ºí·° µ¥ÀÌÅÍ ¼ÂÆÃ
+                LoadChunk("Chunk" + (x+playerChunckVector.x) + "_" + (z + playerChunckVector.z)); // ì²­í¬íŒŒì¼ ë¡œë“œ í›„ blocksì—ì„œ ë¸”ëŸ­ ë°ì´í„° ì…‹íŒ…
                 chunks[index] = new Chunk((int)(x + playerChunckVector.x), (int)(z + playerChunckVector.z), blocks);
                 StartCoroutine(chunks[index].saveRoutine);
                 index++;
@@ -200,7 +200,7 @@ public class MapManager : MonoBehaviour
 
     public void Save_9Chunks()
     {
-        SetPlayerChunk();
+        //SetPlayerChunk();
         int index = 0;
         for (int z = 0; z < 3; z++)
         {
@@ -221,7 +221,7 @@ public class MapManager : MonoBehaviour
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Open(Application.dataPath + "/" + path + ".binary", FileMode.Open);
 
-        // ÆÄÀÏÀÌ ¾øÀ¸¸é ÆòÁö·Î ¼³Á¤
+        // íŒŒì¼ì´ ì—†ìœ¼ë©´ í‰ì§€ë¡œ ì„¤ì •
         if (file == null)
         {
             for (int x = 0; x < Chunk.x; x++)
@@ -287,21 +287,21 @@ public class MapManager : MonoBehaviour
 
     #endregion
 
-    #region »ı¼º °ü·Ã ¸Ş¼­µå
+    #region ìƒì„± ê´€ë ¨ ë©”ì„œë“œ
 
-    public void SetPlayerSpawnPosition()
-    {
-        for (int i = Chunk.y-1; i >= 0; i--)
-        {
-            if(chunks[4].blocksEnum[11,i,11] != 0) // À§¿¡¼­ ºÎÅÍ ºí·°ÀÌ ÀÖ´ÂÁö °Ë»çÇÑ ÈÄ ¶¥ÀÌ ³ª¿À¸é ½ºÆù À§Ä¡ ¼³Á¤
-            {
-                DataManager.instance.playerData.spawnPosition =  chunks[4].blockObjects[11,i,11].transform.position + Vector3.up;
-                return;
-            }
-        }
-    }
+    //public void SetPlayerSpawnPosition()
+    //{
+    //    for (int i = Chunk.y-1; i >= 0; i--)
+    //    {
+    //        if(chunks[4].blocksEnum[11,i,11] != 0) // ìœ„ì—ì„œ ë¶€í„° ë¸”ëŸ­ì´ ìˆëŠ”ì§€ ê²€ì‚¬í•œ í›„ ë•…ì´ ë‚˜ì˜¤ë©´ ìŠ¤í° ìœ„ì¹˜ ì„¤ì •
+    //        {
+    //            DataManager.instance.playerData.spawnPosition =  chunks[4].blockObjects[11,i,11].transform.position + Vector3.up;
+    //            return;
+    //        }
+    //    }
+    //}
 
-    // Ã»Å©¿¡ ÀÖ´Â ¸ğµç ºí·° ½ºÆù
+    // ì²­í¬ì— ìˆëŠ” ëª¨ë“  ë¸”ëŸ­ ìŠ¤í°
     private void InitChunk_CreateBlocks(Chunk chunk)
     {
        
@@ -312,7 +312,7 @@ public class MapManager : MonoBehaviour
             {
                 for (int z = 0; z < Chunk.z; z++)
                 {
-                    blockKind = (BlockData.BlockKind)chunk.blocksEnum[x, y, z]; // ºí·° enum °¡Á®¿À±â
+                    blockKind = (BlockData.BlockKind)chunk.blocksEnum[x, y, z]; // ë¸”ëŸ­ enum ê°€ì ¸ì˜¤ê¸°
                     CreateBlock(chunk, blockKind, x, y, z);
                     //position2 += Vector3.forward;
                 }
@@ -324,30 +324,30 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    // Æ¯Á¤ ºí·° »ı¼º
+    // íŠ¹ì • ë¸”ëŸ­ ìƒì„±
     public void CreateBlock(Chunk chunk, BlockData.BlockKind blockKind, int x, int y, int z)
     {
         if (blockKind != 0)
         {
-            if (!DataManager.instance.blockDictionary.ContainsKey(blockKind)) // ºí·° dictonary¿¡ ÇØ´ç ºí·° µ¥ÀÌÅÍ ¾øÀ¸¸é ¸Ş¼­µå Å»Ãâ
+            if (!DataManager.instance.blockDictionary.ContainsKey(blockKind)) // ë¸”ëŸ­ dictonaryì— í•´ë‹¹ ë¸”ëŸ­ ë°ì´í„° ì—†ìœ¼ë©´ ë©”ì„œë“œ íƒˆì¶œ
                 return;
 
             chunk.blocksEnum[x, y, z] = (int)blockKind;
 
-            blockPosition = new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_z * Chunk.z + z); // index °ªÀ» »ç¿ëÇØ À§Ä¡ ¼³Á¤
-            block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // ºí·° ¿ÀºêÁ§Æ® »ı¼º
+            blockPosition = new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_z * Chunk.z + z); // index ê°’ì„ ì‚¬ìš©í•´ ìœ„ì¹˜ ì„¤ì •
+            block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // ë¸”ëŸ­ ì˜¤ë¸Œì íŠ¸ ìƒì„±
 
-            blockData = DataManager.instance.blockDictionary[blockKind]; // ºí·° dictonary¿¡¼­ ÇØ´çµÇ´Â ºí·° µ¥ÀÌÅÍ °¡Á®¿À±â
-            block.InitBlock(blockData); // ºí·° µ¥ÀÌÅÍÀÇ ¼³Á¤°ªÀ¸·Î ºí·° ¿ÀºêÁ§Æ® ¼³Á¤
-            chunk.blockObjects[x, y, z] = block; // ºí·° 3Â÷¿ø ¹è¿­¿¡ ºí·° ¿ÀºêÁ§Æ® ÀúÀå
+            blockData = DataManager.instance.blockDictionary[blockKind]; // ë¸”ëŸ­ dictonaryì—ì„œ í•´ë‹¹ë˜ëŠ” ë¸”ëŸ­ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
+            block.InitBlock(blockData); // ë¸”ëŸ­ ë°ì´í„°ì˜ ì„¤ì •ê°’ìœ¼ë¡œ ë¸”ëŸ­ ì˜¤ë¸Œì íŠ¸ ì„¤ì •
+            chunk.blockObjects[x, y, z] = block; // ë¸”ëŸ­ 3ì°¨ì› ë°°ì—´ì— ë¸”ëŸ­ ì˜¤ë¸Œì íŠ¸ ì €ì¥
             chunk.needSave = true;
 
         }
     }
 
-    public void InActiveBlock(Chunk chunk,Block block ,int x, int y, int z) // »ç°¢Çü ºí·°¸¸ °¡´É
+    public void InActiveBlock(Chunk chunk,Block block ,int x, int y, int z) // ì‚¬ê°í˜• ë¸”ëŸ­ë§Œ ê°€ëŠ¥
     {
-        chunk.blocksEnum[x, y, z] = 0; // 0Àº ºí·°ÀÌ ¾ø´Ù´Â ÀÇ¹Ì enum
+        chunk.blocksEnum[x, y, z] = 0; // 0ì€ ë¸”ëŸ­ì´ ì—†ë‹¤ëŠ” ì˜ë¯¸ enum
         block.gameObject.SetActive(false);
         blockPool.Enqueue(block);
     }
@@ -356,7 +356,7 @@ public class MapManager : MonoBehaviour
 
     public Vector3 GetObjectPosition(Chunk chunk, int x, int y, int z)
     {
-        return new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_z * Chunk.z + z); // index °ªÀ» »ç¿ëÇØ À§Ä¡ ¼³Á¤
+        return new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_z * Chunk.z + z); // index ê°’ì„ ì‚¬ìš©í•´ ìœ„ì¹˜ ì„¤ì •
     }
 
     public Vector3 GetBlockPosition(Chunk chunk, int x, int y, int z)
@@ -377,7 +377,7 @@ public class MapManager : MonoBehaviour
         return positionData;
     }
 
-    #region ºí·° °Ë»ç
+    #region ë¸”ëŸ­ ê²€ì‚¬
 
     public Chunk GetChunk(int x, int z)
     {
@@ -389,18 +389,18 @@ public class MapManager : MonoBehaviour
             }
         }
 
-        return null; // ÇØ´ç Ã»Å©¸¦ Ã£Áö ¸øÇßÀ½
+        return null; // í•´ë‹¹ ì²­í¬ë¥¼ ì°¾ì§€ ëª»í–ˆìŒ
     }
 
-    // ¸Ó¸® À§¿¡ ºí·°ÀÌ ÀÖ´ÂÁö
+    // ë¨¸ë¦¬ ìœ„ì— ë¸”ëŸ­ì´ ìˆëŠ”ì§€
     public bool CheckJump(PositionData positionData, int objectHeight)
     {
-        if(positionData.blockIndex_y + objectHeight >= Chunk.y) // ¿ùµå ÃÖ´ë ³ôÀÌº¸´Ù ³ô´Ù¸é
+        if(positionData.blockIndex_y + objectHeight >= Chunk.y) // ì›”ë“œ ìµœëŒ€ ë†’ì´ë³´ë‹¤ ë†’ë‹¤ë©´
         {
             return false;
         }
 
-        if (positionData.chunk.blocksEnum[positionData.blockIndex_x, positionData.blockIndex_y + objectHeight, positionData.blockIndex_z] == 0) // ¸Ó¸®À§¿¡ ºí·°ÀÌ ¾øÀ¸¸é Á¡ÇÁ °¡´É
+        if (positionData.chunk.blocksEnum[positionData.blockIndex_x, positionData.blockIndex_y + objectHeight, positionData.blockIndex_z] == 0) // ë¨¸ë¦¬ìœ„ì— ë¸”ëŸ­ì´ ì—†ìœ¼ë©´ ì í”„ ê°€ëŠ¥
         {
             return true;
         }
@@ -410,38 +410,38 @@ public class MapManager : MonoBehaviour
 
     public MoveData CheckBlock(Chunk chunk, int x, int y, int z, int objectHeight, int fallHeight, bool canJump)
     {
-        int[] groundCheck = new int[fallHeight + 1 + objectHeight ]; // ÀÌµ¿ÇÒ À§Ä¡¿¡ ÀÖ´Â °Ë»çÇÒ ºí·° ¸®½ºÆ®  // ¶³¾îÁú ºí·° + ³» À§Ä¡ + ¸Ó¸® À§ ºí·°
-        int index = y + objectHeight; // ºí·°µ¥ÀÌÅÍ ÀÎµ¦½º À§ºÎÅÍ
+        int[] groundCheck = new int[fallHeight + 1 + objectHeight ]; // ì´ë™í•  ìœ„ì¹˜ì— ìˆëŠ” ê²€ì‚¬í•  ë¸”ëŸ­ ë¦¬ìŠ¤íŠ¸  // ë–¨ì–´ì§ˆ ë¸”ëŸ­ + ë‚´ ìœ„ì¹˜ + ë¨¸ë¦¬ ìœ„ ë¸”ëŸ­
+        int index = y + objectHeight; // ë¸”ëŸ­ë°ì´í„° ì¸ë±ìŠ¤ ìœ„ë¶€í„°
         int value = 0;
         MoveData moveData = new MoveData();
         for (int i = groundCheck.Length - 1; i >= 0; i--)
         {
-            // ÀÌµ¿ À§Ä¡°¡ ¿ùµå ÃÖ´ë ³ôÀÌº¸´Ù ³ôÀ¸¸é ¸ø°¨
+            // ì´ë™ ìœ„ì¹˜ê°€ ì›”ë“œ ìµœëŒ€ ë†’ì´ë³´ë‹¤ ë†’ìœ¼ë©´ ëª»ê°
             if (index >= Chunk.y)
             {
                 groundCheck[i] = -1;
                 index--;
                 continue;
             }
-            else if (index <= 0) // ÀÌµ¿ À§Ä¡°¡ ¿ùµå ÃÖ¼Ò ³ôÀÌº¸´Ù ³·À»¶§ ÇØ´ç À§Ä¡ ÀÌµ¿ ºÒ°¡
+            else if (index <= 0) // ì´ë™ ìœ„ì¹˜ê°€ ì›”ë“œ ìµœì†Œ ë†’ì´ë³´ë‹¤ ë‚®ì„ë•Œ í•´ë‹¹ ìœ„ì¹˜ ì´ë™ ë¶ˆê°€
             {
                 groundCheck[i] = -1;
                 index--;
                 continue;
             }
 
-            // ºí·° °Ë»ç
+            // ë¸”ëŸ­ ê²€ì‚¬
             if (chunk.blocksEnum[x, index, z] == 0)
-                groundCheck[i] = 0; // ºí·° ¾øÀ½
+                groundCheck[i] = 0; // ë¸”ëŸ­ ì—†ìŒ
             else
-                groundCheck[i] = 1; // ºí·° ÀÖÀ½
+                groundCheck[i] = 1; // ë¸”ëŸ­ ìˆìŒ
 
-            // Á¡ÇÁ¸¦ »ç¿ëÇØ¾ß ÀÌµ¿ÇÒ¼ö ÀÖ´Â À§Ä¡
+            // ì í”„ë¥¼ ì‚¬ìš©í•´ì•¼ ì´ë™í• ìˆ˜ ìˆëŠ” ìœ„ì¹˜
             if (i == groundCheck.Length -1)
             {
-                if (!canJump) // ¸Ó¸®À§ ºí·°ÀÌ ÀÖÀ» °æ¿ì Á¡ÇÁ¸¦ ¸øÇÔ == ³ªº¸´Ù ³ôÀº ºí·°¿¡ ¿Ã¶ó°¡Áö ¸øÇÑ´Ù.
+                if (!canJump) // ë¨¸ë¦¬ìœ„ ë¸”ëŸ­ì´ ìˆì„ ê²½ìš° ì í”„ë¥¼ ëª»í•¨ == ë‚˜ë³´ë‹¤ ë†’ì€ ë¸”ëŸ­ì— ì˜¬ë¼ê°€ì§€ ëª»í•œë‹¤.
                 {
-                    groundCheck[i] = 1; // ºí·°ÀÌ ÀÖ´Â °ÍÀ¸·Î Ãë±Ş
+                    groundCheck[i] = 1; // ë¸”ëŸ­ì´ ìˆëŠ” ê²ƒìœ¼ë¡œ ì·¨ê¸‰
                     continue;
                 }
             }
@@ -459,13 +459,13 @@ public class MapManager : MonoBehaviour
                     value = 20;
                 }
             }
-            else if (i >= fallHeight) //³» ¸öÅë À§Ä¡ÀÇ ºí·° Ã¼Å©
+            else if (i >= fallHeight) //ë‚´ ëª¸í†µ ìœ„ì¹˜ì˜ ë¸”ëŸ­ ì²´í¬
             {
-                if (objectHeight == 1)  // ¿ÀºêÁ§Å© Å°°¡ 1ÀÏ¶§
+                if (objectHeight == 1)  // ì˜¤ë¸Œì í¬ í‚¤ê°€ 1ì¼ë•Œ
                 {
-                    if (groundCheck[i] != 0) // ³» ¾Õ¿¡ ºí·°ÀÌ ÀÖÀ»¶§
+                    if (groundCheck[i] != 0) // ë‚´ ì•ì— ë¸”ëŸ­ì´ ìˆì„ë•Œ
                     {
-                        if (value != 20) // Á¡ÇÁ°¡ ºÒ°¡´É ÇÏ´Ù¸é ¸ø°¨
+                        if (value != 20) // ì í”„ê°€ ë¶ˆê°€ëŠ¥ í•˜ë‹¤ë©´ ëª»ê°
                         {
                             moveData.weight = int.MaxValue;
                             return  moveData;
@@ -480,7 +480,7 @@ public class MapManager : MonoBehaviour
                 }
                 else
                 {
-                    //³» ¸öÅë À§Ä¡¿¡ °É¸®´Â ºí·° ÀÖÀ¸¸é ¸ø°¨
+                    //ë‚´ ëª¸í†µ ìœ„ì¹˜ì— ê±¸ë¦¬ëŠ” ë¸”ëŸ­ ìˆìœ¼ë©´ ëª»ê°
                     if (i > fallHeight+1)
                     {
                         if (groundCheck[i] != 0)
@@ -489,19 +489,19 @@ public class MapManager : MonoBehaviour
                             return moveData;
                         }
                     }
-                    else // ³» ¹ß ¾Õ¿¡ 
+                    else // ë‚´ ë°œ ì•ì— 
                     {
-                        // ºí·°ÀÌ ÀÖ´Ù¸é 
+                        // ë¸”ëŸ­ì´ ìˆë‹¤ë©´ 
                         if (groundCheck[i] != 0) 
                         {
-                            // Á¡ÇÁ°¡ °¡´ÉÇÏ¸é ÀÌµ¿ °¡´É
+                            // ì í”„ê°€ ê°€ëŠ¥í•˜ë©´ ì´ë™ ê°€ëŠ¥
                             if (value == 20)
                             {
                                 moveData.afterIndexY = y + 1;
                                 moveData.weight = 20;
                                 return moveData;
                             }
-                            else // Á¡ÇÁ°¡ ºÒ°¡´ÉÇÏ¸é ±æ¸·ÇûÀ½
+                            else // ì í”„ê°€ ë¶ˆê°€ëŠ¥í•˜ë©´ ê¸¸ë§‰í˜”ìŒ
                             {
                                 moveData.weight = int.MaxValue;
                                 return moveData;
@@ -519,10 +519,10 @@ public class MapManager : MonoBehaviour
                     return moveData;
                 }
             }
-            else if (i < fallHeight - 1) // ³«ÇÏ °¡´ÉÇÑ ³ôÀÌÀÇ ºí·° Ã¼Å©
+            else if (i < fallHeight - 1) // ë‚™í•˜ ê°€ëŠ¥í•œ ë†’ì´ì˜ ë¸”ëŸ­ ì²´í¬
             {
                 y--;
-                if (groundCheck[i] != 0) // ºí·°ÀÌ ÀÖÀ¸¸é ³«ÇÏ °¡´É
+                if (groundCheck[i] != 0) // ë¸”ëŸ­ì´ ìˆìœ¼ë©´ ë‚™í•˜ ê°€ëŠ¥
                 {
                     moveData.afterIndexY = y;
                     moveData.weight = 10;
@@ -531,7 +531,7 @@ public class MapManager : MonoBehaviour
             }
         }
 
-        // ³«ÇÏ °¡´ÉÇÑ ³ôÀÌÀÇ ºí·°µµ ¾ø¾úÀ¸´Ï ÀÌµ¿ ºÒ°¡
+        // ë‚™í•˜ ê°€ëŠ¥í•œ ë†’ì´ì˜ ë¸”ëŸ­ë„ ì—†ì—ˆìœ¼ë‹ˆ ì´ë™ ë¶ˆê°€
         moveData.weight = int.MaxValue;
         return moveData;
 
