@@ -15,12 +15,12 @@ public class PlayerRaycast : MonoBehaviour
     Transform hitNowBlock; // 클릭할때
     Transform hitBlockTr;
     Block hitBlockCs;
+    
+    //BlockData.BlockType test = BlockData.BlockType.Pick;
 
-    BlockData.BlockType test = BlockData.BlockType.Pick;
-
-    Transform nowbreakBlock = null;
-    Block nowbreakBlockCs = null;
-    bool isWork = false;
+    //Transform nowbreakBlock = null;
+    //Block nowbreakBlockCs = null;
+    //bool isWork = false;
     Vector3 normalVec;
     RaycastHit hitInfo;
 
