@@ -2,8 +2,12 @@ using NUnit.Framework.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEditor.Progress;
+
+using Random = UnityEngine.Random;
 
 [System.Serializable]
 public class Node
@@ -36,8 +40,10 @@ public class Entity : MonoBehaviour
     public int detectionDistance = 8;
 
     public float speed = 3f;
+    public float rotationSpeed = 15;
     public int objectHeight = 1;
     public int fallHeight = 3;
+    public Quaternion targetAngle;
 
     private Node wayPoint_Current;
     private Vector3 wayPosition = Vector3.zero;
@@ -61,6 +67,27 @@ public class Entity : MonoBehaviour
     private int minH;
     private int min_Index;
 
+    bool canJump = false;
+    // ëŒ€ê°ì„  ì´ë™ ê²€ì‚¬ë¥¼ ìœ„í•œ bool ê°’
+    bool plus_X = false;
+    bool minus_X = false;
+    bool plus_Z = false;
+    bool minus_Z = false;
+
+
+    // ì‹œì•¼ ì˜ì—­ì˜ ë°˜ì§€ë¦„
+    public float viewRadius = 7;
+    // ì‹œì•¼ ê°ë„
+    [Range(0, 360)]
+    public float viewAngle = 160;
+   
+    public LayerMask targetMask;  // íƒ€ê²Ÿìœ¼ë¡œ ì§€ì •í•  ì˜¤ë¸Œì íŠ¸ë“¤
+    public LayerMask obstacleMask; // ì‹œì•¼ì˜ ì¥ì• ë¬¼ë¡œ ì§€ì •í•  ì˜¤ë¸Œì íŠ¸ë“¤
+
+    // í¬ì°©ëœ ì˜¤ë¸Œì íŠ¸ ë¦¬ìŠ¤íŠ¸
+    public List<Transform> visibleTargets = new List<Transform>();
+
+    protected Transform targetTransform;
 
 
     private void Awake()
@@ -74,31 +101,29 @@ public class Entity : MonoBehaviour
     public int b_x, b_y, b_z;
     public int tc_x, tc_z;
     public int tb_x, tb_y, tb_z;
-    public NewBehaviourScript1 trueWay;
-    public NewBehaviourScript1 trueWay1;
 
 
     public List<Node> finalNodeList;
 
-    private void Update()
-    {
-        if (init_test)
-        {
-            init_test = false;
-            initEntitiy(c_x, c_z, b_x, b_y, b_z);
-        }
+    //private void Update()
+    //{
+    //    if (init_test)
+    //    {
+    //        init_test = false;
+    //        initEntitiy(c_x, c_z, b_x, b_y, b_z);
+    //    }
 
-        if (start_test)
-        {
-            start_test = false;
-            PositionData nextPosition = new PositionData(tc_x, tc_z, tb_x, tb_y, tb_z);
-            wayPoints = AStar(nextPosition, null);
-            finalNodeList = wayPoints;
-            SetWayPosition();
-        }
+    //    if (start_test)
+    //    {
+    //        start_test = false;
+    //        PositionData nextPosition = new PositionData(tc_x, tc_z, tb_x, tb_y, tb_z);
+    //        wayPoints = AStar(nextPosition, null);
+    //        finalNodeList = wayPoints;
+    //        SetWayPosition();
+    //    }
 
-        Movement();
-    }
+    //    Movement();
+    //}
 
     public void initEntitiy(int chunk_x, int chunk_z, int blockIndex_x, int blockIndex_y, int blockIndex_z)
     {
@@ -112,19 +137,19 @@ public class Entity : MonoBehaviour
         PositionData positionData = MapManager.instance.PositionToChunkData(transform.position);
     }
 
-    private static int x, y, z;
-    public static int GetH(int worldPosition_current_x, int worldPosition_current_y, int worldPosition_current_z, 
+    private int x, y, z;
+    public int GetH(int worldPosition_current_x, int worldPosition_current_y, int worldPosition_current_z, 
         int target_x, int target_y, int target_z)
     {
         x = Mathf.Abs(worldPosition_current_x - target_x);
         z = Mathf.Abs(worldPosition_current_z - target_z);
         
         y = 0;
-        if(worldPosition_current_y > target_y) // ¶³¾îÁö´Â°Ç ³ôÀÌ »ó°ü ¾øÀÌ ºñ¿ë 10
+        if(worldPosition_current_y > target_y) // ë–¨ì–´ì§€ëŠ”ê±´ ë†’ì´ ìƒê´€ ì—†ì´ ë¹„ìš© 10
         {
             y = 1;
         }
-        else if(worldPosition_current_y < target_y) // ¿Ã¶ó°¡´Â°Ç 1ºí·°´ç ºñ¿ë 10
+        else if(worldPosition_current_y < target_y) // ì˜¬ë¼ê°€ëŠ”ê±´ 1ë¸”ëŸ­ë‹¹ ë¹„ìš© 10
         {
             y = target_y - worldPosition_current_y;
         }
@@ -140,6 +165,9 @@ public class Entity : MonoBehaviour
 
             wayPosition = MapManager.instance.GetBlockPosition(wayPoint_Current.positionData.chunk, 
                 wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z);
+            float xx = wayPosition.x - transform.position.x;
+            float zz = wayPosition.z - transform.position.z;
+            targetAngle = Quaternion.LookRotation(wayPosition - transform.position);
         }
         else
         {
@@ -147,45 +175,52 @@ public class Entity : MonoBehaviour
         }
     }
 
-    private void Movement()
+    protected void Movement()
     {
         if(wayPosition != Vector3.zero)
         {
             wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
-            if (wayPositionDistance > 1.5) // ÀÌµ¿ÇÒ À§Ä¡°¡ ÇÑºí·° º¸´Ù Å©´Ù = ³» À§Ä¡°¡ º¯Çß´Ù -> ÀÌµ¿ Ãë¼Ò
+            if (wayPositionDistance > 1.5) // ì´ë™í•  ìœ„ì¹˜ê°€ í•œë¸”ëŸ­ ë³´ë‹¤ í¬ë‹¤ = ë‚´ ìœ„ì¹˜ê°€ ë³€í–ˆë‹¤ -> ì´ë™ ì·¨ì†Œ
             {
                 wayPoints = new List<Node>();
                 wayPosition = Vector3.zero;
                 return;
             }
-
             transform.position += (wayPosition - transform.position).normalized * speed * Time.deltaTime;
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetAngle, rotationSpeed * Time.deltaTime);
+
             wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
-            if(wayPositionDistance < 0.3f)
+            if(wayPositionDistance < 0.1f)
             {
                 SetWayPosition();
             }
         }
     }
 
+    protected void Runaway()
+    {
+
+    }
+
+    #region A* ì•Œê³ ë¦¬ì¦˜
     private List<Node> AStar(PositionData targetPositionData, Transform target)
     {
-        int count = 100;
+        int count = 30;
 
-        // ¸®½ºÆ® ÃÊ±âÈ­
+        // ë¦¬ìŠ¤íŠ¸ ì´ˆê¸°í™”
         openNodes = new List<Node>();
         closedNode = new List<Node>();
 
        
 
-        // ½ÃÀÛ À§Ä¡ ¼ÂÆÃ
+        // ì‹œì‘ ìœ„ì¹˜ ì…‹íŒ…
         current = new Node(positionData, 0, GetH(positionData.blockIndex_x + (positionData.chunk_X * Chunk.x), positionData.blockIndex_y, positionData.blockIndex_z + (positionData.chunk_Z * Chunk.z),
             targetPositionData.blockIndex_x + (targetPositionData.chunk_X * Chunk.x), targetPositionData.blockIndex_y, targetPositionData.blockIndex_z) + (targetPositionData.chunk_Z * Chunk.z), null);
         openNodes.Add(current);
         nearNode = current;
 
 
-        // Å½»ö ½ÃÀÛ
+        // íƒìƒ‰ ì‹œì‘
         while (true)
         {
             count--;
@@ -193,7 +228,7 @@ public class Entity : MonoBehaviour
             minH = int.MaxValue;
             for (int i = 0; i < openNodes.Count; i++)
             {
-                // f°¡ Á¦ÀÏ ÀÛÀº ¿ÀÇÂ³ëµå °¡Á®¿À±â
+                // fê°€ ì œì¼ ì‘ì€ ì˜¤í”ˆë…¸ë“œ ê°€ì ¸ì˜¤ê¸°
                 if (minF >= openNodes[i].f)
                 {
                     if (minH > openNodes[i].h)
@@ -212,7 +247,7 @@ public class Entity : MonoBehaviour
             if (minF == int.MaxValue || count <= 0)
             {
                 current = nearNode;
-                break; // ¿ÀÇÂ³ëµå°¡ ¾ø´Ù¸é ±æ¾øÀ½
+                break; // ì˜¤í”ˆë…¸ë“œê°€ ì—†ë‹¤ë©´ ê¸¸ì—†ìŒ
             }
 
             current = openNodes[min_Index];
@@ -227,16 +262,16 @@ public class Entity : MonoBehaviour
 
 
 
-            bool canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
+            canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
 
 
-            // ´ë°¢¼± ÀÌµ¿ °Ë»ç¸¦ À§ÇÑ bool °ª
-            bool plus_X = false;
-            bool minus_X = false;
-            bool plus_Z = false;
-            bool minus_Z = false;
+            // ëŒ€ê°ì„  ì´ë™ ê²€ì‚¬ë¥¼ ìœ„í•œ bool ê°’
+            plus_X = false;
+            minus_X = false;
+            plus_Z = false;
+            minus_Z = false;
 
-            // µ¿¼­³²ºÏ °Ë»ç
+            // ë™ì„œë‚¨ë¶ ê²€ì‚¬
             plus_X = AddOpenNodes(current.positionData.blockIndex_x + 1, current.positionData.blockIndex_z, canJump, targetPositionData);
             minus_X = AddOpenNodes(current.positionData.blockIndex_x - 1, current.positionData.blockIndex_z, canJump, targetPositionData);
             plus_Z = AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + 1, canJump, targetPositionData);
@@ -258,11 +293,110 @@ public class Entity : MonoBehaviour
         return way;
     }
 
-    // À§Ä¡°¡ º¯°æµÈ ³ëµå°¡ ÀÌµ¿ °¡´ÉÇÑ ³ëµåÀÎÁö È®ÀÎÇÏ°í ¿ÀÇÂ³ëµå ¸®½ºÆ®¿¡ Ãß°¡
-    private bool AddOpenNodes(int index_x, int index_z, bool canJump, PositionData targetPositionData)
+    private List<Node> AStar_Runaway(Transform target)
     {
-        targetPositionData = new PositionData(targetPositionData.chunk_X, targetPositionData.chunk_Z, targetPositionData.blockIndex_x, 
-            targetPositionData.blockIndex_y, targetPositionData.blockIndex_z);
+        // ë„ë§ê°ˆ ë¸”ëŸ­ ìˆ˜
+        int runawayDistanceCount = 6;
+
+        openNodes = new List<Node>();
+        closedNode = new List<Node>();
+
+        // ì‹œì‘ ìœ„ì¹˜ ì…‹íŒ…
+        current = new Node(positionData, 0, 0, null);
+        openNodes.Add(current);
+        nearNode = current;
+
+
+        // íƒìƒ‰ ì‹œì‘
+        while (runawayDistanceCount > 0)
+        {
+            runawayDistanceCount--;
+            minF = int.MaxValue;
+
+            if (openNodes.Count > 0)
+            {
+                nearNode = openNodes[Random.Range(0,openNodes.Count)];
+                minF = nearNode.f;
+            }
+            
+
+            if (minF == int.MaxValue)
+            {
+                current = null;
+                break; // ì˜¤í”ˆë…¸ë“œê°€ ì—†ë‹¤ë©´ ê¸¸ì—†ìŒ
+            }
+
+            current = nearNode;
+            openNodes.Remove(nearNode);
+            closedNode.Add(nearNode);
+
+            Vector3 runawayDirection = (MapManager.instance.GetBlockPosition(current.positionData.chunk,current.positionData.blockIndex_x,current.positionData.blockIndex_y,current.positionData.blockIndex_z) - target.position).normalized;
+
+            if (Mathf.Abs(runawayDirection.x) > Mathf.Abs(runawayDirection.z))
+            {
+                if (runawayDirection.x > 0)
+                {
+                    runawayDirection = Vector3.right;
+                }
+                else
+                {
+                    runawayDirection = -Vector3.right;
+                }
+            }
+            else
+            {
+                if (runawayDirection.z > 0)
+                {
+                    runawayDirection = Vector3.forward;
+                }
+                else
+                {
+                    runawayDirection = -Vector3.forward;
+                }
+            }
+
+            canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
+
+            if(runawayDirection.x != 0)
+            {
+                // ë™ì„œë‚¨ë¶ ê²€ì‚¬
+                AddOpenNodes(current.positionData.blockIndex_x + (int)runawayDirection.x, current.positionData.blockIndex_z, canJump);
+                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + (int)Vector3.forward.z, canJump);
+                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z - (int)Vector3.forward.z, canJump);
+            }
+            else
+            {
+                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + (int)runawayDirection.z, canJump);
+                AddOpenNodes(current.positionData.blockIndex_x + (int)Vector3.right.x, current.positionData.blockIndex_z, canJump);
+                AddOpenNodes(current.positionData.blockIndex_x - (int)Vector3.right.x, current.positionData.blockIndex_z, canJump);
+            }
+
+        }
+
+        List<Node> way = new List<Node>();
+        if (current == null)
+        {
+            current = nearNode;
+        }
+        while (current != null)
+        {
+            way.Add(current);
+            current = current.parent;
+        }
+        way.Reverse();
+        return way;
+    }
+
+
+    // ìœ„ì¹˜ê°€ ë³€ê²½ëœ ë…¸ë“œê°€ ì´ë™ ê°€ëŠ¥í•œ ë…¸ë“œì¸ì§€ í™•ì¸í•˜ê³  ì˜¤í”ˆë…¸ë“œ ë¦¬ìŠ¤íŠ¸ì— ì¶”ê°€
+    private bool AddOpenNodes(int index_x, int index_z, bool canJump, PositionData targetPositionData = null)
+    {
+        if (targetPositionData != null)
+        {
+            // ê°’ì´ ì˜¤ì—¼ë˜ì§€ ì•Šê²Œ ê¹Šì€ ë³µì‚¬
+            targetPositionData = new PositionData(targetPositionData.chunk_X, targetPositionData.chunk_Z, targetPositionData.blockIndex_x,
+                targetPositionData.blockIndex_y, targetPositionData.blockIndex_z);
+        }
 
         int chunk_X = current.positionData.chunk_X;
         int chunk_Z = current.positionData.chunk_Z;
@@ -290,7 +424,7 @@ public class Entity : MonoBehaviour
         chunk = MapManager.instance.GetChunk(chunk_X, chunk_Z);
         moveData = MapManager.instance.CheckBlock(chunk, index_x,  current.positionData.blockIndex_y, index_z, objectHeight, fallHeight, canJump);
 
-        if (moveData.weight == int.MaxValue) // º®ÀÌ¶ó¼­ ¸ø°¨
+        if (moveData.weight == int.MaxValue) // ë²½ì´ë¼ì„œ ëª»ê°
         {
             return false;
         }
@@ -299,20 +433,24 @@ public class Entity : MonoBehaviour
 
         foreach (var item in closedNode)
         {
-            if (item.positionData.CheckSamePosition(afterPositionData)) // ¹æ¹® ÇÑÀû ÀÖÀ½
+            if (item.positionData.CheckSamePosition(afterPositionData)) // ë°©ë¬¸ í•œì  ìˆìŒ
             {
                 return false;
             }
         }
 
-
-
         int g = current.g + moveData.weight;
-        int h = GetH(index_x + (chunk_X * Chunk.x), moveData.afterIndexY, index_z + (chunk_Z * Chunk.z), 
-            targetPositionData.blockIndex_x +(targetPositionData.chunk_X * Chunk.x), targetPositionData.blockIndex_y, targetPositionData.blockIndex_z + (targetPositionData.chunk_Z * Chunk.z));
-
-        if(index_z == targetPositionData.blockIndex_z)
-        // ¿ÀÇÂ ³ëµå ¸®½ºÆ®¿¡ °°Àº ³ëµå°¡ ÀÖÀ»¶§
+        int h;
+        if (targetPositionData != null)
+        {
+            h = GetH(index_x + (chunk_X * Chunk.x), moveData.afterIndexY, index_z + (chunk_Z * Chunk.z),
+            targetPositionData.blockIndex_x + (targetPositionData.chunk_X * Chunk.x), targetPositionData.blockIndex_y, targetPositionData.blockIndex_z + (targetPositionData.chunk_Z * Chunk.z));
+        }
+        else
+        {
+            h = 10;
+        }
+        // ì˜¤í”ˆ ë…¸ë“œ ë¦¬ìŠ¤íŠ¸ì— ê°™ì€ ë…¸ë“œê°€ ìˆì„ë•Œ
         foreach (var item in openNodes)
         {
             if (item.positionData.CheckSamePosition(afterPositionData))
@@ -327,18 +465,59 @@ public class Entity : MonoBehaviour
                 }
             }
         }
-
-        NewBehaviourScript1 a = Instantiate(trueWay, MapManager.instance.GetObjectPosition(afterPositionData.chunk,afterPositionData.blockIndex_x,afterPositionData.blockIndex_y,afterPositionData.blockIndex_z), Quaternion.identity);
-        a.name = c.ToString();
-        a.h = h;
-        a.g = g;
-        c++;
         Node temp = new Node(afterPositionData, g, h, current);
 
         openNodes.Add(temp);
         
         return true;
     }
-    int c = 0;
 
+    #endregion
+
+
+    #region ì‹œì•¼ê°ìœ¼ë¡œ ì˜¤ë¸Œì íŠ¸ íƒìƒ‰
+    void FindVisibleTargets()
+    {
+        visibleTargets.Clear();
+        // viewRadiusë¥¼ ë°˜ì§€ë¦„ìœ¼ë¡œ í•œ ì› ì˜ì—­ ë‚´ targetMask ë ˆì´ì–´ì¸ ì½œë¼ì´ë”ë¥¼ ëª¨ë‘ ê°€ì ¸ì˜´
+        Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
+
+        for (int i = 0; i < targetsInViewRadius.Length; i++)
+        {
+            Transform target = targetsInViewRadius[i].transform;
+            Vector3 dirToTarget = (target.position - transform.position).normalized;
+
+            // í”Œë ˆì´ì–´ì™€ forwardì™€ targetì´ ì´ë£¨ëŠ” ê°ì´ ì„¤ì •í•œ ê°ë„ ë‚´ë¼ë©´
+            if (Vector3.Angle(transform.forward, dirToTarget) < viewAngle / 2)
+            {
+                float dstToTarget = Vector3.Distance(transform.position, target.transform.position);
+
+                // íƒ€ê²Ÿìœ¼ë¡œ ê°€ëŠ” ë ˆì´ìºìŠ¤íŠ¸ì— obstacleMaskê°€ ê±¸ë¦¬ì§€ ì•Šìœ¼ë©´ visibleTargetsì— Add
+                if (!Physics.Raycast(transform.position, dirToTarget, dstToTarget, obstacleMask))
+                {
+                    visibleTargets.Add(target);
+                }
+            }
+        }
+
+        if(visibleTargets.Count > 0)
+        {
+            targetTransform = visibleTargets[0];
+        }
+        else
+        {
+            targetTransform = null;
+        }
+    }
+
+    IEnumerator FindTargetsWithDelay(float delay)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(delay);
+            FindVisibleTargets();
+        }
+    }
+
+    #endregion
 }

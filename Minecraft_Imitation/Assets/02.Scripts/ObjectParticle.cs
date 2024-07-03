@@ -9,7 +9,7 @@ public class ObjectParticle : MonoBehaviour
 {
 
     private Rigidbody rigidbody;
-    private Collider collider;
+    private Collider rigidCollider;
     public Transform particleObject;
     public float rotatingSpeed = 1;
     public float rotatingLength = 0.15f;
@@ -19,14 +19,14 @@ public class ObjectParticle : MonoBehaviour
     
     public ObjectParticleData.ParticleKind particleKind; // 오브젝트 파티클 종류
     public int count = 1;
-    private Sprite icon;
+    public Sprite icon;
     private Transform target;
     private bool onTarget = false;
 
     private void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
-        collider = GetComponent<Collider>();
+        rigidCollider = GetComponent<Collider>();
     }
 
 
@@ -52,10 +52,27 @@ public class ObjectParticle : MonoBehaviour
                 {
                     transform.position += (target.position - transform.position).normalized * moveSpeed * Time.deltaTime;
                 }
+                else
+                {
+                    if (target.CompareTag("Player"))
+                    {
+                        int remainder = 0;
+                        //remainder = target.GetComponent<플레이어 인벤토리 관리 컴포턴트>().인벤토리에 넣어주고 남은값 주는 함수;
+                        if (remainder == 0)
+                        {
+                            Destroy(gameObject);
+                        }
+                        else
+                        {
+                            count = remainder;
+                            ResetRigid();
+                        }
+                    }
+                }
             }
             else
             {
-                Destroy(gameObject);
+
             }
         }
         
@@ -65,7 +82,7 @@ public class ObjectParticle : MonoBehaviour
     {
         runningTime += Time.deltaTime * rotatingSpeed;
         y = Mathf.Sin(runningTime) * rotatingLength;
-        particleObject.transform.localPosition += Vector3.up * y * Time.deltaTime;
+        particleObject.transform.position += Vector3.up * y * Time.deltaTime;
 
     }
 
@@ -75,51 +92,79 @@ public class ObjectParticle : MonoBehaviour
         
     }
 
-    private void CollisionParticle(ObjectParticle other)
+    private void ResetRigid()
     {
-        if (particleKind != other.particleKind) // 같은 종류의 아이템이 아니면 리턴
-            return;
-
-        if(other.count > count)
-        {
-            other.count += count;
-            target = other.transform;
-            rigidbody.useGravity = false;
-            collider.isTrigger = true;
-            onTarget = true;
-
-        }
-        else if(other.count == count)
-        {
-            if(gameObject.GetHashCode() < other.gameObject.GetHashCode())
-            {
-                other.count += count;
-                target = other.transform;
-                rigidbody.useGravity = false;
-                collider.isTrigger = true;
-                onTarget = true;
-            }
-        }
+        rigidbody.useGravity = true;
+        rigidCollider.isTrigger = false;
     }
 
     private void CollisionPlayer(Transform other)
     {
         target = other.transform;
         rigidbody.useGravity = false;
-        collider.isTrigger = true;
+        rigidCollider.isTrigger = true;
         onTarget = true;
     }
+
+
+    private void CollisionParticle(ObjectParticle other)
+    {
+        if (particleKind != other.particleKind) // 같은 종류의 아이템이 아니면 리턴
+            return;
+
+        if (other.count < count)
+            return;
+
+        if(other.count == count)
+        {
+            if(gameObject.GetHashCode() > other.gameObject.GetHashCode())
+            {
+                return;
+            }
+        }
+
+        other.count += count;
+        if(other.count > 64)
+        {
+            other.count = 64;
+            count = other.count - 64;
+            ResetRigid();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+
 
     private void OnTriggerStay(Collider other)
     {
 
-        if (target == null) // 이미 충돌해 타겟한테 이동 중이면 리턴
+        if (!onTarget) // 이미 충돌해 타겟한테 이동 중이면 리턴
         {
-            if (other.CompareTag("ObjectParticle"))
+            if (other.CompareTag("Player"))
             {
-
+                //if(other.GetComponent<플레이어>.아이템을 먹을 수 있는지){
+                //    onTarget = true;
+                //    target = other.transform;
+                //    CollisionPlayer(other.transform);
+                //}
             }
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!onTarget)
+        {
+            if (other.CompareTag("ObjectParticle"))
+            {
+                if(Vector3.Distance(transform.position, other.transform.position) < 0.4f)
+                {
+                    CollisionParticle(other.GetComponent<ObjectParticle>());
+                }
+            }
+        }
+    }
 }

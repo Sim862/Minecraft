@@ -103,16 +103,17 @@ public class Block : MonoBehaviour
     {
         StopBroke();
         SoundManager.instance.ActiveSFXSound(blockData.brockBrokenSound, sfxAudioSource, null, true);
-        ObjectParticle objectParticle = DataManager.instance.GetObjectParticlePrefab(blockData.objectParticle); // ������ �Ŵ������� ������ Ȯ��
-        if (objectParticle != null)
-        {
-            Instantiate(objectParticle, transform.position, objectParticle.transform.rotation);
-        }
+        //ObjectParticle objectParticle = DataManager.instance.GetObjectParticlePrefab(blockData.objectParticle); // ������ �Ŵ������� ������ Ȯ��
+        //if (objectParticle != null)
+        //{
+        //    Instantiate(objectParticle, transform.position, objectParticle.transform.rotation);
+        //}
 
         print("블럭 파괴");
         gameObject.SetActive(false);
         // 쉐이더 초기화 추가
         broken = false;
+        canBreak = false;
     }
 
     
