@@ -31,24 +31,48 @@ public class Node
 
 public class Entity : MonoBehaviour
 {
+    protected enum EntityState
+    {
+        Idle,
+        Move,
+        Attack,
+        Hit,
+    }
+
+    public Rigidbody rigidbody;
+
     public MobData mobData;
-    public MobData.ObjectKind objectKind;
     public MobData.MobKind mobKind;
 
     public PositionData positionData;
 
     public int detectionDistance = 8;
 
-    public float speed = 3f;
-    public float rotationSpeed = 15;
+    protected EntityState entityState;
+
+    public float maxHP = 100;
+    public float currHP = 0;
+    public float runSpeed = 3f;
+    public float normalSpeed = 1.5f;
+    public float currSpeed = 1.5f;
+    public float rotationSpeed = 300;
     public int objectHeight = 1;
     public int fallHeight = 3;
-    public Quaternion targetAngle;
+
+    public float movementDelayTime = 3;
+
+    private static float fallspeedCriteria = -7f;
+    private float minVelocity_Y = 0;
+
+
+    public static float KnockBackPower = 50f;
+    protected Transform target;
+    private Quaternion targetAngle;
 
     private Node wayPoint_Current;
     private Vector3 wayPosition = Vector3.zero;
     private float wayPositionDistance = 0;
-    private List<Node> wayPoints = new List<Node>();
+    protected List<Node> wayPoints = new List<Node>();
 
     private List<Node> openNodes;
     private List<Node> closedNode;
@@ -93,17 +117,18 @@ public class Entity : MonoBehaviour
     private void Awake()
     {
         mobData = new MobData(mobKind);
+        rigidbody = GetComponent<Rigidbody>();
     }
 
     public bool init_test = false;
     public bool start_test = false;
     public int c_x, c_z;
     public int b_x, b_y, b_z;
-    public int tc_x, tc_z;
-    public int tb_x, tb_y, tb_z;
+    //public int tc_x, tc_z;
+    //public int tb_x, tb_y, tb_z;
 
 
-    public List<Node> finalNodeList;
+    public Node[] finalNodeList;
 
     //private void Update()
     //{
@@ -117,10 +142,11 @@ public class Entity : MonoBehaviour
     //    {
     //        start_test = false;
     //        PositionData nextPosition = new PositionData(tc_x, tc_z, tb_x, tb_y, tb_z);
-    //        wayPoints = AStar(nextPosition, null);
-    //        finalNodeList = wayPoints;
+    //        wayPoints = AStar_Runaway(target);
+    //        finalNodeList = wayPoints.ToArray();
     //        SetWayPosition();
     //    }
+
 
     //    Movement();
     //}
@@ -130,11 +156,28 @@ public class Entity : MonoBehaviour
         positionData = new PositionData(chunk_x, chunk_z, blockIndex_x, blockIndex_y, blockIndex_z);
 
         transform.position = MapManager.instance.GetObjectPosition(positionData.chunk, blockIndex_x, blockIndex_y, blockIndex_z);
+        currHP = maxHP;
+        entityState = EntityState.Idle;
+        rigidbody.useGravity = true;
+    }
+    protected void Fall()
+    {
+        if (rigidbody.velocity.y < minVelocity_Y)
+        {
+            minVelocity_Y = rigidbody.velocity.y;
+        }
+        else if (rigidbody.velocity.y == 0 && minVelocity_Y < fallspeedCriteria)
+        {
+            float dmg = (minVelocity_Y - fallspeedCriteria) * 0.2f;
+
+            UpdateHP(null, dmg, 0);
+            minVelocity_Y = 0;
+        }
     }
 
     private void SetChunkPositionData()
     {
-        PositionData positionData = MapManager.instance.PositionToChunkData(transform.position);
+        PositionData positionData = MapManager.instance.PositionToBlockData(transform.position);
     }
 
     private int x, y, z;
@@ -156,27 +199,33 @@ public class Entity : MonoBehaviour
         return (x + y + z)* 10;
     }
 
-    private void SetWayPosition()
+    protected void SetWayPosition()
     {
-        if(wayPoints.Count > 0)
+        if (wayPoints.Count > 0)
         {
+            entityState = EntityState.Move;
             wayPoint_Current = wayPoints[0];
             wayPoints.RemoveAt(0);
 
-            wayPosition = MapManager.instance.GetBlockPosition(wayPoint_Current.positionData.chunk, 
+            wayPosition = MapManager.instance.GetObjectPosition(wayPoint_Current.positionData.chunk,
                 wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z);
-            float xx = wayPosition.x - transform.position.x;
-            float zz = wayPosition.z - transform.position.z;
-            targetAngle = Quaternion.LookRotation(wayPosition - transform.position);
         }
         else
         {
             wayPosition = Vector3.zero;
+            if (entityState == EntityState.Move)
+            {
+                entityState = EntityState.Idle;
+
+                currSpeed = normalSpeed;
+                movementDelayTime = Random.Range(3f, 10f);
+            }
         }
     }
 
     protected void Movement()
     {
+
         if(wayPosition != Vector3.zero)
         {
             wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
@@ -186,9 +235,19 @@ public class Entity : MonoBehaviour
                 wayPosition = Vector3.zero;
                 return;
             }
-            transform.position += (wayPosition - transform.position).normalized * speed * Time.deltaTime;
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetAngle, rotationSpeed * Time.deltaTime);
+            transform.position += (wayPosition - transform.position).normalized * runSpeed * Time.deltaTime;
+            Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
 
+            if(cross.y > 0.1)
+            {
+                transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
+            }
+            else if(cross.y < -0.1)
+            {
+                transform.Rotate(new Vector3(0, -rotationSpeed * Time.deltaTime, 0));
+            }
+            positionData = MapManager.instance.PositionToBlockData(transform.position);
+            
             wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
             if(wayPositionDistance < 0.1f)
             {
@@ -197,21 +256,53 @@ public class Entity : MonoBehaviour
         }
     }
 
+
     protected void Runaway()
     {
+        AStar_Runaway(null);
+        SetWayPosition();
+    }
+    public void UpdateHP (Transform target, float dmg, float force)
+    {
+        currHP += dmg;
 
+        if (dmg < 0)
+        {
+
+            if (currHP <= 0)
+            {
+                currHP = 0;
+                // 죽는 이벤트 추가
+            }
+            else
+            {
+                if (target != null) // Vector zero는 낙하데미지
+                {
+                    entityState = EntityState.Hit;
+                    this.target = target;
+                    rigidbody.AddForce((transform.position - target.position).normalized+ Vector3.up * KnockBackPower * force);
+                    movementDelayTime = 1.5f;
+                }
+            }
+        }
+
+        if (currHP > maxHP)
+        {
+            currHP = maxHP;
+        }
     }
 
+
+
     #region A* 알고리즘
-    private List<Node> AStar(PositionData targetPositionData, Transform target)
+    protected void AStar(PositionData targetPositionData, Transform target)
     {
+        
         int count = 30;
 
         // 리스트 초기화
         openNodes = new List<Node>();
         closedNode = new List<Node>();
-
-       
 
         // 시작 위치 셋팅
         current = new Node(positionData, 0, GetH(positionData.blockIndex_x + (positionData.chunk_X * Chunk.x), positionData.blockIndex_y, positionData.blockIndex_z + (positionData.chunk_Z * Chunk.z),
@@ -255,12 +346,8 @@ public class Entity : MonoBehaviour
             closedNode.Add(current);
 
 
-            //Instantiate(trueWay1, MapManager.instance.GetObjectPosition(current.positionData.chunk, current.positionData.blockIndex_x, current.positionData.blockIndex_y, current.positionData.blockIndex_z), Quaternion.identity);
-
             if (current.positionData.CheckSamePosition(targetPositionData))
                 break;
-
-
 
             canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
 
@@ -279,24 +366,23 @@ public class Entity : MonoBehaviour
 
         }
 
-        List<Node> way = new List<Node>();
-        if(current == null)
+        wayPoints.Clear();
+        if (current == null)
         {
             current = nearNode;
         }
         while (current != null)
         {
-            way.Add(current);
+            wayPoints.Add(current);
             current = current.parent;
         }
-        way.Reverse();
-        return way;
+        wayPoints.Reverse();
     }
 
-    private List<Node> AStar_Runaway(Transform target)
+    protected void AStar_Random()
     {
         // 도망갈 블럭 수
-        int runawayDistanceCount = 6;
+        int runawayDistanceCount = Random.Range(2,7);
 
         openNodes = new List<Node>();
         closedNode = new List<Node>();
@@ -315,78 +401,130 @@ public class Entity : MonoBehaviour
 
             if (openNodes.Count > 0)
             {
-                nearNode = openNodes[Random.Range(0,openNodes.Count)];
+                nearNode = openNodes[Random.Range(0, openNodes.Count)];
                 minF = nearNode.f;
             }
-            
+
 
             if (minF == int.MaxValue)
             {
                 current = null;
                 break; // 오픈노드가 없다면 길없음
             }
-
             current = nearNode;
             openNodes.Remove(nearNode);
             closedNode.Add(nearNode);
 
-            Vector3 runawayDirection = (MapManager.instance.GetBlockPosition(current.positionData.chunk,current.positionData.blockIndex_x,current.positionData.blockIndex_y,current.positionData.blockIndex_z) - target.position).normalized;
+            openNodes.Clear();
 
-            if (Mathf.Abs(runawayDirection.x) > Mathf.Abs(runawayDirection.z))
-            {
-                if (runawayDirection.x > 0)
-                {
-                    runawayDirection = Vector3.right;
-                }
-                else
-                {
-                    runawayDirection = -Vector3.right;
-                }
-            }
-            else
-            {
-                if (runawayDirection.z > 0)
-                {
-                    runawayDirection = Vector3.forward;
-                }
-                else
-                {
-                    runawayDirection = -Vector3.forward;
-                }
-            }
+            print(current.positionData.chunk_X + ", " + current.positionData.chunk_Z + ", " +
+                current.positionData.blockIndex_x + ", " + current.positionData.blockIndex_y + ", " + current.positionData.blockIndex_z);
 
             canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
 
-            if(runawayDirection.x != 0)
-            {
-                // 동서남북 검사
-                AddOpenNodes(current.positionData.blockIndex_x + (int)runawayDirection.x, current.positionData.blockIndex_z, canJump);
-                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + (int)Vector3.forward.z, canJump);
-                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z - (int)Vector3.forward.z, canJump);
-            }
-            else
-            {
-                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + (int)runawayDirection.z, canJump);
-                AddOpenNodes(current.positionData.blockIndex_x + (int)Vector3.right.x, current.positionData.blockIndex_z, canJump);
-                AddOpenNodes(current.positionData.blockIndex_x - (int)Vector3.right.x, current.positionData.blockIndex_z, canJump);
-            }
+            plus_X = AddOpenNodes(current.positionData.blockIndex_x + 1, current.positionData.blockIndex_z, canJump);
+            minus_X = AddOpenNodes(current.positionData.blockIndex_x - 1, current.positionData.blockIndex_z, canJump);
+            plus_Z = AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + 1, canJump);
+            minus_Z = AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z - 1, canJump);
 
         }
 
-        List<Node> way = new List<Node>();
+        wayPoints.Clear();
         if (current == null)
         {
             current = nearNode;
         }
         while (current != null)
         {
-            way.Add(current);
+            wayPoints.Add(current);
             current = current.parent;
         }
-        way.Reverse();
-        return way;
+        wayPoints.Reverse();
     }
 
+    protected void AStar_Runaway(Transform target)
+    {
+        if(target == null)
+        {
+            target = this.target;
+        }
+
+        currSpeed = runSpeed;
+        // 도망갈 블럭 수
+        int runawayDistanceCount = 10;
+
+        openNodes = new List<Node>();
+        closedNode = new List<Node>();
+
+        // 시작 위치 셋팅
+        current = new Node(positionData, 0, 0, null);
+        openNodes.Add(current);
+        nearNode = current;
+
+
+        // 탐색 시작
+        while (runawayDistanceCount > 0)
+        {
+            runawayDistanceCount--;
+            minF = int.MaxValue;
+
+            if (openNodes.Count > 0)
+            {
+                nearNode = openNodes[Random.Range(0, openNodes.Count)];
+                minF = nearNode.f;
+            }
+
+
+            if (minF == int.MaxValue)
+            {
+                current = null;
+                break; // 오픈노드가 없다면 길없음
+            }
+            current = nearNode;
+            openNodes.Remove(nearNode);
+            closedNode.Add(nearNode);
+
+            openNodes.Clear();
+
+            Vector3 runawayDirection = (transform.position - target.position).normalized;
+
+            print(current.positionData.chunk_X + ", " + current.positionData.chunk_Z + ", " +
+                current.positionData.blockIndex_x + ", " + current.positionData.blockIndex_y + ", " + current.positionData.blockIndex_z);
+
+            canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
+
+            if (runawayDirection.x > 0)
+            {
+                AddOpenNodes(current.positionData.blockIndex_x + 1, current.positionData.blockIndex_z, canJump);
+            }
+            else
+            {
+                AddOpenNodes(current.positionData.blockIndex_x - 1, current.positionData.blockIndex_z, canJump);
+            }
+
+            if (runawayDirection.z > 0)
+            {
+                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + 1, canJump);
+            }
+            else
+            {
+                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z - 1, canJump);
+            }
+
+        }
+
+        wayPoints.Clear();
+        if (current == null)
+        {
+            current = nearNode;
+        }
+        while (current != null)
+        {
+            wayPoints.Add(current);
+            current = current.parent;
+        }
+        wayPoints.Reverse();
+    }
 
     // 위치가 변경된 노드가 이동 가능한 노드인지 확인하고 오픈노드 리스트에 추가
     private bool AddOpenNodes(int index_x, int index_z, bool canJump, PositionData targetPositionData = null)
@@ -476,7 +614,7 @@ public class Entity : MonoBehaviour
 
 
     #region 시야각으로 오브젝트 탐색
-    void FindVisibleTargets()
+    protected void FindVisibleTargets()
     {
         visibleTargets.Clear();
         // viewRadius를 반지름으로 한 원 영역 내 targetMask 레이어인 콜라이더를 모두 가져옴
@@ -510,7 +648,7 @@ public class Entity : MonoBehaviour
         }
     }
 
-    IEnumerator FindTargetsWithDelay(float delay)
+    protected IEnumerator FindTargetsWithDelay(float delay)
     {
         while (true)
         {

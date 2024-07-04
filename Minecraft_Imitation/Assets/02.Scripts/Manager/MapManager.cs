@@ -359,20 +359,15 @@ public class MapManager : MonoBehaviour
         return new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
     }
 
-    public Vector3 GetBlockPosition(Chunk chunk, int x, int y, int z)
+    public PositionData PositionToBlockData(Vector3 objectPosition)
     {
-        return new Vector3(chunk.chunk_x * Chunk.x + x, Chunk.defaultY + y, chunk.chunk_z * Chunk.z + z); 
-    }
+        int chunk_X = Mathf.RoundToInt(objectPosition.x) / Chunk.x;
+        int chunk_Z = Mathf.RoundToInt(objectPosition.z) / Chunk.z;
 
-    public PositionData PositionToChunkData(Vector3 objectPosition)
-    {
-        int chunk_X = (int)objectPosition.x / Chunk.x;
-        int chunk_Z = (int)objectPosition.z / Chunk.z;
+        int blockIndex_X = Mathf.RoundToInt(objectPosition.x) % Chunk.x;
+        int blockIndex_Z = Mathf.RoundToInt(objectPosition.z) % Chunk.z;
 
-        int blockIndex_X = (int)objectPosition.x % Chunk.x;
-        int blockIndex_Z = (int)objectPosition.z % Chunk.z;
-
-        PositionData positionData = new PositionData(chunk_X,chunk_Z,blockIndex_X,(int)objectPosition.y,blockIndex_Z);
+        PositionData positionData = new PositionData(chunk_X,chunk_Z,blockIndex_X,(int)objectPosition.y - Chunk.defaultY,blockIndex_Z);
 
         return positionData;
     }
