@@ -8,6 +8,7 @@ TagManager:
   - Monster
   - Item
   - ObjectParticle
+  - ItemImage
   layers:
   - Default
   - TransparentFX
@@ -21,7 +22,7 @@ TagManager:
   - 
   - Enemy
   - Item
-  - 
+  - ItemImage
   - 
   - 
   - 

@@ -23,9 +23,9 @@ public class ItemImage : MonoBehaviour
         
     }
 
-    public void UseItemOne() // 설치하는 경우 사용. 하나만 쓰기때문.
+    public void ChangeItemCnt(int value) // 설치하는 경우 사용. 하나만 쓰기때문.
     {
-        count--;
+        count += value;
         if (count < 1)
         {
             Destroy(gameObject);

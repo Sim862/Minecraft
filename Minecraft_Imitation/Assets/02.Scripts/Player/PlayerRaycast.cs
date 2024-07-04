@@ -4,33 +4,18 @@ using UnityEngine;
 
 public class PlayerRaycast : MonoBehaviour
 {
-    //public GameObject camera;
-    //bool printFirst = true;
     public float aimRange = 10;
     public GameObject blockFac;
     public float mouseOneCool = 1;
     public float breakPower = 5;
 
-    
     Transform hitNowBlock; // 클릭할때
     Transform hitBlockTr;
     Block hitBlockCs;
-    
-    //BlockData.BlockType test = BlockData.BlockType.Pick;
 
-    //Transform nowbreakBlock = null;
-    //Block nowbreakBlockCs = null;
-    //bool isWork = false;
     Vector3 normalVec;
     RaycastHit hitInfo;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         // 레이를 생성한 후 발사될 위치와 진행방향을 설정한다.
@@ -125,14 +110,19 @@ public class PlayerRaycast : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1)) // 마우스 우클릭시 설치 및 사용
         {
-            GameObject block = Instantiate(blockFac);
-            block.transform.position = hitInfo.transform.position + normalVec * SizeVector(hitInfo);
-
             int slotnumber = PlayerManager.instance.usingSlot; // 현재 사용중인 슬롯넘버 저장.
             GameObject nowUsingObject = InventoryStatic.instance.slots[slotnumber];
+            GameObject nowUsingObjectInQuick = InventoryPopup.instance.quickSlot[slotnumber];
             ItemImage nowItemImage = nowUsingObject.GetComponentInChildren<ItemImage>();
-            nowItemImage.UseItemOne();
-
+            ItemImage nowItemImageInQuick = nowUsingObjectInQuick.GetComponentInChildren<ItemImage>();
+            if (nowItemImage != null)
+            {
+                nowItemImage.ChangeItemCnt(-1);
+                nowItemImageInQuick.ChangeItemCnt(-1);
+            
+                GameObject block = Instantiate(blockFac);
+                block.transform.position = hitInfo.transform.position + normalVec * SizeVector(hitInfo);
+            }
         }
     }
 

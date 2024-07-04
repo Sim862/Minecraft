@@ -11,17 +11,6 @@ public class PlayerGetItem : MonoBehaviour
     Sprite icon;
 
     public GameObject itemImagePref;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -35,7 +24,7 @@ public class PlayerGetItem : MonoBehaviour
 
             Destroy(other.transform.parent.gameObject);
 
-            GameObject itemImage = Instantiate(itemImagePref);
+            GameObject itemImage = Instantiate(itemImagePref); // 아이템UI
 
             ItemImage itemImageCs = itemImage.GetComponent<ItemImage>();
             itemImageCs.itemImage.sprite = icon;
