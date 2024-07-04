@@ -11,12 +11,10 @@ public class PlayerMove : MonoBehaviour
     public float yVelocity = 0f; // 수직 속력 변수
     public float jumpPower = 10f; // 점프력 변수
     public bool isJumping = false; // 점프 상태 변수
-    public int hp = 20; // 플레이어 체력 변수
-    int maxHp = 20; // 최대 체력 변수
+    public float hp = 20; // 플레이어 체력 변수
+    float maxHp = 20; // 최대 체력 변수
     public Slider hpSlider; // hp 슬라이더 변수
     PlayerDamaged damagedCs;
-
-
 
     void Start()
     {
@@ -29,9 +27,8 @@ public class PlayerMove : MonoBehaviour
     void Update()
     {
         // 4. 현재 플레이어 hp(%)를 hp 슬라이더의 value에 반영한다.
-        hpSlider.value = (float)hp / (float)maxHp;
+        hpSlider.value = hp / maxHp;
         PlayerMoveMethod();
-
     }
 
     void PlayerMoveMethod()

@@ -221,7 +221,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6821823684702905934}
   - component: {fileID: 3094267897091189857}
-  m_Layer: 5
+  m_Layer: 12
   m_Name: ItemImagePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,5 +261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e1efcbecf32fa24788a28d357d15db6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  count: 0
   itemImage: {fileID: 2080195618491487831}
   itemCount: {fileID: 315211444282816670}
+  particleKind: 0

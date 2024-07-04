@@ -80,5 +80,22 @@ public class PlayerManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha7)) usingSlot = 6;
         else if (Input.GetKeyDown(KeyCode.Alpha8)) usingSlot = 7;
         else if (Input.GetKeyDown(KeyCode.Alpha9)) usingSlot = 8;
+
+        if(Input.GetAxisRaw("Mouse ScrollWheel") < 0)
+        {
+            usingSlot++;
+            if(usingSlot > 8)
+            {
+                usingSlot = 0;
+            }
+        }
+        else if(Input.GetAxisRaw("Mouse ScrollWheel") > 0)
+        {
+            usingSlot--;
+            if (usingSlot < 0)
+            {
+                usingSlot = 8;
+            }
+        }
     }
 }
