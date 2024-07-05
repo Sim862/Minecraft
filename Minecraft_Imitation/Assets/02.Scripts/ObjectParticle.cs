@@ -23,6 +23,9 @@ public class ObjectParticle : MonoBehaviour
     private Transform target;
     private bool onTarget = false;
 
+    private bool drop = false;
+    private float pickupCooltime = 1.5f;
+
     private void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
@@ -137,11 +140,24 @@ public class ObjectParticle : MonoBehaviour
     }
 
 
+    public void Drop()
+    {
+        drop = true;
+    }
+
+    IEnumerator DropCoolTime()
+    {
+        if (drop)
+        {
+            yield return new WaitForSeconds(pickupCooltime);
+            drop = false;
+        }
+    }
 
     private void OnTriggerStay(Collider other)
     {
 
-        if (!onTarget) // 이미 충돌해 타겟한테 이동 중이면 리턴
+        if (!onTarget && !drop) // 이미 충돌해 타겟한테 이동 중이면 리턴
         {
             if (other.CompareTag("Player"))
             {
@@ -156,7 +172,7 @@ public class ObjectParticle : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!onTarget)
+        if (!onTarget && !drop)
         {
             if (other.CompareTag("ObjectParticle"))
             {

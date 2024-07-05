@@ -12,7 +12,7 @@ using Random = UnityEngine.Random;
 [System.Serializable]
 public class Node
 {
-    public Node(PositionData positionData, int g, int h, Node parent)
+    public Node(PositionData positionData, int g, int h, bool needJump, Node parent)
     {
         this.parent = parent;
 
@@ -21,11 +21,14 @@ public class Node
 
         this.g = g;
         this.h = h;
+        this.needJump = needJump;
+
     }
 
     public Node parent;
     public PositionData positionData;
     public int g, h;
+    public bool needJump;
     public int f { get { return g + h; } }
 }
 
@@ -59,7 +62,10 @@ public class Entity : MonoBehaviour
     public int objectHeight = 1;
     public int fallHeight = 3;
 
-    public float movementDelayTime = 3;
+    public float nextMovementTime = 3;
+    public float movementDelayTime = 4;
+    public bool needJump;
+
 
     private static float fallspeedCriteria = -7f;
     private float minVelocity_Y = 0;
@@ -209,49 +215,65 @@ public class Entity : MonoBehaviour
 
             wayPosition = MapManager.instance.GetObjectPosition(wayPoint_Current.positionData.chunk,
                 wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z);
+            needJump = wayPoint_Current.needJump;
         }
         else
         {
             wayPosition = Vector3.zero;
+            needJump = false;
             if (entityState == EntityState.Move)
             {
                 entityState = EntityState.Idle;
 
                 currSpeed = normalSpeed;
-                movementDelayTime = Random.Range(3f, 10f);
+                nextMovementTime = Random.Range(3f, 10f);
             }
         }
     }
 
+    public float jumpforce = 10;
     protected void Movement()
     {
 
         if(wayPosition != Vector3.zero)
         {
             wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
-            if (wayPositionDistance > 1.5) // 이동할 위치가 한블럭 보다 크다 = 내 위치가 변했다 -> 이동 취소
+            positionData = MapManager.instance.PositionToBlockData(transform.position);
+            if (wayPositionDistance > 2) // 이동할 위치가 한블럭 보다 크다 = 내 위치가 변했다 -> 이동 취소
             {
+                movementDelayTime = 4;
                 wayPoints = new List<Node>();
                 wayPosition = Vector3.zero;
+                SetWayPosition();
                 return;
             }
-            transform.position += (wayPosition - transform.position).normalized * runSpeed * Time.deltaTime;
-            Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
-
-            if(cross.y > 0.1)
+            else if (wayPositionDistance < 0.1f)
             {
-                transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
-            }
-            else if(cross.y < -0.1)
-            {
-                transform.Rotate(new Vector3(0, -rotationSpeed * Time.deltaTime, 0));
-            }
-            positionData = MapManager.instance.PositionToBlockData(transform.position);
-            
-            wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
-            if(wayPositionDistance < 0.1f)
-            {
+                movementDelayTime = 4;
                 SetWayPosition();
+            }
+            else
+            {
+                if (needJump)
+                {
+                    if (wayPosition.y - transform.position.y > 0.5f)
+                    {
+                        rigidbody.AddForce(Vector3.up * jumpforce);
+                    }
+                }
+                movementDelayTime -= Time.deltaTime;
+                Vector3 dir = new Vector3((wayPosition.x - transform.position.x), 0, (wayPosition.z - transform.position.z)).normalized;
+                transform.position += dir * currSpeed * Time.deltaTime;
+                Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
+
+                if (cross.y > 0.05)
+                {
+                    transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
+                }
+                else if (cross.y < -0.05)
+                {
+                    transform.Rotate(new Vector3(0, -rotationSpeed * Time.deltaTime, 0));
+                }
             }
         }
     }
@@ -281,7 +303,7 @@ public class Entity : MonoBehaviour
                     entityState = EntityState.Hit;
                     this.target = target;
                     rigidbody.AddForce((transform.position - target.position).normalized+ Vector3.up * KnockBackPower * force);
-                    movementDelayTime = 1.5f;
+                    nextMovementTime = 1.5f;
                 }
             }
         }
@@ -306,7 +328,7 @@ public class Entity : MonoBehaviour
 
         // 시작 위치 셋팅
         current = new Node(positionData, 0, GetH(positionData.blockIndex_x + (positionData.chunk_X * Chunk.x), positionData.blockIndex_y, positionData.blockIndex_z + (positionData.chunk_Z * Chunk.z),
-            targetPositionData.blockIndex_x + (targetPositionData.chunk_X * Chunk.x), targetPositionData.blockIndex_y, targetPositionData.blockIndex_z) + (targetPositionData.chunk_Z * Chunk.z), null);
+            targetPositionData.blockIndex_x + (targetPositionData.chunk_X * Chunk.x), targetPositionData.blockIndex_y, targetPositionData.blockIndex_z) + (targetPositionData.chunk_Z * Chunk.z), false, null);
         openNodes.Add(current);
         nearNode = current;
 
@@ -388,7 +410,7 @@ public class Entity : MonoBehaviour
         closedNode = new List<Node>();
 
         // 시작 위치 셋팅
-        current = new Node(positionData, 0, 0, null);
+        current = new Node(positionData, 0, 0, false, null);
         openNodes.Add(current);
         nearNode = current;
 
@@ -416,9 +438,6 @@ public class Entity : MonoBehaviour
             closedNode.Add(nearNode);
 
             openNodes.Clear();
-
-            print(current.positionData.chunk_X + ", " + current.positionData.chunk_Z + ", " +
-                current.positionData.blockIndex_x + ", " + current.positionData.blockIndex_y + ", " + current.positionData.blockIndex_z);
 
             canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
 
@@ -457,7 +476,7 @@ public class Entity : MonoBehaviour
         closedNode = new List<Node>();
 
         // 시작 위치 셋팅
-        current = new Node(positionData, 0, 0, null);
+        current = new Node(positionData, 0, 0,false, null);
         openNodes.Add(current);
         nearNode = current;
 
@@ -579,6 +598,11 @@ public class Entity : MonoBehaviour
 
         int g = current.g + moveData.weight;
         int h;
+        bool j = false;
+        if(moveData.weight >= 20)
+        {
+            j = true;
+        }
         if (targetPositionData != null)
         {
             h = GetH(index_x + (chunk_X * Chunk.x), moveData.afterIndexY, index_z + (chunk_Z * Chunk.z),
@@ -603,7 +627,7 @@ public class Entity : MonoBehaviour
                 }
             }
         }
-        Node temp = new Node(afterPositionData, g, h, current);
+        Node temp = new Node(afterPositionData, g, h, j, current);
 
         openNodes.Add(temp);
         

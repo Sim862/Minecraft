@@ -19,7 +19,7 @@ TagManager:
   - Non_Collision
   - ObjectParticle
   - 
-  - 
+  - Entity
   - Enemy
   - Item
   - ItemImage

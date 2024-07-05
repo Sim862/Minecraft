@@ -34,10 +34,10 @@ public class Pig : Entity
 
             if (entityState == EntityState.Idle)
             {
-                movementDelayTime -= Time.deltaTime;
-                if (movementDelayTime <= 0)
+                nextMovementTime -= Time.deltaTime;
+                if (nextMovementTime <= 0)
                 {
-                    movementDelayTime = 100;
+                    nextMovementTime = 100;
                     AStar_Random();
                     SetWayPosition();
                 }
@@ -45,10 +45,10 @@ public class Pig : Entity
             else if (entityState == EntityState.Hit)
             {
 
-                movementDelayTime -= Time.deltaTime;
-                if (movementDelayTime <= 0)
+                nextMovementTime -= Time.deltaTime;
+                if (nextMovementTime <= 0)
                 {
-                    movementDelayTime = 100;
+                    nextMovementTime = 100;
                     Runaway();
                 }
             }
