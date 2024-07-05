@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DropItemInMouseEvent : MonoBehaviour
+public class DropItemEvent : MonoBehaviour
 {
     public GameObject objectParticleFac;
     ObjectParticleData.ParticleKind particleKind; // 필드에 있는 오브젝트의 종류,개수,아이콘 가져옴.
@@ -19,7 +19,7 @@ public class DropItemInMouseEvent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             nowUsingSlot = PlayerManager.instance.usingSlot;
             GameObject objectParticle = Instantiate(objectParticleFac);
