@@ -143,11 +143,11 @@ public class PlayerRaycast : MonoBehaviour
             newBlockPos = hitInfo.transform.position + normalVec * SizeVector(hitInfo);
             if(Vector3.Distance(transform.position, newBlockPos) > 1)
             {
-                GameObject block = Instantiate(blockFac);
-                block.transform.position = newBlockPos;
+                PositionData positionData = MapManager.instance.PositionToBlockData(newBlockPos);
+                BlockData.BlockKind blockKind = DataManager.instance.ParticleToBlockKind(nowItemImage.particleKind);
+                MapManager.instance.CreateBlock(positionData.chunk, blockKind, positionData.blockIndex_x,positionData.blockIndex_y,positionData.blockIndex_z);
+
             }
         }
     }
-
-    
 }

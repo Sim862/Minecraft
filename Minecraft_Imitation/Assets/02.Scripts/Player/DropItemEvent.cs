@@ -33,16 +33,23 @@ public class DropItemEvent : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
         {
             nowUsingSlot = PlayerManager.instance.usingSlot;
-            GameObject objectParticle = Instantiate(objectParticleFac);
-            ObjectParticle objectParticleCs = objectParticle.GetComponent<ObjectParticle>();
+
+            // ObjectParticleKind 받아오는 용도
+            GameObject nowUsingObject = InventoryStatic.instance.slots[nowUsingSlot];
+            ItemImage nowItemImage = nowUsingObject.GetComponentInChildren<ItemImage>();
+
+            // ObjectParticle의 Prefab 받아오기
+            ObjectParticle objectParticle = DataManager.instance.GetObjectParticlePrefab(nowItemImage.particleKind);
+            // Prefab 생성
+            objectParticle = Instantiate(objectParticle);
 
             if (shiftOn)
             {
-                WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, false); // 다 버릴때 false
+                WhenDropOneChangeImage(nowUsingSlot, objectParticle, false); // 다 버릴때 false
             }
             else
             {
-                WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, true); // 하나 버리는 함수.
+                WhenDropOneChangeImage(nowUsingSlot, objectParticle, true); // 하나 버리는 함수.
             }
 
             

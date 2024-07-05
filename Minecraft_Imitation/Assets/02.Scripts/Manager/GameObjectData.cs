@@ -20,22 +20,36 @@ public class GameObjectData
         Mob,
         ObjectParticle
     }
-    public ObjectKind objectKind;
+    private ObjectKind objectKind;
+
+    public ObjectKind GetObjectKind()
+    {
+        return objectKind;
+    }
 
 }
 
 [System.Serializable]
 public class BlockData : GameObjectData
 {
-    public BlockData(BlockKind blockKind, BlockType blockType, float strength, Sound.AudioClipName brockBreakSound, Sound.AudioClipName brockBrokenSound) : base(ObjectKind.Block)
+    public BlockData(BlockKind blockKind, BlockType blockType, float strength, Sound.AudioClipName brockBreakSound, Sound.AudioClipName brockBrokenSound, ObjectParticleData.ParticleKind objectParticle) : base(ObjectKind.Block)
     {
         this.blockKind = blockKind;
         this.blockType = blockType;
         this.strength = strength;
         this.brockBreakSound = brockBreakSound;
         this.brockBrokenSound = brockBrokenSound;
+        this.objectParticle = objectParticle;
     }
-
+    public BlockData(BlockData blockData) : base(ObjectKind.Block)
+    {
+        this.blockKind = blockData.blockKind;
+        this.blockType = blockData.blockType;
+        this.strength = blockData.strength;
+        this.brockBreakSound = blockData.brockBreakSound;
+        this.brockBrokenSound = blockData.brockBrokenSound;
+        this.objectParticle = blockData.objectParticle;
+    }
     public enum BlockKind
     {
         None,
@@ -50,7 +64,8 @@ public class BlockData : GameObjectData
         Ax,
         Shovel,
         Pick,
-        Hoe
+        Hoe,
+        Bucket
     }
 
     public BlockKind blockKind;
@@ -59,7 +74,7 @@ public class BlockData : GameObjectData
     public Sound.AudioClipName brockBreakSound;
     public Sound.AudioClipName brockBrokenSound;
     public Material material;
-    public ObjectParticleData.ParticleKind objectParticle; // ºí·° ÆÄ±«½Ã ³ª¿À´Â ¾ÆÀÌÅÛ
+    public ObjectParticleData.ParticleKind objectParticle; // ë¸”ëŸ­ íŒŒê´´ì‹œ ë‚˜ì˜¤ëŠ” ì•„ì´í…œ
 }
 
 [System.Serializable]
@@ -99,8 +114,9 @@ public class ObjectParticleData : GameObjectData
     {
         this.particleKind = particleKind;
     }
-    public enum ParticleKind // ÇÃ·¹ÀÌ¾î°¡ ¸Ô°Å³ª ¹ñÀ» ¼ö ÀÖ´Â ¿ÀºêÁ§Æ® ¸ñ·Ï
+    public enum ParticleKind // í”Œë ˆì´ì–´ê°€ ë¨¹ê±°ë‚˜ ë±‰ì„ ìˆ˜ ìˆëŠ” ì˜¤ë¸Œì íŠ¸ ëª©ë¡
     {
+        None,
     //  Block ------------------------------------------------------------------------
         Dirt,
         Wood,

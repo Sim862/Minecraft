@@ -16,28 +16,19 @@ public class Block : MonoBehaviour
 
     private Sound brokenSound;
     private SFXAudioSource sfxAudioSource = null;
-    
+
 
     private bool broken = false;
-    private float strength;
     private bool typeCheck = false;
+    private ObjectParticle objectParticle;
 
     private IEnumerator checkBreak_Coroutine;
 
-    private void OnEnable()
-    {
-        strength = blockData.strength;
-    }
+    public PositionData positionData;
 
     private void Awake()
     {
         meshRenderer = GetComponent<MeshRenderer>();
-    }
-
-    private void Start()
-    {
-        blockData = new BlockData(BlockData.BlockKind.Dirt, BlockData.BlockType.Pick, 100, Sound.AudioClipName.DirtBreak, Sound.AudioClipName.DirtBroken);
-        strength = blockData.strength;
     }
 
     private void OnDisable()
@@ -51,15 +42,12 @@ public class Block : MonoBehaviour
         StopAllCoroutines();
     }
 
-    private void OnDestroy()
+    public void InitBlock(BlockData blockData, PositionData positionData)
     {
-        InActiveSFXSound();
-    }
-
-    public void InitBlock(BlockData blockData)
-    {
-        this.blockData = blockData;
+        this.blockData = new BlockData(blockData);
         this.meshRenderer.material = blockData.material;
+        this.positionData = positionData;
+
     }
 
     public void Break(BlockData.BlockType blockType, float Power) // 한번만 호출하면 블럭 체력 까이기 시작. 피 까이는 상태.
@@ -86,15 +74,10 @@ public class Block : MonoBehaviour
     {
         if (checkBreak_Coroutine != null) // CheckBreak가 실행 중이라면
         {
-            print("블럭 파괴 중지"); 
-            strength = blockData.strength;
+            print("블럭 파괴 중지");
             StopCoroutine(checkBreak_Coroutine);
             checkBreak_Coroutine = null;
 
-            if (sfxAudioSource != null)
-            {
-                InActiveSFXSound();
-            }
         }
     }
 
@@ -102,56 +85,58 @@ public class Block : MonoBehaviour
     private void Broken() // 블럭 파괴
     {
         StopBroke();
-        SoundManager.instance.ActiveSFXSound(blockData.brockBrokenSound, sfxAudioSource, null, true);
-        //ObjectParticle objectParticle = DataManager.instance.GetObjectParticlePrefab(blockData.objectParticle); // ������ �Ŵ������� ������ Ȯ��
-        //if (objectParticle != null)
-        //{
-        //    Instantiate(objectParticle, transform.position, objectParticle.transform.rotation);
-        //}
+        SoundManager.instance.ActiveOnShotSFXSound(blockData.brockBrokenSound, null, transform.position);
+        objectParticle = DataManager.instance.GetObjectParticlePrefab(blockData.objectParticle);
+        if (objectParticle != null)
+        {
+            objectParticle = Instantiate(objectParticle, transform.position, objectParticle.transform.rotation, MapManager.instance.transform);
+            objectParticle.GetComponent<Rigidbody>().AddForce(Vector3.up * 50);
+        }
 
         print("블럭 파괴");
-        gameObject.SetActive(false);
         // 쉐이더 초기화 추가
         broken = false;
         canBreak = false;
+
+        MapManager.instance.BreakBlock(this);
     }
 
-    
-    public void InActiveSFXSound() // 효과음 회수
-    {
-        if (sfxAudioSource != null)
-        {
-            SoundManager.instance.InactiveSFXSound(sfxAudioSource);
-            sfxAudioSource = null;
-        }
-    }
 
     IEnumerator CheckBreak(float Power)
     {
         print("블럭 파괴 시작");
-        sfxAudioSource = SoundManager.instance.ActiveSFXSound(blockData.brockBreakSound, sfxAudioSource, transform, false);
-        float clipLength = sfxAudioSource.GetSoundLength();
-        float clipLengthCheck = 0;
-        while (!broken)
+        if (blockData.brockBreakSound != Sound.AudioClipName.None)
         {
-            if (clipLengthCheck >= clipLength)
+            if(sfxAudioSource != null)
             {
-                sfxAudioSource.ReplayAudio();
-                clipLengthCheck = 0;
-            }
-            if (typeCheck)
-            {
-                strength -= Power;
+                if(sfxAudioSource.audioSource.isVirtual)
+                {
+                    sfxAudioSource = SoundManager.instance.ActiveOnShotSFXSound(blockData.brockBreakSound, transform, Vector3.zero);
+                }
             }
             else
             {
-                strength -= 1;
+                sfxAudioSource = SoundManager.instance.ActiveOnShotSFXSound(blockData.brockBreakSound, transform, Vector3.zero);
+            }
+        }
+        while (!broken)
+        {
+            if (blockData.brockBreakSound != Sound.AudioClipName.None && sfxAudioSource.audioSource.isVirtual)
+            {
+                sfxAudioSource = SoundManager.instance.ActiveOnShotSFXSound(blockData.brockBreakSound, transform, Vector3.zero);
+            }
+            if (typeCheck)
+            {
+                blockData.strength -= Power;
+            }
+            else
+            {
+                blockData.strength -= 1;
             }
             // 쉐이더 작동
             yield return new WaitForSeconds(0.1f);
-            clipLengthCheck += 0.1f;
 
-            if (strength <= 0)
+            if (blockData.strength <= 0)
             {
                 broken = true;
                 Broken();
@@ -159,4 +144,5 @@ public class Block : MonoBehaviour
         }
     }
 
+    
 }

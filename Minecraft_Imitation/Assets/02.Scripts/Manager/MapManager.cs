@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using static BlockData;
 public class PositionData
@@ -100,8 +101,8 @@ public class Chunk
 public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
-
-    public Queue<Block> blockPool = new Queue<Block>();
+    
+    public static Queue<Block> blockPool = new Queue<Block>();
 
     public Block blockPrefab;
 
@@ -117,7 +118,7 @@ public class MapManager : MonoBehaviour
 
     private int value;
 
-
+    public Vector3 playerPosition;
 
 
     private void Awake()
@@ -140,12 +141,11 @@ public class MapManager : MonoBehaviour
             InitChunk_CreateBlocks(chunks[i]);
         }
 
-        //SetPlayerSpawnPosition();
-
     }
 
     public bool createBlock = false;
     public int chunkIndex;
+    public BlockData.BlockKind blockKind1;
     public Vector3 chunkBlockIndex;
 
     
@@ -161,7 +161,7 @@ public class MapManager : MonoBehaviour
         if (createBlock)
         {
             createBlock = false;
-            CreateBlock(chunks[chunkIndex], BlockData.BlockKind.Dirt, (int)chunkBlockIndex.x, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z);
+            CreateBlock(chunks[chunkIndex], blockKind1, (int)chunkBlockIndex.x, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z);
         }
     }
 
@@ -176,11 +176,6 @@ public class MapManager : MonoBehaviour
 
     #region Chunk Load, Save 메서드
 
-    //private void SetPlayerChunk() // 플레이어가 위치한 청크 값 설정
-    //{
-    //    playerChunckVector = DataManager.instance.PlayerPosition();
-    //    playerChunckVector = new Vector3((int)playerChunckVector.x / Chunk.x, 0, (int)playerChunckVector.z / Chunk.y);
-    //}
 
     public void Load_9Chunks()
     {
@@ -216,19 +211,22 @@ public class MapManager : MonoBehaviour
 
     public void LoadChunk(string path)
     {
-        Stopwatch sw = new Stopwatch();
-
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Open(Application.dataPath + "/" + path + ".binary", FileMode.Open);
-
-        // 파일이 없으면 평지로 설정
-        if (file == null)
+        try
         {
+            FileStream file = File.Open(Application.dataPath + "/" + path + ".binary", FileMode.Open);
+            blocks = (int[,,])bf.Deserialize(file);
+            file.Close();
+        }
+        catch (FileNotFoundException error)
+        {
+            print("파일 없음"); 
+            
             for (int x = 0; x < Chunk.x; x++)
             {
                 for (int y = 0; y < Chunk.y; y++)
                 {
-                    if (y < 60)
+                    if (y < 5)
                         value = (int)BlockData.BlockKind.Dirt;
                     else
                         value = (int)BlockData.BlockKind.None;
@@ -242,12 +240,6 @@ public class MapManager : MonoBehaviour
 
             }
         }
-        else
-        {
-            blocks = (int[,,])bf.Deserialize(file);
-            file.Close();
-        }
-        
     }
 
     public void SaveChunk(string path, Chunk chunk)
@@ -304,8 +296,6 @@ public class MapManager : MonoBehaviour
     // 청크에 있는 모든 블럭 스폰
     private void InitChunk_CreateBlocks(Chunk chunk)
     {
-       
-        //position2 = new Vector3(position1.x, position1.y, position1.z);
         for (int x = 0; x < Chunk.x; x++)
         {
             for (int y = 0; y < Chunk.y; y++)
@@ -314,13 +304,8 @@ public class MapManager : MonoBehaviour
                 {
                     blockKind = (BlockData.BlockKind)chunk.blocksEnum[x, y, z]; // 블럭 enum 가져오기
                     CreateBlock(chunk, blockKind, x, y, z);
-                    //position2 += Vector3.forward;
                 }
-                //position2 = new Vector3(position2.x, position2.y, position1.z);
-                //position2 += Vector3.up;
             }
-            //position2 = new Vector3(position2.x, position1.y, position2.z);
-           // position2 += Vector3.right;
         }
     }
 
@@ -335,14 +320,38 @@ public class MapManager : MonoBehaviour
             chunk.blocksEnum[x, y, z] = (int)blockKind;
 
             blockPosition = new Vector3(chunk.chunk_x * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
-            block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // 블럭 오브젝트 생성
-
             blockData = DataManager.instance.blockDictionary[blockKind]; // 블럭 dictonary에서 해당되는 블럭 데이터 가져오기
-            block.InitBlock(blockData); // 블럭 데이터의 설정값으로 블럭 오브젝트 설정
+
+            if (blockPool.Count > 0)
+            {
+                block = blockPool.Dequeue();
+                block.transform.position = blockPosition;
+                block.transform.SetParent(chunk.blockParent);
+            }
+            else
+            {
+                block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // 블럭 오브젝트 생성
+            }
+            block.InitBlock(blockData, new PositionData(chunk.chunk_x,chunk.chunk_z,x,y,z)); // 블럭 데이터의 설정값으로 블럭 오브젝트 설정
             chunk.blockObjects[x, y, z] = block; // 블럭 3차원 배열에 블럭 오브젝트 저장
             chunk.needSave = true;
-
         }
+        else
+        {
+            if (chunk.blocksEnum[x,y,z] != 0)
+            {
+                BreakBlock(chunk.blockObjects[x, y, z]);
+            }
+        }
+    }
+
+    public void BreakBlock(Block block)
+    {
+        Chunk chunk = block.positionData.chunk;
+        chunk.blocksEnum[block.positionData.blockIndex_x, block.positionData.blockIndex_y, block.positionData.blockIndex_z] = 0;
+        chunk.blockObjects[block.positionData.blockIndex_x, block.positionData.blockIndex_y, block.positionData.blockIndex_z] = null;
+        block.gameObject.SetActive(false);
+        blockPool.Enqueue(block);
     }
 
     public void InActiveBlock(Chunk chunk,Block block ,int x, int y, int z) // 사각형 블럭만 가능
