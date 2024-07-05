@@ -14,7 +14,7 @@ public class InventoryStatic : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         if (instance == null)
         {
@@ -78,6 +78,7 @@ public class InventoryStatic : MonoBehaviour
                 item.transform.localPosition = Vector3.zero;
                 item.transform.localScale = Vector3.one;
                 GameObject item2 = Instantiate(item);
+                print(InventoryPopup.instance.gameObject.name);
                 InventoryPopup.instance.SetItemPositionInQuickSlot(item2, i);
 
                 

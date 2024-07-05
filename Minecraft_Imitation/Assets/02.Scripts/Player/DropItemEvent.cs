@@ -9,6 +9,7 @@ public class DropItemEvent : MonoBehaviour
     int count;
     Sprite icon;
     public Transform cameraPos;
+    bool shiftOn;
 
     int nowUsingSlot = 0;
     void Start()
@@ -19,12 +20,32 @@ public class DropItemEvent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            shiftOn = true;
+        }
+        else if(Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            shiftOn = false;
+        }
+
         if (Input.GetKeyDown(KeyCode.Q))
         {
             nowUsingSlot = PlayerManager.instance.usingSlot;
             GameObject objectParticle = Instantiate(objectParticleFac);
             ObjectParticle objectParticleCs = objectParticle.GetComponent<ObjectParticle>();
-            WhenDropOneChangeImage(nowUsingSlot, objectParticleCs);
+
+            if (shiftOn)
+            {
+                WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, false); // 다 버릴때 false
+            }
+            else
+            {
+                WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, true); // 하나 버리는 함수.
+            }
+
+            
 
             objectParticle.transform.position = cameraPos.position + Camera.main.transform.forward; // player한테 cs를 붙였다는 전제하에
             Rigidbody rg = objectParticle.GetComponent<Rigidbody>();
@@ -33,7 +54,7 @@ public class DropItemEvent : MonoBehaviour
     }
 
     // 이미지 변경하고 오브젝트파티클에 정보전달.
-    void WhenDropOneChangeImage(int slotNum, ObjectParticle objectParticleCs) 
+    void WhenDropOneChangeImage(int slotNum, ObjectParticle objectParticleCs, bool isOne) 
     {
         print("Doing");
         GameObject nowUsingObject = InventoryStatic.instance.slots[slotNum];
@@ -41,10 +62,21 @@ public class DropItemEvent : MonoBehaviour
         ItemImage nowItemImage = nowUsingObject.GetComponentInChildren<ItemImage>();
         ItemImage nowItemImageInQuick = nowUsingObjectInQuick.GetComponentInChildren<ItemImage>();
 
-        objectParticleCs.count = 1;
-        TransferDataWithoutCnt(objectParticleCs, nowItemImage);
-        nowItemImage.ChangeItemCnt(-1);
-        nowItemImageInQuick.ChangeItemCnt(-1);
+        if (isOne)
+        {
+            objectParticleCs.count = 1;
+            TransferDataWithoutCnt(objectParticleCs, nowItemImage);
+            nowItemImage.ChangeItemCnt(-1);
+            nowItemImageInQuick.ChangeItemCnt(-1);
+        }
+        else
+        {
+            objectParticleCs.count = nowItemImage.count;
+            TransferDataWithoutCnt(objectParticleCs, nowItemImage);
+            Destroy(nowItemImage.gameObject);
+            Destroy(nowItemImageInQuick.gameObject);
+        }
+        
 
 
     }

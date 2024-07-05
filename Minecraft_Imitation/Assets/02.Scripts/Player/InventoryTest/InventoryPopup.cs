@@ -7,7 +7,8 @@ public class InventoryPopup : MonoBehaviour
     public static InventoryPopup instance;
     public GameObject[] quickSlot = new GameObject[0];
     public GameObject[] inven = new GameObject[0];
-    void Start()
+
+    InventoryPopup()
     {
         if (instance == null)
         {
@@ -28,6 +29,7 @@ public class InventoryPopup : MonoBehaviour
 
     public void SetItemPositionInQuickSlot(GameObject item, int i)
     {
+        print(1);
         item.transform.parent = quickSlot[i].transform;
         item.transform.localPosition = Vector3.zero;
         item.transform.localScale = Vector3.one;
