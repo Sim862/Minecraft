@@ -8,6 +8,8 @@ public class PlayerRaycast : MonoBehaviour
     public GameObject blockFac;
     public float mouseOneCool = 1;
     public float breakPower = 5;
+    Vector3 newBlockPos;
+    bool isBlock;
 
     Transform hitNowBlock; // 클릭할때
     Transform hitBlockTr;
@@ -33,7 +35,17 @@ public class PlayerRaycast : MonoBehaviour
             {
                 hitBlockCs = hitInfo.transform.GetComponent<Block>();
             }
+            if (hitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Block"))
+            {
+                isBlock = true;
+            }
+            else
+            {
+                isBlock = false;
+            }
         }
+
+        
 
         MouseRitghtClick();
 
@@ -111,17 +123,28 @@ public class PlayerRaycast : MonoBehaviour
         if (Input.GetMouseButtonDown(1)) // 마우스 우클릭시 설치 및 사용
         {
             int slotnumber = PlayerManager.instance.usingSlot; // 현재 사용중인 슬롯넘버 저장.
-            GameObject nowUsingObject = InventoryStatic.instance.slots[slotnumber];
-            GameObject nowUsingObjectInQuick = InventoryPopup.instance.quickSlot[slotnumber];
-            ItemImage nowItemImage = nowUsingObject.GetComponentInChildren<ItemImage>();
-            ItemImage nowItemImageInQuick = nowUsingObjectInQuick.GetComponentInChildren<ItemImage>();
-            if (nowItemImage != null)
+            if (isBlock)
             {
-                nowItemImage.ChangeItemCnt(-1);
-                nowItemImageInQuick.ChangeItemCnt(-1);
-            
+                InstallBlock(slotnumber);
+            }
+        }
+    }
+
+    void InstallBlock(int slotNumber)
+    {
+        GameObject nowUsingObject = InventoryStatic.instance.slots[slotNumber];
+        GameObject nowUsingObjectInQuick = InventoryPopup.instance.quickSlot[slotNumber];
+        ItemImage nowItemImage = nowUsingObject.GetComponentInChildren<ItemImage>();
+        ItemImage nowItemImageInQuick = nowUsingObjectInQuick.GetComponentInChildren<ItemImage>();
+        if (nowItemImage != null)
+        {
+            nowItemImage.ChangeItemCnt(-1);
+            nowItemImageInQuick.ChangeItemCnt(-1);
+            newBlockPos = hitInfo.transform.position + normalVec * SizeVector(hitInfo);
+            if(Vector3.Distance(transform.position, newBlockPos) > 1)
+            {
                 GameObject block = Instantiate(blockFac);
-                block.transform.position = hitInfo.transform.position + normalVec * SizeVector(hitInfo);
+                block.transform.position = newBlockPos;
             }
         }
     }

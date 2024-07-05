@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3533287341709470314}
   - component: {fileID: 3701808247660596348}
   - component: {fileID: 794007677553812406}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: BlockPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -120,12 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d101b000c0e355448b090788978e05d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  start: 0
-  start1: 0
-  test_Tool: 0
-  test_Power: 0
   blockData:
-    icon: {fileID: 0}
     objectKind: 0
     blockKind: 0
     blockType: 0
@@ -133,6 +128,6 @@ MonoBehaviour:
     brockBreakSound: 0
     brockBrokenSound: 0
     material: {fileID: 0}
+    objectParticle: 0
   meshRenderer: {fileID: 0}
   canBreak: 1
-  prefab_Block_InteractionParticle: {fileID: 0}

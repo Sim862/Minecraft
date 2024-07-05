@@ -7,9 +7,14 @@ public class EventWithBox : MonoBehaviour
     float aimRange = 20;
     BlockData.BlockType test = BlockData.BlockType.Pick;
     public float breakPower = 5;
+    public GameObject effectFac;
     Block OnClickBlockCs;
     GameObject OnClickBlock = null;
     GameObject OnHitRayBlock;
+
+    float effCool = 0.5f;
+    float currTime = 0;
+    
     bool isClicking = false;
     // Start is called before the first frame update
     void Start()
@@ -39,6 +44,15 @@ public class EventWithBox : MonoBehaviour
             if (OnClickBlock != null)
             {
                 print(OnClickBlock.name);
+            }
+
+            // effect 스폰 1회성
+            if(camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Block"))
+            {
+                currTime = 0;
+                GameObject effect = Instantiate(effectFac);
+                effect.transform.position = camHitInfo.point;
+                effect.transform.forward = camHitInfo.normal;
             }
         }
         if (Input.GetMouseButtonUp(0))// 좌클릭을 떼면
@@ -70,16 +84,20 @@ public class EventWithBox : MonoBehaviour
             if (OnClickBlockCs != null)
                 OnClickBlockCs.Break(test, breakPower);
         }
-        
-        
 
 
 
-
-
-        
-
-
-
+        if (isClicking && camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Block"))
+        {
+            currTime += Time.deltaTime;
+            if(currTime > effCool)
+            {
+                currTime = 0;
+                GameObject effect = Instantiate(effectFac);
+                effect.transform.position = camHitInfo.point;
+                effect.transform.forward = camHitInfo.normal;
+            }
+        }
     }
+
 }
