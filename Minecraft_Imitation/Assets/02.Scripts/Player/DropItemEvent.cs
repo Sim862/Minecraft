@@ -12,12 +12,7 @@ public class DropItemEvent : MonoBehaviour
     bool shiftOn;
 
     int nowUsingSlot = 0;
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
     void Update()
     {
 
@@ -33,23 +28,23 @@ public class DropItemEvent : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
         {
             nowUsingSlot = PlayerManager.instance.usingSlot;
-            GameObject objectParticle = Instantiate(objectParticleFac);
-            ObjectParticle objectParticleCs = objectParticle.GetComponent<ObjectParticle>();
-
-            if (shiftOn)
+            // 현재 슬롯에 아이템이 있을 때만.
+            if (InventoryPopup.instance.quickSlot[nowUsingSlot].transform.childCount != 0)
             {
-                WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, false); // 다 버릴때 false
+                GameObject objectParticle = Instantiate(objectParticleFac);
+                ObjectParticle objectParticleCs = objectParticle.GetComponent<ObjectParticle>();
+                if (shiftOn)
+                {
+                    WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, false); // 다 버릴때 false
+                }
+                else
+                {
+                    WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, true); // 하나 버리는 함수.
+                }
+                objectParticle.transform.position = cameraPos.position + Camera.main.transform.forward; // player한테 cs를 붙였다는 전제하에
+                Rigidbody rg = objectParticle.GetComponent<Rigidbody>();
+                rg.AddForce(transform.forward * 200);
             }
-            else
-            {
-                WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, true); // 하나 버리는 함수.
-            }
-
-            
-
-            objectParticle.transform.position = cameraPos.position + Camera.main.transform.forward; // player한테 cs를 붙였다는 전제하에
-            Rigidbody rg = objectParticle.GetComponent<Rigidbody>();
-            rg.AddForce(transform.forward * 200);
         }
     }
 
@@ -61,24 +56,25 @@ public class DropItemEvent : MonoBehaviour
         GameObject nowUsingObjectInQuick = InventoryPopup.instance.quickSlot[slotNum];
         ItemImage nowItemImage = nowUsingObject.GetComponentInChildren<ItemImage>();
         ItemImage nowItemImageInQuick = nowUsingObjectInQuick.GetComponentInChildren<ItemImage>();
-
-        if (isOne)
+        if (nowItemImage != null && nowItemImageInQuick != null)
         {
-            objectParticleCs.count = 1;
-            TransferDataWithoutCnt(objectParticleCs, nowItemImage);
-            nowItemImage.ChangeItemCnt(-1);
-            nowItemImageInQuick.ChangeItemCnt(-1);
+            print(nowItemImage.name);
+            print(nowItemImageInQuick.name);
+            if (isOne)
+            {
+                objectParticleCs.count = 1;
+                TransferDataWithoutCnt(objectParticleCs, nowItemImage);
+                nowItemImage.ChangeItemCnt(-1);
+                nowItemImageInQuick.ChangeItemCnt(-1);
+            }
+            else
+            {
+                objectParticleCs.count = nowItemImage.count;
+                TransferDataWithoutCnt(objectParticleCs, nowItemImage);
+                Destroy(nowItemImage.gameObject);
+                Destroy(nowItemImageInQuick.gameObject);
+            }
         }
-        else
-        {
-            objectParticleCs.count = nowItemImage.count;
-            TransferDataWithoutCnt(objectParticleCs, nowItemImage);
-            Destroy(nowItemImage.gameObject);
-            Destroy(nowItemImageInQuick.gameObject);
-        }
-        
-
-
     }
 
 

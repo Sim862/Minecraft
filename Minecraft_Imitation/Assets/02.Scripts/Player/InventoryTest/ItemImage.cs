@@ -11,17 +11,6 @@ public class ItemImage : MonoBehaviour
     public TextMeshProUGUI itemCount;
     public ObjectParticleData.ParticleKind particleKind;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public void ChangeItemCnt(int value) // 설치하는 경우 사용. 하나만 쓰기때문.
     {

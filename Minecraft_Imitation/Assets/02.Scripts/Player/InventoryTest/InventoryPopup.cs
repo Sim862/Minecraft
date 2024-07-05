@@ -49,4 +49,10 @@ public class InventoryPopup : MonoBehaviour
         }
     }
 
+    public void CheckQuickSlot()
+    {
+        // Drag로 인해 아이템이 생기거나 사라질때
+        // InvenStatic에도 이미지 및 데이터 동기화.
+    }
+
 }

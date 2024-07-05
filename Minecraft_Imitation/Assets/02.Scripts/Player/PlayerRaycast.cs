@@ -26,12 +26,12 @@ public class PlayerRaycast : MonoBehaviour
         // 레이가 부딪힌 대상의 정보를 저장할 변수를 생성한다.
         hitInfo = new RaycastHit();
 
-        Physics.Raycast(ray, out hitInfo, aimRange); // 에임 사정거리
-        normalVec = hitInfo.normal;
-        if (hitInfo.transform != null)
+        bool anyHit = Physics.Raycast(ray, out hitInfo, aimRange); // 에임 사정거리
+        if (anyHit)
         {
+            normalVec = hitInfo.normal;
             hitBlockTr = hitInfo.transform; // 에임이 보고있는 블럭 저장.
-            if(hitInfo.transform.GetComponent<Block>() != null)
+            if (hitInfo.transform.GetComponent<Block>() != null)
             {
                 hitBlockCs = hitInfo.transform.GetComponent<Block>();
             }
@@ -43,11 +43,9 @@ public class PlayerRaycast : MonoBehaviour
             {
                 isBlock = false;
             }
+            MouseRitghtClick();
+
         }
-
-        
-
-        MouseRitghtClick();
 
         #region 좌클릭 이벤트 EventWithBox.cs에 구현함.
         /*if (Input.GetMouseButton(0)) // 좌클릭하면
@@ -95,7 +93,6 @@ public class PlayerRaycast : MonoBehaviour
         }
         // 좌클릭하면 캐기 시작한 블럭 저장.*/
         #endregion
-        
     }
 
     float SizeVector(RaycastHit hitInfo) // 사이즈별 설치 실험

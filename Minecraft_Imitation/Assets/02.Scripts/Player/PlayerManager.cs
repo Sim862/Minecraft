@@ -14,10 +14,11 @@ public class PlayerManager : MonoBehaviour
     float orgCamRotSpeed;
     float orgPlayerRotSpeed;
     bool cursorLock = true;
-    // Start is called before the first frame update
-    void Start()
+    public GameObject player;
+    private void Awake()
     {
-        if(instance == null)
+        player = GameObject.FindWithTag("Player");
+        if (instance == null)
         {
             instance = this;
         }
@@ -26,8 +27,7 @@ public class PlayerManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab))
@@ -55,10 +55,6 @@ public class PlayerManager : MonoBehaviour
 
     void CursurLockMethod()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            cursorLock = !cursorLock;
-        }
         if (cursorLock)
         {
             Cursor.lockState = CursorLockMode.Locked;
