@@ -38,7 +38,7 @@ public class Pig : Mob
                 nextMovementTime -= Time.deltaTime;
                 if (nextMovementTime <= 0)
                 {
-                    nextMovementTime = 100;
+                    nextMovementTime = 5;
                     AStar_Random();
                     SetWayPosition();
                 }
@@ -49,8 +49,18 @@ public class Pig : Mob
                 nextMovementTime -= Time.deltaTime;
                 if (nextMovementTime <= 0)
                 {
-                    nextMovementTime = 100;
+                    nextMovementTime = 5;
                     Runaway();
+                }
+            }
+            else if(mobState == MobState.Move)
+            {
+                nextMovementTime -= Time.deltaTime;
+                if (nextMovementTime <= -2)
+                {
+                    nextMovementTime = 5;
+                    AStar_Random();
+                    SetWayPosition();
                 }
             }
 

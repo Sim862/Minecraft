@@ -356,7 +356,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_y
-      value: 3
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_z
@@ -693,7 +693,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_y
-      value: 3
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_z
@@ -790,7 +790,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_y
-      value: 3
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_z
@@ -887,7 +887,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_y
-      value: 3
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_z
@@ -984,7 +984,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_y
-      value: 3
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_z
@@ -1195,7 +1195,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_y
-      value: 3
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: b_z

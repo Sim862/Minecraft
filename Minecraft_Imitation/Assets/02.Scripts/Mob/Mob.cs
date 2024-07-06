@@ -78,6 +78,7 @@ public class Mob : MonoBehaviour
 
     private Node wayPoint_Current;
     private Vector3 wayPosition = Vector3.zero;
+    private Vector3 dir;
     private float wayPositionDistance = 0;
     protected List<Node> wayPoints = new List<Node>();
 
@@ -246,26 +247,33 @@ public class Mob : MonoBehaviour
                 movementDelayTime = 4;
                 wayPoints = new List<Node>();
                 wayPosition = Vector3.zero;
+                rigidbody.useGravity = true;
                 SetWayPosition();
                 return;
             }
             else if (wayPositionDistance < 0.1f)
             {
                 movementDelayTime = 4;
+                rigidbody.useGravity = true;
                 SetWayPosition();
             }
             else
             {
-                if (needJump)
+                movementDelayTime -= Time.deltaTime;
+                dir = new Vector3((wayPosition.x - transform.position.x), 0, (wayPosition.z - transform.position.z)).normalized;
+                if (transform.position.y < wayPosition.y)
                 {
-                    if (wayPosition.y - transform.position.y > 0.5f)
+                    if (needJump)
                     {
-                        rigidbody.AddForce(Vector3.up * jumpforce);
+                        rigidbody.useGravity = false;
+                        transform.position += Vector3.up * currSpeed * Time.deltaTime;
                     }
                 }
-                movementDelayTime -= Time.deltaTime;
-                Vector3 dir = new Vector3((wayPosition.x - transform.position.x), 0, (wayPosition.z - transform.position.z)).normalized;
-                transform.position += dir * currSpeed * Time.deltaTime;
+                else
+                {
+                    rigidbody.useGravity = true;
+                    transform.position += dir * currSpeed * Time.deltaTime;
+                }
                 Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
 
                 if (cross.y > 0.05)

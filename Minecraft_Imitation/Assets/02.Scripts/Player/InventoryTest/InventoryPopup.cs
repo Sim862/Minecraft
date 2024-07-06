@@ -29,7 +29,6 @@ public class InventoryPopup : MonoBehaviour
 
     public void SetItemPositionInQuickSlot(GameObject item, int i)
     {
-        print(1);
         item.transform.parent = quickSlot[i].transform;
         item.transform.localPosition = Vector3.zero;
         item.transform.localScale = Vector3.one;
