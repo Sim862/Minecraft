@@ -16,9 +16,11 @@ public class ObjectParticle : MonoBehaviour
     public float moveSpeed = 5;
     float runningTime = 0f; 
     float y = 0f;
+
+    private List<Transform> particleObjects = new List<Transform>();
     
     public ObjectParticleData.ParticleKind particleKind; // 오브젝트 파티클 종류
-    public int count = 1;
+    public int count;
     public Sprite icon;
     private Transform target;
     private bool onTarget = false;
@@ -30,6 +32,7 @@ public class ObjectParticle : MonoBehaviour
     {
         rigidbody = GetComponent<Rigidbody>();
         rigidCollider = GetComponent<Collider>();
+        particleObjects.Add(particleObject);
     }
 
 
@@ -38,11 +41,35 @@ public class ObjectParticle : MonoBehaviour
         MovementPosY();
         ParticleObjectMovement();
         Movement();
+        
     }
 
     public void InitParticle(int count)
     {
+        UpdateCount(count);
+    }
+
+    public void UpdateCount(int count)
+    {
         this.count = count;
+        if (count > 1)
+        {
+            if (particleObjects.Count < 2)
+            {
+                Transform temp = Instantiate(particleObject, particleObject.position + new Vector3(Random.value, Random.value, Random.value), particleObject.rotation, particleObject);
+                particleObjects.Add(temp);
+            }
+        }
+        else
+        {
+            if(particleObjects.Count != 1)
+            {
+                Transform temp = particleObjects[1];
+                particleObjects.RemoveAt(1);
+                Destroy(temp);
+            }
+        }
+
     }
 
     private void Movement()
@@ -126,11 +153,11 @@ public class ObjectParticle : MonoBehaviour
             }
         }
 
-        other.count += count;
+        other.UpdateCount(other.count + count);
         if(other.count > 64)
         {
             other.count = 64;
-            count = other.count - 64;
+            UpdateCount(other.count - 64);
             ResetRigid();
         }
         else

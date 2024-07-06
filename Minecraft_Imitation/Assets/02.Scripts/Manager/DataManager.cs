@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -9,20 +11,22 @@ public class DataManager : MonoBehaviour
 {
     public static DataManager instance;
 
-    public BlockMaterial[] blockMaterials;  // ∫Ì∑∞ ∏”≈◊∏ÆæÛ ∏ÆΩ∫∆Æ
-    public BlockData[] blockDatas;  // ∫Ì∑∞ µ•¿Ã≈Õ ∏ÆΩ∫∆Æ
-    public Dictionary<BlockData.BlockKind, BlockData> blockDictionary = new Dictionary<BlockData.BlockKind, BlockData>(); // ∫Ì∑∞ µ•¿Ã≈Õ∏¶ ∞«≥ª¡Ÿ Dictionary
+    public BlockMaterial[] blockMaterials;  // Î∏îÎü≠ Î®∏ÌÖåÎ¶¨Ïñº Î¶¨Ïä§Ìä∏
+    public List<BlockData> blockDatas;  // Î∏îÎü≠ Îç∞Ïù¥ÌÑ∞ Î¶¨Ïä§Ìä∏
+    public Dictionary<BlockData.BlockKind, BlockData> blockDictionary = new Dictionary<BlockData.BlockKind, BlockData>(); // Î∏îÎü≠ Îç∞Ïù¥ÌÑ∞Î•º Í±¥ÎÇ¥Ï§Ñ Dictionary
 
-    public Entity[] monsterList;
-    public Dictionary<MobData.MobKind, Entity> monsterDictionary = new Dictionary<MobData.MobKind, Entity>();
+    public Mob[] monsterList;
+    public Dictionary<MobData.MobKind, Mob> monsterDictionary = new Dictionary<MobData.MobKind, Mob>();
 
-    public Entity[] passiveMobList;
-    public Dictionary<MobData.MobKind, Entity> passiveMobDictionary = new Dictionary<MobData.MobKind, Entity>();
+    public Mob[] passiveMobList;
+    public Dictionary<MobData.MobKind, Mob> passiveMobDictionary = new Dictionary<MobData.MobKind, Mob>();
 
     public ObjectParticle[] objectParticles;
     public Dictionary<ObjectParticleData.ParticleKind, ObjectParticle> objectParticleDictionary = new Dictionary<ObjectParticleData.ParticleKind, ObjectParticle>();
 
-
+    private string particleKind_String;
+    private BlockData.BlockKind blockKind;
+    
     private void Awake()
     {
         if(instance != null)
@@ -34,14 +38,46 @@ public class DataManager : MonoBehaviour
             instance = this;
         }
 
-
+        ReadBlockData();
         InitBlockData();
+        InitObjectParticleList();
+
     }
+
+    string ReadTxt(string filePath)
+    {
+        FileStream reader = new FileStream(filePath, FileMode.Open);
+        StreamReader data =  new StreamReader(reader);
+        string data_str =  data.ReadToEnd();
+        data.Close();
+        return data_str;
+    }
+
+    private void ReadBlockData()
+    {
+        string blcokData_txt = ReadTxt(Application.dataPath + "/11.Data/BlockData.txt");
+        string[] data_Lines = blcokData_txt.Split("\n");
+        string[] data_Tap;
+        for (int i = 1; i < data_Lines.Length-1; i++)
+        {
+            data_Tap = data_Lines[i].Split("\t");
+            blockDatas.Add(new BlockData(
+                (BlockData.BlockKind)Enum.Parse(typeof(BlockData.BlockKind), data_Tap[0]),
+                (BlockData.BlockType)Enum.Parse(typeof(BlockData.BlockType), data_Tap[1]),
+                float.Parse(data_Tap[2]),
+                (Sound.AudioClipName)Enum.Parse(typeof(Sound.AudioClipName), data_Tap[3]),
+                (Sound.AudioClipName)Enum.Parse(typeof(Sound.AudioClipName), data_Tap[4]),
+                (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[5]))
+                );
+        }
+    }
+
 
     private void InitBlockData()
     {
-        for (int i = 0; i < blockDatas.Length; i++)
+        for (int i = 0; i < blockDatas.Count; i++)
         {
+            print(blockDatas[i].blockKind);
             blockDictionary.Add(blockDatas[i].blockKind, blockDatas[i]);
         }
         for (int i = 0; i < blockMaterials.Length; i++)
@@ -68,5 +104,19 @@ public class DataManager : MonoBehaviour
             return objectParticleDictionary[particleKind];
         }
         return null;
+    }
+
+    public BlockData.BlockKind ParticleToBlockKind(ObjectParticleData.ParticleKind particleKind)
+    {
+        particleKind_String = particleKind.ToString();
+        try
+        {
+            blockKind = (BlockData.BlockKind)Enum.Parse(typeof(BlockData.BlockKind), particleKind_String);
+        }
+        catch (ArgumentException error)
+        {
+            blockKind = BlockData.BlockKind.None;
+        }
+        return blockKind;
     }
 }

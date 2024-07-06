@@ -28,23 +28,30 @@ public class DropItemEvent : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
         {
             nowUsingSlot = PlayerManager.instance.usingSlot;
-            // 현재 슬롯에 아이템이 있을 때만.
-            if (InventoryPopup.instance.quickSlot[nowUsingSlot].transform.childCount != 0)
+
+            // ObjectParticleKind 받아오는 용도
+            GameObject nowUsingObject = InventoryStatic.instance.slots[nowUsingSlot];
+            ItemImage nowItemImage = nowUsingObject.GetComponentInChildren<ItemImage>();
+
+            // ObjectParticle의 Prefab 받아오기
+            ObjectParticle objectParticle = DataManager.instance.GetObjectParticlePrefab(nowItemImage.particleKind);
+            // Prefab 생성
+            objectParticle = Instantiate(objectParticle);
+
+            if (shiftOn)
             {
-                GameObject objectParticle = Instantiate(objectParticleFac);
-                ObjectParticle objectParticleCs = objectParticle.GetComponent<ObjectParticle>();
-                if (shiftOn)
-                {
-                    WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, false); // 다 버릴때 false
-                }
-                else
-                {
-                    WhenDropOneChangeImage(nowUsingSlot, objectParticleCs, true); // 하나 버리는 함수.
-                }
-                objectParticle.transform.position = cameraPos.position + Camera.main.transform.forward; // player한테 cs를 붙였다는 전제하에
-                Rigidbody rg = objectParticle.GetComponent<Rigidbody>();
-                rg.AddForce(transform.forward * 200);
+                WhenDropOneChangeImage(nowUsingSlot, objectParticle, false); // 다 버릴때 false
             }
+            else
+            {
+                WhenDropOneChangeImage(nowUsingSlot, objectParticle, true); // 하나 버리는 함수.
+            }
+
+            
+
+            objectParticle.transform.position = cameraPos.position + Camera.main.transform.forward; // player한테 cs를 붙였다는 전제하에
+            Rigidbody rg = objectParticle.GetComponent<Rigidbody>();
+            rg.AddForce(transform.forward * 200);
         }
     }
 

@@ -22,8 +22,8 @@ public class EventWithBox : MonoBehaviour
         Ray camRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         RaycastHit camHitInfo = new RaycastHit();
         bool anyHit = Physics.Raycast(camRay, out camHitInfo, aimRange);
-        if (anyHit)
-        {
+        if (anyHit) // 무언가 맞았다면
+        { 
             OnHitRayBlock = camHitInfo.transform.gameObject;
             // 좌클릭을 하면
             if (Input.GetMouseButtonDown(0))
@@ -79,8 +79,6 @@ public class EventWithBox : MonoBehaviour
                 if (OnClickBlockCs != null)
                     OnClickBlockCs.Break(test, breakPower);
             }
-
-
 
             if (isClicking && camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Block"))
             {

@@ -12,21 +12,26 @@ public class Sound
     {
         None,
         DirtBroken,
-        DirtBreak
+        DirtBreak,
+        Pig_Idle,
+        Pig_Step
     }
     public AudioClipName audioClipName;
-    public AudioClip audioClip;
-    public float clipLength;
+    public AudioClip audioClip
+    {
+        get => audioClips[Random.Range(0, audioClips.Length)];
+    }
+    public AudioClip[] audioClips;
 }
 
 public class SoundManager : MonoBehaviour
 {
-    // ½Ì±ÛÅÏ
+    // ì‹±ê¸€í„´
     public static SoundManager instance;
 
-    // È¿°úÀ½ AudioSource Prefab
+    // íš¨ê³¼ìŒ AudioSource Prefab
     public SFXAudioSource prefab_SFXAudioSource;
-    // ¹è°æÀ½¾Ç AudioSource
+    // ë°°ê²½ìŒì•… AudioSource
     private AudioSource bgmAudioSource;
 
     [SerializeField]
@@ -34,12 +39,12 @@ public class SoundManager : MonoBehaviour
 
     public Dictionary<Sound.AudioClipName, Sound> soundDictionary = new Dictionary<Sound.AudioClipName, Sound>();
 
-    // È¿°úÀ½ AudioSource ¿ÀºêÁ§Æ® ¸®½ºÆ®
+    // íš¨ê³¼ìŒ AudioSource ì˜¤ë¸Œì íŠ¸ ë¦¬ìŠ¤íŠ¸
     private Queue<SFXAudioSource> sfxAudioSources = new Queue<SFXAudioSource>();
-    // Ç®¸µÀ» À§ÇÑ ºñÈ°¼ºÈ­ È¿°úÀ½ AudioSource ¿ÀºêÁ§Æ® ¸®½ºÆ®
+    // í’€ë§ì„ ìœ„í•œ ë¹„í™œì„±í™” íš¨ê³¼ìŒ AudioSource ì˜¤ë¸Œì íŠ¸ ë¦¬ìŠ¤íŠ¸
     private Queue<SFXAudioSource> inactiveSFXAudioSources = new Queue<SFXAudioSource>();
 
-    // È¿°úÀ½ º¼·ı
+    // íš¨ê³¼ìŒ ë³¼ë¥¨
     public float sfxVolume = 0.5f;
 
     SFXAudioSource source;
@@ -57,19 +62,18 @@ public class SoundManager : MonoBehaviour
         InitSounds();
     }
     
-    // ÀÎ½ºÆåÅÍ Ã¢¿¡¼­ ¹Ş¾Æ¿Â »ç¿îµå¸¦ Dictionary·Î Á¤¸®
+    // ì¸ìŠ¤í™í„° ì°½ì—ì„œ ë°›ì•„ì˜¨ ì‚¬ìš´ë“œë¥¼ Dictionaryë¡œ ì •ë¦¬
     private void InitSounds()
     {
         for (int i = 0; i < sounds.Length; i++)
         {
-            sounds[i].clipLength = sounds[i].audioClip.length;
             soundDictionary.Add(sounds[i].audioClipName, sounds[i]);
         }
     }
 
 
     
-    // È¿°úÀ½ º¼·ı º¯°æ
+    // íš¨ê³¼ìŒ ë³¼ë¥¨ ë³€ê²½
     public void ChangeSFXVolum(float voluem)
     {
         if (voluem > 1) voluem = 1;
@@ -82,45 +86,38 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // È¿°úÀ½ audioSource È°¼ºÈ­
-    public SFXAudioSource ActiveSFXSound(Sound.AudioClipName audioClipName, SFXAudioSource audioSource, Transform parent, bool autoInactive)
+    // íš¨ê³¼ìŒ audioSource í™œì„±í™”
+    public SFXAudioSource ActiveOnShotSFXSound(Sound.AudioClipName audioClipName, Transform target, Vector3 position)
     {
-        // ¿Àµğ¿À Å¸ÀÔÀÌ ¿ÀÁö ¾Ê¾Ò´Ù¸é return
+        // ì˜¤ë””ì˜¤ íƒ€ì…ì´ ì˜¤ì§€ ì•Šì•˜ë‹¤ë©´ return
         if (audioClipName == 0)
         {
             return null;
         }
 
-        if (audioSource != null) // È¿°úÀ½ Áßº¹ ¸·±â
+        // í’€ì— ì˜¤ë¸Œì íŠ¸ê°€ ì—†ìœ¼ë©´ ìƒì„±
+        if (inactiveSFXAudioSources.Count == 0)
         {
-            source = audioSource;
+            source = Instantiate(prefab_SFXAudioSource, transform);
+            source.SetVolume(sfxVolume);
+            sfxAudioSources.Enqueue(source);
         }
-        else
+        else // í’€ì— ì˜¤ë¸Œì íŠ¸ê°€ ìˆìœ¼ë©´ ì•¡í‹°ë¸Œ
         {
-            // Ç®¿¡ ¿ÀºêÁ§Æ®°¡ ¾øÀ¸¸é »ı¼º
-            if (inactiveSFXAudioSources.Count == 0)
-            {
-                source = Instantiate(prefab_SFXAudioSource, transform);
-                source.SetVolume(sfxVolume);
-                sfxAudioSources.Enqueue(source);
-            }
-            else // Ç®¿¡ ¿ÀºêÁ§Æ®°¡ ÀÖÀ¸¸é ¾×Æ¼ºê
-            {
-                source = inactiveSFXAudioSources.Dequeue();
-                source.gameObject.SetActive(true);
-            }
+            source = inactiveSFXAudioSources.Dequeue();
+            source.gameObject.SetActive(true);
         }
-        if (parent != null)
+  
+        if(target == null)
         {
-            source.transform.SetParent(parent);
+            source.transform.position = position;
         }
-        source.transform.localPosition = Vector3.zero;
-        source.ActiveSound(soundDictionary[audioClipName], autoInactive);
+        source.ActiveSound(soundDictionary[audioClipName], target);
 
         return source;
     }
 
-    //  Ç®¸µÀ» À§ÇÑ È¿°úÀ½ ¿ÀºêÁ§Æ® ºñÈ°¼ºÈ­
+    //  í’€ë§ì„ ìœ„í•œ íš¨ê³¼ìŒ ì˜¤ë¸Œì íŠ¸ ë¹„í™œì„±í™”
     public void InactiveSFXSound(SFXAudioSource sfxAudioSource)
     {
         sfxAudioSource.StopSound();
