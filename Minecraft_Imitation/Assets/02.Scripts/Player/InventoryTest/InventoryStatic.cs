@@ -9,7 +9,7 @@ public class InventoryStatic : MonoBehaviour
     public GameObject test;
     public GameObject highlight;
     int totalCnt;
-    int exceededCnt;
+    public int exceededCnt;
     int maxCnt = 64;
 
 

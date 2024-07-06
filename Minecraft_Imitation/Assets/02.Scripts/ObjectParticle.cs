@@ -86,15 +86,13 @@ public class ObjectParticle : MonoBehaviour
                 {
                     if (target.CompareTag("Player"))
                     {
-                        int remainder = 0;
-                        //remainder = target.GetComponent<플레이어 인벤토리 관리 컴포턴트>().인벤토리에 넣어주고 남은값 주는 함수;
-                        if (remainder == 0)
+                        UpdateCount(PlayerManager.instance.remainder);
+                        if (count == 0)
                         {
                             Destroy(gameObject);
                         }
                         else
                         {
-                            count = remainder;
                             ResetRigid();
                         }
                     }
@@ -188,11 +186,11 @@ public class ObjectParticle : MonoBehaviour
         {
             if (other.CompareTag("Player"))
             {
-                //if(other.GetComponent<플레이어>.아이템을 먹을 수 있는지){
-                //    onTarget = true;
-                //    target = other.transform;
-                //    CollisionPlayer(other.transform);
-                //}
+                if (PlayerManager.instance.CheckGetItem()){
+                    onTarget = true;
+                    target = other.transform;
+                    CollisionPlayer(other.transform);
+                }
             }
         }
     }

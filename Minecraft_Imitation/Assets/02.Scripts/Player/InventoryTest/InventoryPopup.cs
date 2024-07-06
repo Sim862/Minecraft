@@ -8,7 +8,7 @@ public class InventoryPopup : MonoBehaviour
     public GameObject[] quickSlot = new GameObject[0];
     public GameObject[] inven = new GameObject[0];
 
-    InventoryPopup()
+    private void Awake()
     {
         if (instance == null)
         {

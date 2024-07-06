@@ -9,11 +9,13 @@ public class PlayerManager : MonoBehaviour
     public static PlayerManager instance;
     public GameObject inventory;
     public int usingSlot = 0; // 사용중인 퀵슬롯넘버
+    public int remainder = 0;
     CamRotate camRotate;
     PlayerRotate playerRotate;
     float orgCamRotSpeed;
     float orgPlayerRotSpeed;
     bool cursorLock = true;
+    bool canGetItem;
     public GameObject player;
     private void Awake()
     {
@@ -93,5 +95,19 @@ public class PlayerManager : MonoBehaviour
                 usingSlot = 8;
             }
         }
+    }
+
+    public bool CheckGetItem() // 용도 : 인벤토리에 들어갈 수 있으면true.
+    {
+        if (canGetItem)
+        {
+            return true;
+        }
+        else
+        {
+            remainder = InventoryStatic.instance.exceededCnt;
+            return false;
+        }
+
     }
 }
