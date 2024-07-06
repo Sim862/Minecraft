@@ -135,15 +135,16 @@ public class PlayerRaycast : MonoBehaviour
         ItemImage nowItemImageInQuick = nowUsingObjectInQuick.GetComponentInChildren<ItemImage>();
         if (nowItemImage != null)
         {
-            nowItemImage.ChangeItemCnt(-1);
-            nowItemImageInQuick.ChangeItemCnt(-1);
             newBlockPos = hitInfo.transform.position + normalVec * SizeVector(hitInfo);
-            print("install" + newBlockPos);
             if(Vector3.Distance(transform.position, newBlockPos) > 1) // 설치가능한만큼 떨어져 있는지 검사.
             {
-                PositionData positionData = MapManager.instance.PositionToBlockData(newBlockPos);
+                nowItemImage.ChangeItemCnt(-1);
+                nowItemImageInQuick.ChangeItemCnt(-1);
+                /*PositionData positionData = MapManager.instance.PositionToBlockData(newBlockPos);
                 BlockData.BlockKind blockKind = DataManager.instance.ParticleToBlockKind(nowItemImage.particleKind);
-                MapManager.instance.CreateBlock(positionData.chunk, blockKind, positionData.blockIndex_x,positionData.blockIndex_y,positionData.blockIndex_z);
+                MapManager.instance.CreateBlock(positionData.chunk, blockKind, positionData.blockIndex_x,positionData.blockIndex_y,positionData.blockIndex_z);*/
+                GameObject block = Instantiate(blockFac);
+                block.transform.position = newBlockPos;
             }
         }
     }
