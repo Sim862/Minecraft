@@ -87,6 +87,7 @@ public class Block : MonoBehaviour
         StopBroke();
         SoundManager.instance.ActiveOnShotSFXSound(blockData.brockBrokenSound, null, transform.position);
         objectParticle = DataManager.instance.GetObjectParticlePrefab(blockData.objectParticle);
+        objectParticle.count = 1;
         if (objectParticle != null)
         {
             objectParticle = Instantiate(objectParticle, transform.position, objectParticle.transform.rotation, MapManager.instance.transform);
