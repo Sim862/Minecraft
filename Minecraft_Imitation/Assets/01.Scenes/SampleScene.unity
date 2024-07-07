@@ -288,7 +288,7 @@ Transform:
   m_GameObject: {fileID: 247311264}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 15.001098, y: -56, z: 14}
+  m_LocalPosition: {x: 15.001098, y: -54, z: 14}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -376,7 +376,7 @@ PrefabInstance:
       objectReference: {fileID: 247311268}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: rotationSpeed
-      value: 300
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: mobData.objectKind
@@ -569,8 +569,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: -0.39999568, y: 0.2701509, z: -0.124652945, w: -0.86688155}
+  m_LocalPosition: {x: 20.461819, y: -48.181606, z: 10.690708}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -713,7 +713,7 @@ PrefabInstance:
       objectReference: {fileID: 247311268}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: rotationSpeed
-      value: 300
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: mobData.objectKind
@@ -810,7 +810,7 @@ PrefabInstance:
       objectReference: {fileID: 247311268}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: rotationSpeed
-      value: 300
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: mobData.objectKind
@@ -907,7 +907,7 @@ PrefabInstance:
       objectReference: {fileID: 247311268}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: rotationSpeed
-      value: 300
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: mobData.objectKind
@@ -1004,7 +1004,7 @@ PrefabInstance:
       objectReference: {fileID: 247311268}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: rotationSpeed
-      value: 300
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: mobData.objectKind
@@ -1215,7 +1215,7 @@ PrefabInstance:
       objectReference: {fileID: 247311268}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: rotationSpeed
-      value: 300
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
       propertyPath: mobData.objectKind

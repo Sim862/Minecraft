@@ -77,7 +77,7 @@ public class Mob : MonoBehaviour
     private Quaternion targetAngle;
 
     private Node wayPoint_Current;
-    private Vector3 wayPosition = Vector3.zero;
+    public Vector3 wayPosition = Vector3.zero;
     private Vector3 dir;
     private float wayPositionDistance = 0;
     protected List<Node> wayPoints = new List<Node>();
@@ -208,6 +208,7 @@ public class Mob : MonoBehaviour
         return (x + y + z)* 10;
     }
 
+    public int blockEnum;
     protected void SetWayPosition()
     {
         if (wayPoints.Count > 0)
@@ -218,6 +219,7 @@ public class Mob : MonoBehaviour
 
             wayPosition = MapManager.instance.GetObjectPosition(wayPoint_Current.positionData.chunk,
                 wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z);
+            blockEnum = MapManager.instance.GetChunk(wayPoint_Current.positionData.chunk_X, wayPoint_Current.positionData.chunk_Z).blocksEnum[wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z];
             needJump = wayPoint_Current.needJump;
         }
         else
@@ -247,42 +249,66 @@ public class Mob : MonoBehaviour
                 movementDelayTime = 4;
                 wayPoints = new List<Node>();
                 wayPosition = Vector3.zero;
-                rigidbody.useGravity = true;
                 SetWayPosition();
                 return;
             }
-            else if (wayPositionDistance < 0.1f)
+            else if (wayPositionDistance < 0.3f)
             {
                 movementDelayTime = 4;
-                rigidbody.useGravity = true;
                 SetWayPosition();
             }
             else
             {
                 movementDelayTime -= Time.deltaTime;
-                dir = new Vector3((wayPosition.x - transform.position.x), 0, (wayPosition.z - transform.position.z)).normalized;
-                if (transform.position.y < wayPosition.y)
+                if (needJump)
                 {
-                    if (needJump)
+                    if(wayPositionDistance > 1f)
                     {
-                        rigidbody.useGravity = false;
-                        transform.position += Vector3.up * currSpeed * Time.deltaTime;
+                        if (wayPosition.y - transform.position.y < -0.2)
+                        {
+                            rigidbody.velocity = new Vector3(rigidbody.velocity.x, 0, rigidbody.velocity.z);
+                            dir = new Vector3((wayPosition.x - transform.position.x), 0, (wayPosition.z - transform.position.z)).normalized;
+                            transform.position += dir * currSpeed * Time.deltaTime;
+                        }
+                        else
+                        {
+                            rigidbody.AddForce(Vector3.up * 50);
+                        }
+
+                    }
+                    else
+                    {
+                        if(wayPosition.y - transform.position.y < -0.2)
+                        {
+                            rigidbody.velocity = new Vector3(rigidbody.velocity.x, 0 ,rigidbody.velocity.z);
+                        }
+                        dir = new Vector3((wayPosition.x - transform.position.x), 0, (wayPosition.z - transform.position.z)).normalized;
+                        transform.position += dir * currSpeed * Time.deltaTime;
                     }
                 }
                 else
                 {
-                    rigidbody.useGravity = true;
+                    dir = new Vector3((wayPosition.x - transform.position.x), 0, (wayPosition.z - transform.position.z)).normalized;
                     transform.position += dir * currSpeed * Time.deltaTime;
                 }
-                Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
 
-                if (cross.y > 0.05)
+               
+                
+                Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
+                if (cross.y > 0.25)
                 {
                     transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
                 }
-                else if (cross.y < -0.05)
+                else if (cross.y < -0.25)
                 {
                     transform.Rotate(new Vector3(0, -rotationSpeed * Time.deltaTime, 0));
+                }
+                else
+                {
+                    if(Vector3.Distance(transform.forward, (wayPosition - transform.position).normalized) > 0.8)
+                    {
+                        transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
+                    }
                 }
             }
         }
@@ -444,6 +470,7 @@ public class Mob : MonoBehaviour
                 current = null;
                 break; // 오픈노드가 없다면 길없음
             }
+
             current = nearNode;
             openNodes.Remove(nearNode);
             closedNode.Add(nearNode);
@@ -588,7 +615,6 @@ public class Mob : MonoBehaviour
             chunk_Z++;
             index_z = 0;
         }
-
         chunk = MapManager.instance.GetChunk(chunk_X, chunk_Z);
         moveData = MapManager.instance.CheckBlock(chunk, index_x,  current.positionData.blockIndex_y, index_z, objectHeight, fallHeight, canJump);
 
@@ -614,6 +640,7 @@ public class Mob : MonoBehaviour
         {
             j = true;
         }
+
         if (targetPositionData != null)
         {
             h = GetH(index_x + (chunk_X * Chunk.x), moveData.afterIndexY, index_z + (chunk_Z * Chunk.z),

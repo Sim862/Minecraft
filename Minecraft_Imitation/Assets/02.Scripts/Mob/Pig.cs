@@ -56,10 +56,10 @@ public class Pig : Mob
             else if(mobState == MobState.Move)
             {
                 nextMovementTime -= Time.deltaTime;
-                if (nextMovementTime <= -2)
+                if (nextMovementTime <= 0)
                 {
                     nextMovementTime = 5;
-                    AStar_Random();
+                    wayPoints.Clear();
                     SetWayPosition();
                 }
             }
