@@ -2,6 +2,7 @@ using NUnit.Framework.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -278,7 +279,7 @@ public class Mob : MonoBehaviour
                     }
                     else
                     {
-                        if(wayPosition.y - transform.position.y < -0.2)
+                        if(wayPosition.y - transform.position.y > 0.1)
                         {
                             rigidbody.velocity = new Vector3(rigidbody.velocity.x, 0 ,rigidbody.velocity.z);
                         }
@@ -292,22 +293,27 @@ public class Mob : MonoBehaviour
                     transform.position += dir * currSpeed * Time.deltaTime;
                 }
 
-               
-                
-                Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
-                if (cross.y > 0.25)
+                dir = (wayPosition - transform.position).normalized;
+
+                 Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
+                if (cross.y > 0.35)
                 {
                     transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
                 }
-                else if (cross.y < -0.25)
+                else if (cross.y < -0.35)
                 {
                     transform.Rotate(new Vector3(0, -rotationSpeed * Time.deltaTime, 0));
                 }
                 else
                 {
-                    if(Vector3.Distance(transform.forward, (wayPosition - transform.position).normalized) > 0.8)
+                    if(Vector3.Distance(transform.forward, dir) > 0.8)
                     {
                         transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
+                    }
+                    else
+                    {
+
+                        transform.rotation = Quaternion.LookRotation(new Vector3(wayPosition.x-transform.position.x, 0, wayPosition.z - transform.position.z).normalized, Vector3.up);
                     }
                 }
             }
