@@ -38,7 +38,10 @@ public class PlayerManager : MonoBehaviour
         }
         OnOffInventory();
         CursurLockMethod();
-        NowUsingSlotNumber();
+        if (!onInventory)
+        {
+            NowUsingSlotNumber();
+        }
     }
 
     void OnOffInventory()

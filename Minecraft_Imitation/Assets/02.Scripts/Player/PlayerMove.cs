@@ -81,7 +81,6 @@ public class PlayerMove : MonoBehaviour
 
 
         // 3. 이동 속도에 맞춰 이동한다.
-        //transform.position += dir * moveSpeed * Time.deltaTime;
         cc.Move(dir * moveSpeed * Time.deltaTime);
     }
 

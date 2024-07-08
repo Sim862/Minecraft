@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class DragItemEvent : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    // itemImage 오브젝트에 연결?
-    public static GameObject item;
-    GameObject startParent;
+    public static GameObject dragingItem;
+    public static ItemImage dragItemImage;
+    Transform orgParent;
     Transform dragingParent;
     Transform startPos;
 
@@ -16,52 +17,38 @@ public class DragItemEvent : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        item = gameObject;
-        startParent = transform.parent.gameObject;
+        dragingItem = gameObject;
+        orgParent = transform.parent;
+        print(orgParent.name);
+        dragItemImage = GetComponent<ItemImage>();
         transform.SetParent(transform.parent.parent.parent);
-        print("Begin : " + transform.parent.name);
+        GetComponentInChildren<Image>().raycastTarget = false;
+        GetComponentInChildren<TextMeshProUGUI>().raycastTarget = false;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        print("OnDrag : " +transform.parent.name);
-        print(eventData.pointerCurrentRaycast.gameObject.name);
-        
-        if (eventData.pointerCurrentRaycast.gameObject.layer == LayerMask.NameToLayer("Slot"))
-        {
-            slot = eventData.pointerCurrentRaycast.gameObject;
-        }
         transform.position = Input.mousePosition;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (eventData.pointerCurrentRaycast.gameObject.layer == LayerMask.NameToLayer("Slot"))
+        if(eventData.pointerCurrentRaycast.gameObject.layer != LayerMask.NameToLayer("Slot"))
         {
-            slot = eventData.pointerCurrentRaycast.gameObject;
+            transform.SetParent(orgParent);
+            transform.localPosition = Vector3.zero;
         }
-        if (slot != null)
-        {
-            transform.parent = slot.transform;
-        }
-        else
-        {
-            transform.parent = startParent.transform;
-
-        }
-        transform.localPosition = Vector3.zero;
-        //GetComponent<CanvasGroup>().blocksRaycasts = true;
+        GetComponentInChildren<Image>().raycastTarget = true;
+        GetComponentInChildren<TextMeshProUGUI>().raycastTarget = true;
+        InventoryPopup.instance.CheckQuickSlot();
     }
 
-    // Start is called before the first frame update
-    void Start()
+
+    public void SwitchPos(ItemImage previous) // 이미지아이템 위치 바꾸기.
     {
-        
+        print("SwitchPos됨");
+        previous.gameObject.transform.SetParent(orgParent);
+        previous.gameObject.transform.localPosition = Vector3.zero;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
