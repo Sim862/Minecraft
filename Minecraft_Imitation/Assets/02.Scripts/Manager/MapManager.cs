@@ -310,7 +310,7 @@ public class MapManager : MonoBehaviour
     }
 
     // 특정 블럭 생성
-    public void CreateBlock(Chunk chunk, BlockData.BlockKind blockKind, int x, int y, int z, string s = null)
+    public void CreateBlock(Chunk chunk, BlockData.BlockKind blockKind, int x, int y, int z)
     {
         if (blockKind != 0)
         {
@@ -332,10 +332,6 @@ public class MapManager : MonoBehaviour
             else
             {
                 block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // 블럭 오브젝트 생성
-            }
-            if (s != null)
-            {
-                block.name = null;
             }
             block.InitBlock(blockData, new PositionData(chunk.chunk_x,chunk.chunk_z,x,y,z)); // 블럭 데이터의 설정값으로 블럭 오브젝트 설정
             chunk.blockObjects[x, y, z] = block; // 블럭 3차원 배열에 블럭 오브젝트 저장

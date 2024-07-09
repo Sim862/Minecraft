@@ -122,11 +122,20 @@ public class Mob : MonoBehaviour
 
     protected Transform targetTransform;
 
+    #region 머리 애니메이션
+    public Transform head;
+    protected Quaternion headDefaultRotation;
+    private Vector3 eulerAngle;
+
+    #endregion
+
+
 
     private void Awake()
     {
         mobData = new MobData(mobKind);
         rigidbody = GetComponent<Rigidbody>();
+        headDefaultRotation = head.rotation;
     }
 
     public bool init_test = false;
@@ -169,7 +178,41 @@ public class Mob : MonoBehaviour
         mobState = MobState.Idle;
         rigidbody.useGravity = true;
         alive = true;
+
     }
+
+    protected void Rotation()
+    {
+        if (targetTransform != null)
+        {
+            dir = (targetTransform.position - transform.position).normalized;
+
+            Vector3 cross = Vector3.Cross(transform.forward, new Vector3(targetTransform.position.x - transform.position.x, 0, targetTransform.position.z - transform.position.z).normalized);
+            if (cross.y > 0.7)
+            {
+                transform.Rotate(new Vector3(0, -100 * Time.deltaTime, 0));
+            }
+            else if (cross.y < -0.7)
+            {
+                transform.Rotate(new Vector3(0, 100 * Time.deltaTime, 0));
+            }
+            else
+            {
+                if (Vector3.Distance(transform.forward, dir) > 0.8) // 내가 뒤를 보고 있을때
+                {
+                    transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
+                }
+                else
+                {
+                    Quaternion lookRoation = Quaternion.LookRotation(targetTransform.position - head.position);
+                    //eulerAngle = lookRoation.eulerAngles;
+                    //eulerAngle = new Vector3(eulerAngle.y, 0, 0);
+                    head.rotation = Quaternion.Slerp(head.rotation, lookRoation, Time.deltaTime);
+                }
+            }
+        }
+    }
+
     protected void Fall()
     {
         if (rigidbody.velocity.y < minVelocity_Y)
@@ -296,17 +339,17 @@ public class Mob : MonoBehaviour
                 dir = (wayPosition - transform.position).normalized;
 
                  Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
-                if (cross.y > 0.35)
+                if (cross.y > -0.35)
                 {
                     transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
                 }
-                else if (cross.y < -0.35)
+                else if (cross.y < -.35)
                 {
                     transform.Rotate(new Vector3(0, -rotationSpeed * Time.deltaTime, 0));
                 }
                 else
                 {
-                    if(Vector3.Distance(transform.forward, dir) > 0.8)
+                    if(Vector3.Distance(transform.forward, dir) > 0.8) // 내가 뒤를 보고 있을때
                     {
                         transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
                     }

@@ -35,12 +35,33 @@ public class Pig : Mob
 
             if (mobState == MobState.Idle)
             {
-                nextMovementTime -= Time.deltaTime;
+                //nextMovementTime -= Time.deltaTime;
+                nextMovementTime = 10;
                 if (nextMovementTime <= 0)
                 {
                     nextMovementTime = 5;
                     AStar_Random();
                     SetWayPosition();
+                }
+                else if(nextMovementTime > 5) // 랜덤값이 5보다 큰 객체는 주변 탐색
+                {
+                    FindVisibleTargets();
+                    print(targetTransform);
+                    if (targetTransform != null)
+                    {
+                        Rotation();
+                    }
+                }
+                else // 탐색해서 무언가 찾았다면 계속 쳐다모기
+                {
+                    if(targetTransform != null)
+                    {
+                        FindVisibleTargets();
+                        if (targetTransform != null)
+                        {
+                            Rotation();
+                        }
+                    }
                 }
             }
             else if (mobState == MobState.Hit)
