@@ -126,7 +126,6 @@ public class PlayerRaycast : MonoBehaviour
             }
         }
     }
-
     void InstallBlock(int slotNumber)
     {
         GameObject nowUsingObject = InventoryStatic.instance.slots[slotNumber];
@@ -136,15 +135,15 @@ public class PlayerRaycast : MonoBehaviour
         if (nowItemImage != null)
         {
             newBlockPos = hitInfo.transform.position + normalVec * SizeVector(hitInfo);
-            if(Vector3.Distance(transform.position, newBlockPos) > 1) // 설치가능한만큼 떨어져 있는지 검사.
+            print(newBlockPos);
+            if (Vector3.Distance(transform.position, newBlockPos) > 1)
             {
                 nowItemImage.ChangeItemCnt(-1);
                 nowItemImageInQuick.ChangeItemCnt(-1);
                 /*PositionData positionData = MapManager.instance.PositionToBlockData(newBlockPos);
                 BlockData.BlockKind blockKind = DataManager.instance.ParticleToBlockKind(nowItemImage.particleKind);
-                MapManager.instance.CreateBlock(positionData.chunk, blockKind, positionData.blockIndex_x,positionData.blockIndex_y,positionData.blockIndex_z);*/
-                GameObject block = Instantiate(blockFac);
-                block.transform.position = newBlockPos;
+                MapManager.instance.CreateBlock(positionData.chunk, blockKind, positionData.blockIndex_x,positionData.blockIndex_y,positionData.blockIndex_z, "SS");
+
             }
         }
     }

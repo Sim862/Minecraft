@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6972876640368354700}
   - component: {fileID: 5661128434706038575}
   m_Layer: 9
-  m_Name: Entity_PIg
+  m_Name: Mob_PIg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -54,8 +54,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.7, y: 0.7, z: 0.7}
-  m_Center: {x: 0, y: -0.15, z: 0}
+  m_Size: {x: 0.5, y: 0.7, z: 0.5}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &6972876640368354700
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -97,7 +97,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rigidbody: {fileID: 0}
   mobData:
-    objectKind: 0
     mobKind: 0
   mobKind: 0
   detectionDistance: 8
@@ -111,6 +110,8 @@ MonoBehaviour:
   fallHeight: 3
   nextMovementTime: 3
   movementDelayTime: 3
+  needJump: 0
+  wayPosition: {x: 0, y: 0, z: 0}
   viewRadius: 7
   viewAngle: 160
   targetMask:
@@ -128,6 +129,8 @@ MonoBehaviour:
   b_y: 0
   b_z: 0
   finalNodeList: []
+  blockEnum: 0
+  jumpforce: 10
   temp: {fileID: 0}
 --- !u!1001 &6964763005613614996
 PrefabInstance:
@@ -159,7 +162,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c49e0c2a280b542409b399551f0745d0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.5
+      value: -0.35
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c49e0c2a280b542409b399551f0745d0, type: 3}
       propertyPath: m_LocalPosition.z

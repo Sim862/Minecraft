@@ -8,8 +8,8 @@ using UnityEngine.UI;
 public class ObjectParticle : MonoBehaviour
 {
 
-    private Rigidbody rigidbody;
-    private Collider rigidCollider;
+    public Rigidbody rigidbody;
+    public Collider rigidCollider;
     public Transform particleObject;
     public float rotatingSpeed = 1;
     public float rotatingLength = 0.15f;
@@ -56,13 +56,15 @@ public class ObjectParticle : MonoBehaviour
         {
             if (particleObjects.Count < 2)
             {
-                Transform temp = Instantiate(particleObject, particleObject.position + new Vector3(Random.value, Random.value, Random.value), particleObject.rotation, particleObject);
+                float ran = Random.Range(0.03f, 0.07f);
+                Transform temp = Instantiate(particleObject, particleObject.position + new Vector3(ran, ran, ran), particleObject.rotation, particleObject);
+                temp.localScale = Vector3.one;
                 particleObjects.Add(temp);
             }
         }
         else
         {
-            if(particleObjects.Count != 1)
+            if (particleObjects.Count > 1)
             {
                 Transform temp = particleObjects[1];
                 particleObjects.RemoveAt(1);
@@ -140,10 +142,12 @@ public class ObjectParticle : MonoBehaviour
         if (particleKind != other.particleKind) // 같은 종류의 아이템이 아니면 리턴
             return;
 
+        print(1);
         if (other.count < count)
             return;
 
-        if(other.count == count)
+        print(1);
+        if (other.count == count)
         {
             if(gameObject.GetHashCode() > other.gameObject.GetHashCode())
             {
@@ -151,19 +155,35 @@ public class ObjectParticle : MonoBehaviour
             }
         }
 
-        other.UpdateCount(other.count + count);
-        if(other.count > 64)
+        if(other.count + count > 64)
         {
+            print(1);
             other.count = 64;
             UpdateCount(other.count - 64);
             ResetRigid();
         }
         else
         {
-            Destroy(gameObject);
+            other.UpdateCount(other.count + count);
+            StartCoroutine(MoveParticle(other.transform.position));
         }
     }
 
+    IEnumerator MoveParticle(Vector3 position)
+    {
+        rigidbody.useGravity = false;
+        rigidCollider.isTrigger = true;
+        onTarget = true;
+        float distance = Vector3.Distance(transform.position, position) / 15;
+        Vector3 direction = (position - transform.position).normalized;
+        for (int i = 0; i < 10; i++)
+        {
+            transform.position += direction * distance;
+            yield return new WaitForSeconds(0.02f);
+        }
+
+        Destroy(gameObject);
+    }
 
     public void Drop()
     {
@@ -201,10 +221,8 @@ public class ObjectParticle : MonoBehaviour
         {
             if (other.CompareTag("ObjectParticle"))
             {
-                if(Vector3.Distance(transform.position, other.transform.position) < 0.4f)
-                {
-                    CollisionParticle(other.GetComponent<ObjectParticle>());
-                }
+                if(other.GetComponent<ObjectParticle>() == null)
+                CollisionParticle(other.GetComponentInParent<ObjectParticle>());
             }
         }
     }

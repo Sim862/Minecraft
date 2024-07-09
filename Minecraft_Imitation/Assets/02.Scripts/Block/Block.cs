@@ -48,6 +48,8 @@ public class Block : MonoBehaviour
         this.meshRenderer.material = blockData.material;
         this.positionData = positionData;
 
+        broken = false;
+        canBreak = true;
     }
 
     public void Break(BlockData.BlockType blockType, float Power) // 한번만 호출하면 블럭 체력 까이기 시작. 피 까이는 상태.
@@ -87,7 +89,7 @@ public class Block : MonoBehaviour
         StopBroke();
         SoundManager.instance.ActiveOnShotSFXSound(blockData.brockBrokenSound, null, transform.position);
         objectParticle = DataManager.instance.GetObjectParticlePrefab(blockData.objectParticle);
-        objectParticle.count = 1;
+        objectParticle.UpdateCount(1);
         if (objectParticle != null)
         {
             objectParticle = Instantiate(objectParticle, transform.position, objectParticle.transform.rotation, MapManager.instance.transform);
