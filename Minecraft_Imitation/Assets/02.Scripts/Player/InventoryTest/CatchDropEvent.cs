@@ -14,8 +14,10 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
 
     public void OnDrop(PointerEventData eventData)
     {
+        print(4);
         following = DragItemEvent.dragItemImage;
         previous = GetComponentInChildren<ItemImage>();
+        print("Ondrop에서 자식 수 : " + transform.childCount);
         if (transform.childCount == 0) // 그 칸에 아무것도 없으면 자리만 바꿔줌.
         {
             DragItemEvent.dragingItem.transform.SetParent(transform);
@@ -23,6 +25,7 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
         }
         else // 그 칸에 뭐가 있으면
         {
+            CheckKind(previous, following);
             CalculateCount(previous, following);
         }
     }
@@ -47,8 +50,9 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
             if (previous.count + following.count <= maxCnt) // maxCnt == 64
             {
                 // 우선 숫자 증가시켜.
-                previous.ChangeItemCnt(following.count); // 주운 개수만큼 증가.
-
+                previous.ChangeItemCnt(following.count); // 옮긴느 개수만큼.
+                Destroy(following.gameObject); // 옮기던거 파괴.
+                InventoryPopup.instance.CheckQuickSlot(); // 파괴하면 Check가 안되서 여기서 직접해줌.
             }
             else // 초과할경우
             {
@@ -58,14 +62,22 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
                 previous.ChangeItemCnt(maxCnt - previous.count);
                 following.ChangeItemCnt(exceededCnt - following.count);
 
+                DragItemEvent followingCs = following.GetComponent<DragItemEvent>();
+                following.transform.SetParent(followingCs.SwitchPos());
+                following.transform.localPosition = Vector3.zero;
             }
         }
         else // 종류가 다르다면 위치만 서로 바꿔준다.
         {
-            DragItemEvent dragItemCs = following.GetComponent<DragItemEvent>();
-            dragItemCs.SwitchPos(previous);
+            print(5);
+            //previous = transform.GetChild(0).GetComponent<ItemImage>();
+            DragItemEvent followingCs = following.GetComponent<DragItemEvent>();
+            previous.transform.SetParent(followingCs.SwitchPos());
+            print(previous.transform.parent);
+            previous.transform.localPosition = Vector3.zero;
             DragItemEvent.dragingItem.transform.SetParent(transform);
             DragItemEvent.dragingItem.transform.localPosition = Vector3.zero;
+            
         }
     }
 

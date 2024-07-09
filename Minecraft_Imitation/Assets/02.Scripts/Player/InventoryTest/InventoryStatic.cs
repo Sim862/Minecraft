@@ -78,16 +78,11 @@ public class InventoryStatic : MonoBehaviour
                 item.transform.localPosition = Vector3.zero;
                 item.transform.localScale = Vector3.one;
                 GameObject item2 = Instantiate(item);
-                print(InventoryPopup.instance.gameObject.name);
                 InventoryPopup.instance.SetItemPositionInQuickSlot(item2, i);
-
-                
-                print("슬롯 확인 및 포지션 완료.");
                 return;
             }
             if(i == slots.Length - 1)
             {
-                print("Inven으로 들어감.");
                 InventoryPopup.instance.SetItemPosInInven(item);
             }
         }

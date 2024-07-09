@@ -13,13 +13,11 @@ public class DragItemEvent : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     Transform dragingParent;
     Transform startPos;
 
-    GameObject slot;
-
     public void OnBeginDrag(PointerEventData eventData)
     {
+        print(1);
         dragingItem = gameObject;
         orgParent = transform.parent;
-        print(orgParent.name);
         dragItemImage = GetComponent<ItemImage>();
         transform.SetParent(transform.parent.parent.parent);
         GetComponentInChildren<Image>().raycastTarget = false;
@@ -28,12 +26,14 @@ public class DragItemEvent : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnDrag(PointerEventData eventData)
     {
+        print(2);
         transform.position = Input.mousePosition;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if(eventData.pointerCurrentRaycast.gameObject.layer != LayerMask.NameToLayer("Slot"))
+        print(3);
+        if (eventData.pointerCurrentRaycast.gameObject.layer != LayerMask.NameToLayer("Slot") && eventData.pointerCurrentRaycast.gameObject.layer != LayerMask.NameToLayer("ItemImage"))
         {
             transform.SetParent(orgParent);
             transform.localPosition = Vector3.zero;
@@ -49,6 +49,12 @@ public class DragItemEvent : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         print("SwitchPos됨");
         previous.gameObject.transform.SetParent(orgParent);
         previous.gameObject.transform.localPosition = Vector3.zero;
+    }
+
+    public Transform SwitchPos()
+    {
+        print(6);
+        return orgParent;
     }
 
 }
