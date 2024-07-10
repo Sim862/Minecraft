@@ -15,12 +15,14 @@ public class PlayerMove : MonoBehaviour
     float maxHp = 20; // 최대 체력 변수
     public Slider hpSlider; // hp 슬라이더 변수
     PlayerDamaged damagedCs;
+    Animator anim;
 
     void Start()
     {
         // 캐릭터 컨트롤러 컴포넌트 받아오기.
         cc = GetComponent<CharacterController>();
         damagedCs = gameObject.GetComponent<PlayerDamaged>();
+        anim = GetComponent<Animator>();
     }
 
 
@@ -29,6 +31,10 @@ public class PlayerMove : MonoBehaviour
         // 4. 현재 플레이어 hp(%)를 hp 슬라이더의 value에 반영한다.
         hpSlider.value = hp / maxHp;
         PlayerMoveMethod();
+        if (!PlayerManager.onInventory) // 인벤토리가 켜져있으면 안되게
+        {
+            AnimatorControll();
+        }
     }
 
     void PlayerMoveMethod()
@@ -84,5 +90,15 @@ public class PlayerMove : MonoBehaviour
         cc.Move(dir * moveSpeed * Time.deltaTime);
     }
 
-
+    void AnimatorControll()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            anim.SetBool("isAction", true);
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            anim.SetBool("isAction", false);
+        }
+    }
 }

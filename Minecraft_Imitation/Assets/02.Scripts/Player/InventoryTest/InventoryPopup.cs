@@ -7,6 +7,9 @@ public class InventoryPopup : MonoBehaviour
     public static InventoryPopup instance;
     public GameObject[] quickSlot = new GameObject[0];
     public GameObject[] inven = new GameObject[0];
+    public GameObject withMaker;
+    public GameObject withoutMaker;
+    public bool useMaker;
     int usingSlot;
     GameObject staticGo;
     GameObject quickGo;
@@ -23,6 +26,12 @@ public class InventoryPopup : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        gameObject.SetActive(false);
+    }
+
+    private void Update()
+    {
+        CheckUseMaker();
     }
 
     public void ChangeSameCnt(int slotNum, int changeToValue)  // 증감 하는 함수.
@@ -96,6 +105,20 @@ public class InventoryPopup : MonoBehaviour
             }
             staticItem = null; // 초기화
             staticGo = null;
+        }
+    }
+
+    public void CheckUseMaker()
+    {
+        if (useMaker)
+        {
+            withMaker.SetActive(true);
+            withoutMaker.SetActive(false);
+        }
+        else if (!useMaker)
+        {
+            withMaker.SetActive(false);
+            withoutMaker.SetActive(true);
         }
     }
 

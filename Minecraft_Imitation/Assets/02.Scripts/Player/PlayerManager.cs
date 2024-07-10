@@ -34,9 +34,9 @@ public class PlayerManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            onInventory = !onInventory;
+            InventoryPopup.instance.useMaker = false;
+            OnOffInventory();
         }
-        OnOffInventory();
         CursurLockMethod();
         if (!onInventory)
         {
@@ -44,17 +44,20 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    void OnOffInventory()
+    public void OnOffInventory()
     {
-        if (onInventory)
-        {
-            inventory.SetActive(true);
-            cursorLock = false;
-        }
-        else
+        if (inventory.activeSelf)
         {
             inventory.SetActive(false);
+            onInventory = false;
             cursorLock = true;
+        }
+        else if (!inventory.activeSelf)
+        {
+
+            inventory.SetActive(true);
+            onInventory = true;
+            cursorLock = false;
         }
     }
 
