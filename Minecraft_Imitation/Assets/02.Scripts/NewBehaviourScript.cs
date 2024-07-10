@@ -14,10 +14,19 @@ public class NewBehaviourScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Vector3 a = new Vector3(1, 1, 1);
-        Vector3 b = new Vector3(1, 1, 1);
+        ObjectParticleData.ParticleKind a = DataManager.instance.GetCombinationData(new List<ObjectParticleData.ParticleKind>() { 
+            ObjectParticleData.ParticleKind.None,
+            ObjectParticleData.ParticleKind.None,
+            ObjectParticleData.ParticleKind.None,
+            ObjectParticleData.ParticleKind.None,
+            ObjectParticleData.ParticleKind.None,
+            ObjectParticleData.ParticleKind.Wood,
+            ObjectParticleData.ParticleKind.None,
+            ObjectParticleData.ParticleKind.None,
+            ObjectParticleData.ParticleKind.None,
+        });
 
-        print(a.Equals(b));
+        print(a);
     }
 
   

@@ -51,6 +51,8 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 82a22492fb411e947841ee06d346fa19, type: 2}
   - blockKind: 4
     material: {fileID: 2100000, guid: f8a904e52d5a7704cbd29372219381a1, type: 2}
+  - blockKind: 5
+    material: {fileID: 2100000, guid: 37f34f8994a975a40975ee8da67dfb33, type: 2}
   blockDatas: []
   monsterList: []
   passiveMobList: []
@@ -58,3 +60,4 @@ MonoBehaviour:
   - {fileID: 5420936105177163834, guid: fd266814a05777f4093341b88542f57a, type: 3}
   - {fileID: 5420936105177163834, guid: efedfb957c3d0164386b7d8d15c5396e, type: 3}
   - {fileID: 5420936105177163834, guid: 4051ad30b20121645a5a4ea4a7bfcb60, type: 3}
+  - {fileID: 876144888023053152, guid: 1c3bb763009542d43872bbee50ed1870, type: 3}

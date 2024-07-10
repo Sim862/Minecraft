@@ -20,8 +20,9 @@ public class ObjectParticle : MonoBehaviour
     private List<Transform> particleObjects = new List<Transform>();
     
     public ObjectParticleData.ParticleKind particleKind; // 오브젝트 파티클 종류
-    public int count;
+    public int count = 1;
     public Sprite icon;
+    public bool canSetup;
     private Transform target;
     private bool onTarget = false;
 

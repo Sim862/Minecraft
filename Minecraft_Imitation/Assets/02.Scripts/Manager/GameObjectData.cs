@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using static BlockData;
 using static GameObjectData;
+using static ObjectParticleData;
 using static ToolData;
 
 [System.Serializable]
@@ -56,7 +59,8 @@ public class BlockData : GameObjectData
         Dirt,
         Wood,
         Water,
-        Stone
+        Stone,
+        WoodenPlank
     }
     public enum BlockType
     {
@@ -122,6 +126,7 @@ public class ObjectParticleData : GameObjectData
         Wood,
         Water,
         Stone,
+        WoodenPlank,
 
     //  Item  ----------------------------------------------------------------------- 
         Knife,
@@ -130,7 +135,6 @@ public class ObjectParticleData : GameObjectData
         Pick,
         Hoe
     }
-
     public ParticleKind particleKind;
 }
 
@@ -148,3 +152,58 @@ public class UIItem
     public Sprite icon;
 }
 
+public class CombinationData
+{
+    public CombinationData(ParticleKind result, int count, List<ParticleKind> particleKinds)
+    {
+        this.result = result;
+        this.count = count;
+        int y = 1;
+        int check = 0;
+        for (int i = 0; i < particleKinds.Count; i++)
+        {
+            check++;
+            if (particleKinds[i] != ParticleKind.None)
+            {
+                this.y = y;
+                if (check > x)
+                {
+                    x = check;
+                }
+            }
+            if (check >= 3)
+            {
+                check = 0;
+                y++;
+            }
+        }
+
+        // None아닌 데이터 제일 앞으로 오게 정렬
+        for (int i = 0; i < particleKinds.Count; i++)
+        {
+            if (particleKinds[i] != ObjectParticleData.ParticleKind.None)
+            {
+                break;
+            }
+            else
+            {
+                particleKinds.RemoveAt(i);
+                i--;
+            }
+        }
+        // Count가 9가 될때 까지 None 넣어줌
+        while (particleKinds.Count < 9)
+        {
+            particleKinds.Add(ObjectParticleData.ParticleKind.None);
+        }
+
+
+        this.particleKinds = particleKinds.ToArray();
+    }
+
+    public ParticleKind result { get; private set; }
+    public ParticleKind[] particleKinds { get; private set; }= new ParticleKind[9];
+    public int count { get; private set; }
+    public int x { get; private set; } = 0;
+    public int y { get; private set; } = 0;
+}

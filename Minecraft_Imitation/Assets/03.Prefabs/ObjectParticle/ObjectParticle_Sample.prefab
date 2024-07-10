@@ -149,12 +149,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d755aadfe8ed65148af00c5832092a46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rigidbody: {fileID: 0}
+  rigidCollider: {fileID: 0}
   particleObject: {fileID: 3998662556383513029}
   rotatingSpeed: 1
   rotatingLength: 0.1
   moveSpeed: 5
   particleKind: 0
   count: 1
+  icon: {fileID: 0}
+  canSetup: 1
 --- !u!1 &7733235666004420616
 GameObject:
   m_ObjectHideFlags: 0
