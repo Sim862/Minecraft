@@ -5,7 +5,7 @@ using UnityEngine;
 public class MakingSlot : MonoBehaviour
 {
     public GameObject[] dropSlot = new GameObject[9];
-    public List<ObjectParticleData.ParticleKind> particleKinds = new List<ObjectParticleData.ParticleKind>();
+    public ObjectParticleData.ParticleKind[] particleKinds = new ObjectParticleData.ParticleKind[9];
     public GameObject takeSlot;
     // Start is called before the first frame update
     void Awake()
@@ -23,6 +23,22 @@ public class MakingSlot : MonoBehaviour
 
 
 
+    }
+
+    void SaveAllData()
+    {
+        for(int i = 0; i < dropSlot.Length; i++)
+        {
+            ItemImage item = dropSlot[i].GetComponentInChildren<ItemImage>();
+            if(item != null)
+            {
+                particleKinds[i] = item.particleKind;
+            }
+            else if(item == null)
+            {
+                particleKinds[i] = ObjectParticleData.ParticleKind.None;
+            }
+        }
     }
 
     void TransferData()
