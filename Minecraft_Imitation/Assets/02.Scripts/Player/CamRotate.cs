@@ -8,6 +8,8 @@ public class CamRotate : MonoBehaviour
     // 회전 속도 변수
     public float rotSpeed = 200f;
 
+    public Vector3 rotationValue;
+
     // 회전 값 변수
     float mx = 0;
     float my = 0;
@@ -37,6 +39,7 @@ public class CamRotate : MonoBehaviour
         my = Mathf.Clamp(my, -90f, 90f);
 
         // 회전 방향으로 물체 회전
-        transform.eulerAngles = new Vector3(-my, mx, 0);
+        rotationValue = new Vector3(-my, mx, 0);
+        transform.eulerAngles = new Vector3(-my, transform.eulerAngles.y, 0);
     }
 }

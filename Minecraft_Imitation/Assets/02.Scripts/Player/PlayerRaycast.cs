@@ -27,7 +27,7 @@ public class PlayerRaycast : MonoBehaviour
         hitInfo = new RaycastHit();
 
         bool anyHit = Physics.Raycast(ray, out hitInfo, aimRange); // 에임 사정거리
-        if (anyHit)
+        if (anyHit && PlayerManager.onInventory == false)
         {
             normalVec = hitInfo.normal;
             hitBlockTr = hitInfo.transform; // 에임이 보고있는 블럭 저장.
@@ -124,6 +124,11 @@ public class PlayerRaycast : MonoBehaviour
             {
                 InstallBlock(slotnumber);
             }
+            if(hitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Maker"))
+            {
+                InventoryPopup.instance.useMaker = true;
+                PlayerManager.instance.OnOffInventory();
+            }
         }
     }
     void InstallBlock(int slotNumber)
@@ -146,5 +151,10 @@ public class PlayerRaycast : MonoBehaviour
 
             }
         }
+    }
+
+    void UseMaker()
+    {
+
     }
 }
