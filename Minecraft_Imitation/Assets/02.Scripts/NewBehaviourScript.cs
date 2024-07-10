@@ -14,7 +14,7 @@ public class NewBehaviourScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ObjectParticleData.ParticleKind a = DataManager.instance.GetCombinationData(new List<ObjectParticleData.ParticleKind>() { 
+        CombinationData a = DataManager.instance.GetCombinationData(new List<ObjectParticleData.ParticleKind>() { 
             ObjectParticleData.ParticleKind.None,
             ObjectParticleData.ParticleKind.None,
             ObjectParticleData.ParticleKind.None,
@@ -26,7 +26,7 @@ public class NewBehaviourScript : MonoBehaviour
             ObjectParticleData.ParticleKind.None,
         });
 
-        print(a);
+        print(a.result);
     }
 
   

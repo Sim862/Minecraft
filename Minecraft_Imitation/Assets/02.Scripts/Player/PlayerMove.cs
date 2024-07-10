@@ -35,6 +35,8 @@ public class PlayerMove : MonoBehaviour
         {
             AnimatorControll();
         }
+
+        MapManager.instance.playerPositionData = MapManager.instance.PositionToBlockData(transform.position);
     }
 
     void PlayerMoveMethod()
