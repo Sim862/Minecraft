@@ -144,9 +144,11 @@ public class DataManager : MonoBehaviour
         }
     }
 
-    public ObjectParticleData.ParticleKind GetCombinationData(List<ObjectParticleData.ParticleKind> inven)
+    public CombinationData GetCombinationData(List<ObjectParticleData.ParticleKind> inven)
     {
         currectDataList.Clear();
+
+        // x, y 축 검사
         inven_Y = 0;
         inven_Check_Y = 1;
         inven_x = 0;
@@ -172,6 +174,7 @@ public class DataManager : MonoBehaviour
             }
         }
 
+        // x, y 비교
         for (int i = 0; i < combinationDatas.Count; i++)
         {
             if (combinationDatas[i].x == inven_x)
@@ -185,7 +188,7 @@ public class DataManager : MonoBehaviour
 
         if (currectDataList.Count == 0)
         {
-            return ObjectParticleData.ParticleKind.None;
+            return null;
         }
 
         // None아닌 데이터 제일 앞으로 오게 정렬
@@ -222,14 +225,14 @@ public class DataManager : MonoBehaviour
                     if(j >= 8) // 인덱스가 8까지 enum이 맞다면 적합
                     {
                         
-                        return currectDataList[i].result; // 적합 enum return
+                        return currectDataList[i]; // 적합 enum return
                     }
                 }
             }
         }
 
         // 적합한게 없었으니 None
-        return ObjectParticleData.ParticleKind.None;
+        return null;
     }
 
     // 오브젝트 파티클 Dictionary 초기화

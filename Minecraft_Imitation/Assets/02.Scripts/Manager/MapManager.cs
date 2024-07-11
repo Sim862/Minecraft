@@ -53,6 +53,7 @@ public class MoveData
 public class Chunk
 {
     public static readonly float saveTime = 12; // 청크 저장 대기시간
+    public static readonly int MAX_ChunkIndex = 10;
 
     // 청크 크기
     public static readonly int x = 12;
@@ -60,12 +61,12 @@ public class Chunk
     public static readonly int z = 12;
     public static readonly int defaultY = -60;
     // 생성자
-    public Chunk(int chunk_x, int chunk_z, int[,,] blocks)
+    public Chunk(int chunk_X, int chunk_Z, int[,,] blocks)
     {
-        this.chunk_x = chunk_x;
-        this.chunk_z = chunk_z;
+        this.chunk_x = chunk_X;
+        this.chunk_z = chunk_Z;
         this.blocksEnum = blocks;
-        blockParent = new GameObject(chunk_x+"-"+ chunk_z).transform;
+        blockParent = new GameObject(chunk_X+"-"+ chunk_Z).transform;
         blockParent.SetParent(MapManager.instance.transform);
         saveRoutine = Coroutine_SaveChunk(this);
     }
@@ -90,7 +91,7 @@ public class Chunk
             if (chunk.needSave)
             {
                 chunk.needSave = false;
-                MapManager.instance.SaveChunk("Chunk" + (chunk_x + "_" + chunk_z),this);
+                MapManager.instance.SaveChunk(chunk_x, chunk_z,this);
             }
 
             yield return new WaitForSeconds(Chunk.saveTime);
@@ -106,7 +107,7 @@ public class MapManager : MonoBehaviour
 
     public Block blockPrefab;
 
-    private Vector3 playerChunckVector; // transform.postion 아님 청크 위치와 파일명
+    public PositionData playerPositionData; // transform.postion 아님 청크 위치와 파일명
     private Chunk[] chunks = new Chunk[9];
     public int[,,] blocks = new int[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
     private BlockData blockData;
@@ -115,10 +116,8 @@ public class MapManager : MonoBehaviour
     private Vector3 blockPosition = new Vector3();
     private Vector3 position2 = new Vector3();
     Array enumValues = System.Enum.GetValues(enumType: typeof(BlockData.BlockKind));
-
     private int value;
 
-    public Vector3 playerPosition;
 
 
     private void Awake()
@@ -131,15 +130,13 @@ public class MapManager : MonoBehaviour
         {
             instance = this;
         }
+
+        playerPositionData = new PositionData(0, 0, 0, 0, 0);
     }
 
     void Start()
     {
         Load_9Chunks();
-        for (int i = 0; i < chunks.Length; i++)
-        {
-            InitChunk_CreateBlocks(chunks[i]);
-        }
 
     }
 
@@ -161,8 +158,9 @@ public class MapManager : MonoBehaviour
         if (createBlock)
         {
             createBlock = false;
-            CreateBlock(chunks[chunkIndex], blockKind1, (int)chunkBlockIndex.x, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z);
+            //CreateBlock(chunks[chunkIndex], blockKind1, (int)chunkBlockIndex.x, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z);
         }
+        UpdateLoadChunk();
     }
 
     private void OnDestroy()
@@ -170,51 +168,142 @@ public class MapManager : MonoBehaviour
         for (int i = 0; i < chunks.Length; i++)
         {
             StopCoroutine(chunks[i].saveRoutine);
-            SaveChunk("Chunk" + chunks[i].chunk_x + "_" + chunks[i].chunk_z, chunks[i]);
+            SaveChunk(chunks[i].chunk_x, chunks[i].chunk_z, chunks[i]);
         }
     }
 
     #region Chunk Load, Save 메서드
 
+    public void UpdateLoadChunk()
+    {
+        if (playerPositionData.chunk_X == chunks[4].chunk_x && playerPositionData.chunk_Z == chunks[4].chunk_z)
+        {
+            return;
+        }
+        else
+        {
+            Chunk[] newChunks = new Chunk[9];
+            Chunk temp_Chunk;
+            for (int i = 0; i < newChunks.Length; i++)
+            {
+                newChunks[i] = chunks[i];
+            }
+            if(playerPositionData.chunk_X < chunks[4].chunk_x)
+            {
+                print(2);
+                StartCoroutine(chunks[5].saveRoutine);
+                SaveChunk(playerPositionData.chunk_X + 1, playerPositionData.chunk_Z, chunks[5]);
+                for (int i = 4; i < 6; i++)
+                {
+                    newChunks[i] = chunks[i - 1];
+                }
+                LoadChunk(playerPositionData.chunk_X-1, playerPositionData.chunk_Z);
+                newChunks[3] = new Chunk(playerPositionData.chunk_X - 1, playerPositionData.chunk_Z, blocks);
+                InitChunk_CreateBlocks(newChunks[3]);
+            }
+            else if(playerPositionData.chunk_X == chunks[4].chunk_x)
+            {
+
+            }
+            else
+            {
+
+            }
+            //if (playerPositionData.chunk_X == chunks[4].chunk_x && playerPositionData.chunk_Z > chunks[4].chunk_z)
+            //{
+
+            //}
+            //else if (playerPositionData.chunk_X > chunks[4].chunk_x && playerPositionData.chunk_Z > chunks[4].chunk_z)
+            //{
+
+            //}
+            //else if (playerPositionData.chunk_X > chunks[4].chunk_x && playerPositionData.chunk_Z == chunks[4].chunk_z)
+            //{
+
+            //}
+            //else if (playerPositionData.chunk_X > chunks[4].chunk_x && playerPositionData.chunk_Z < chunks[4].chunk_z)
+            //{
+
+            //}
+            //else if (playerPositionData.chunk_X == chunks[4].chunk_x && playerPositionData.chunk_Z < chunks[4].chunk_z)
+            //{
+
+            //}
+            //else if (playerPositionData.chunk_X < chunks[4].chunk_x && playerPositionData.chunk_Z < chunks[4].chunk_z)
+            //{
+
+            //}
+            //else if (playerPositionData.chunk_X < chunks[4].chunk_x && playerPositionData.chunk_Z == chunks[4].chunk_z)
+            //{
+
+            //}
+            //else if (playerPositionData.chunk_X < chunks[4].chunk_x && playerPositionData.chunk_Z > chunks[4].chunk_z)
+            //{
+
+            //}
+        }
+    }
 
     public void Load_9Chunks()
     {
         //SetPlayerChunk();
         int index = 0;
-        for (int z = 0; z < 3; z++)
+        for (int z = -1; z < 2; z++)
         {
-            for (int x = 0; x < 3; x++)
+            for (int x = -1; x < 2; x++)
             {
-                LoadChunk("Chunk" + (x+playerChunckVector.x) + "_" + (z + playerChunckVector.z)); // 청크파일 로드 후 blocks에서 블럭 데이터 셋팅
-                chunks[index] = new Chunk((int)(x + playerChunckVector.x), (int)(z + playerChunckVector.z), blocks);
+                //LoadChunk("Chunk" + (x+playerChunckVector.chunk_X) + "_" + (z + playerChunckVector.chunk_Z)); // 청크파일 로드 후 blocks에서 블럭 데이터 셋팅
+                //chunks[index] = new Chunk((int)(x + playerChunckVector.chunk_X), (int)(z + playerChunckVector.chunk_Z), blocks);
+                LoadChunk(x+ playerPositionData.chunk_X, z + playerPositionData.chunk_Z); // 청크파일 로드 후 blocks에서 블럭 데이터 셋팅
+                chunks[index] = new Chunk((int)(x), (int)(z), blocks);
                 StartCoroutine(chunks[index].saveRoutine);
+                InitChunk_CreateBlocks(chunks[index]);
                 index++;
             }
         }
     }
 
-    public void Save_9Chunks()
+    //public void Save_9Chunks()
+    //{
+    //    //SetPlayerChunk();
+    //    int index = 0;
+    //    for (int z = -1; z < 2; z++)
+    //    {
+    //        for (int x = -1; x < 2; x++)
+    //        {
+    //            //SaveChunk("Chunk" + (x + playerChunckVector.chunk_X) + "_" + (z + playerChunckVector.chunk_Z), chunks[index]);
+    //            SaveChunk(x, z, chunks[index]);
+    //            chunks[index].needSave = false;
+    //            index++;
+    //        }
+    //    }
+    //}
+
+    public void LoadChunk(int chunk_X, int chunk_Z)
     {
-        //SetPlayerChunk();
-        int index = 0;
-        for (int z = 0; z < 3; z++)
+        if(chunk_X < 0)
         {
-            for (int x = 0; x < 3; x++)
-            {
-                SaveChunk("Chunk" + (x + playerChunckVector.x) + "_" + (z + playerChunckVector.z), chunks[index]);
-                chunks[index] = new Chunk((int)(x + playerChunckVector.x), (int)(z + playerChunckVector.z), blocks);
-                chunks[index].needSave = false;
-                index++;
-            }
+            chunk_X = chunk_X % Chunk.MAX_ChunkIndex;
+            chunk_X = Chunk.MAX_ChunkIndex + chunk_X;
         }
-    }
+        else if (chunk_X >= Chunk.MAX_ChunkIndex)
+        {
+            chunk_X = chunk_X % Chunk.MAX_ChunkIndex;
+        }
 
-    public void LoadChunk(string path)
-    {
+        if (chunk_Z < 0)
+        {
+            chunk_Z = chunk_Z % Chunk.MAX_ChunkIndex;
+            chunk_Z = Chunk.MAX_ChunkIndex + chunk_Z;
+        }
+        else if (chunk_Z >= Chunk.MAX_ChunkIndex)
+        {
+            chunk_Z = chunk_Z % Chunk.MAX_ChunkIndex;
+        }
         BinaryFormatter bf = new BinaryFormatter();
         try
         {
-            FileStream file = File.Open(Application.dataPath + "/" + path + ".binary", FileMode.Open);
+            FileStream file = File.Open(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary", FileMode.Open);
             blocks = (int[,,])bf.Deserialize(file);
             file.Close();
         }
@@ -242,11 +331,29 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    public void SaveChunk(string path, Chunk chunk)
+    public void SaveChunk(int chunk_X, int chunk_Z, Chunk chunk)
     {
-        print(path);
+        if (chunk_X < 0)
+        {
+            chunk_X = chunk_X % Chunk.MAX_ChunkIndex;
+            chunk_X = Chunk.MAX_ChunkIndex + chunk_X;
+        }
+        else if (chunk_X >= Chunk.MAX_ChunkIndex)
+        {
+            chunk_X = chunk_X % Chunk.MAX_ChunkIndex;
+        }
+
+        if (chunk_Z < 0)
+        {
+            chunk_Z = chunk_Z % Chunk.MAX_ChunkIndex;
+            chunk_Z = Chunk.MAX_ChunkIndex + chunk_Z;
+        }
+        else if (chunk_Z >= Chunk.MAX_ChunkIndex)
+        {
+            chunk_Z = chunk_Z % Chunk.MAX_ChunkIndex;
+        }
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(Application.dataPath + "/" + path + ".binary");
+        FileStream file = File.Create(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary");
         bf.Serialize(file, chunk.blocksEnum);
         file.Close();
     }

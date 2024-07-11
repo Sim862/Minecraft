@@ -103,7 +103,8 @@ public class ObjectParticle : MonoBehaviour
             }
             else
             {
-
+                onTarget = false;
+                ResetRigid();
             }
         }
         
@@ -143,11 +144,9 @@ public class ObjectParticle : MonoBehaviour
         if (particleKind != other.particleKind) // 같은 종류의 아이템이 아니면 리턴
             return;
 
-        print(1);
         if (other.count < count)
             return;
 
-        print(1);
         if (other.count == count)
         {
             if(gameObject.GetHashCode() > other.gameObject.GetHashCode())
@@ -158,7 +157,6 @@ public class ObjectParticle : MonoBehaviour
 
         if(other.count + count > 64)
         {
-            print(1);
             other.count = 64;
             UpdateCount(other.count - 64);
             ResetRigid();
