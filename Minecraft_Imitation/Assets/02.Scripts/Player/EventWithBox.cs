@@ -25,7 +25,7 @@ public class EventWithBox : MonoBehaviour
         bool anyHit = Physics.Raycast(camRay, out camHitInfo, aimRange);
 
         if (anyHit) OnHitRayBlock = camHitInfo.transform.gameObject;// 무언가 맞았다면
-        if (Input.GetMouseButtonDown(0) && !PlayerManager.onInventory) // 좌클릭을 하면
+        if (anyHit && Input.GetMouseButtonDown(0) && !PlayerManager.onInventory) // 좌클릭을 하면
         {
             isClicking = true;
             OnClickBlock = OnHitRayBlock; // 블럭을 저장하고
@@ -37,7 +37,6 @@ public class EventWithBox : MonoBehaviour
                 OnClickBlockCs.Break(test, breakPower); // 그 블럭의 Break를 호출
             if (OnClickBlock != null)
             {
-                print(OnClickBlock.name);
             }
 
             // effect 스폰 1회성
@@ -59,7 +58,7 @@ public class EventWithBox : MonoBehaviour
             OnClickBlock = null; // 그 블럭 값을 null로 바꿈.
             if (OnClickBlock == null)
             {
-                print("마우스 뗌");
+                
             }
         }
 
@@ -70,7 +69,6 @@ public class EventWithBox : MonoBehaviour
             if (OnClickBlockCs != null)
                 OnClickBlockCs.StopBroke();
             OnClickBlock = OnHitRayBlock;// 대상이 바뀌었음을 전달.
-            print("대상 바뀜");
             // 그리고 그 대상으로 다시 Break 진행.
             if (OnClickBlock.GetComponent<Block>() != null)
             {

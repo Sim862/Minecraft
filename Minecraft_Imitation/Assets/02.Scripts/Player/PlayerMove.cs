@@ -36,7 +36,7 @@ public class PlayerMove : MonoBehaviour
             AnimatorControll();
         }
 
-        MapManager.instance.playerPositionData = MapManager.instance.PositionToBlockData(transform.position);
+        //MapManager.instance.playerPositionData = MapManager.instance.PositionToBlockData(transform.position);
     }
 
     void PlayerMoveMethod()
@@ -59,7 +59,6 @@ public class PlayerMove : MonoBehaviour
             {
                 hp -= (int)((Mathf.Abs(yVelocity) - 5));
                 damagedCs.DamagedEff();
-                print("데미지 받음");
             }
             // 만약 점프 중이었다면
             if (isJumping)
@@ -94,11 +93,11 @@ public class PlayerMove : MonoBehaviour
 
     void AnimatorControll()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
             anim.SetBool("isAction", true);
         }
-        else if (Input.GetMouseButtonUp(0))
+        else if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
         {
             anim.SetBool("isAction", false);
         }

@@ -12,6 +12,11 @@ public class InventoryStatic : MonoBehaviour
     public int exceededCnt;
     int maxCnt = 64;
 
+    
+
+    ItemImage previous;
+    ItemImage now;
+
 
     // Start is called before the first frame update
     void Awake()
@@ -29,19 +34,12 @@ public class InventoryStatic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            GameObject testobj = Instantiate(test);
-            SetItemPosition(testobj);
-            print("h누름");
-        }
         Highlight();
     }
 
 
     public void SetItemPosition(GameObject item)
     {
-        print("아이템포지션 시작");
         for(int i = 0; i < slots.Length; i++)
         {
             if (slots[i].transform.childCount == 5)
@@ -62,7 +60,6 @@ public class InventoryStatic : MonoBehaviour
                     }
                     else // 초과할경우
                     {
-                        print("초과함");
                         totalCnt = itemInSlot.count + itemImage.count;
                         exceededCnt = totalCnt - maxCnt; // 초과양.
                         itemInSlot.ChangeItemCnt(maxCnt - itemInSlot.count);
@@ -91,5 +88,19 @@ public class InventoryStatic : MonoBehaviour
     public void Highlight()
     {
         highlight.transform.localPosition = slots[PlayerManager.instance.usingSlot].transform.localPosition;
+    }
+
+    public void SetVisualObject()
+    {
+        // 아이템을 얻으면 아이템 정보를 저장.
+        // 아이템이 사라지면 아이템 정보를 previous에 저장하고
+        //
+    }
+
+
+    public void CheckIsUsing(int i, bool isUsing)
+    {
+        SlotStatic slotStatic = slots[i].GetComponent<SlotStatic>();
+        slotStatic.isUsing = isUsing;
     }
 }

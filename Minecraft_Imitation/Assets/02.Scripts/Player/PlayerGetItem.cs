@@ -11,6 +11,7 @@ public class PlayerGetItem : MonoBehaviour
     Sprite icon;
 
     public GameObject itemImagePref;
+    public GameObject gripPos;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -31,7 +32,9 @@ public class PlayerGetItem : MonoBehaviour
             itemImageCs.count = count;
             itemImageCs.itemCount.text = $"{count}";
             itemImageCs.particleKind = particleKind;
-
+            itemImageCs.particleObjectTr = objectParticleCs.particleObject;
+            itemImageCs.particleObjectTr.SetParent(gripPos.transform);
+            itemImageCs.particleObjectTr.localPosition = Vector3.zero;
             InventoryStatic.instance.SetItemPosition(itemImage);
         }
     }

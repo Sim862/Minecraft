@@ -17,6 +17,12 @@ public class PlayerManager : MonoBehaviour
     bool cursorLock = true;
     bool canGetItem;
     public GameObject player;
+
+    public GameObject hand;
+
+    int previous;
+    int now;
+
     private void Awake()
     {
         player = GameObject.FindWithTag("Player");
@@ -28,6 +34,7 @@ public class PlayerManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        now = usingSlot;
     }
     
     void Update()
@@ -42,6 +49,15 @@ public class PlayerManager : MonoBehaviour
         {
             NowUsingSlotNumber();
         }
+        if (InventoryStatic.instance.slots[usingSlot].transform.childCount == 4)
+        {
+            hand.SetActive(true);
+        }
+        else
+        {
+            hand.SetActive(false);
+        }
+
     }
 
     public void OnOffInventory()
@@ -101,6 +117,10 @@ public class PlayerManager : MonoBehaviour
                 usingSlot = 8;
             }
         }
+        previous = now;
+        now = usingSlot;
+        InventoryStatic.instance.CheckIsUsing(previous, false);
+        InventoryStatic.instance.CheckIsUsing(now, true);
     }
 
     public bool CheckGetItem() // 용도 : 인벤토리에 들어갈 수 있으면true.

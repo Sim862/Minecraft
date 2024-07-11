@@ -19,10 +19,9 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
 
     public void OnDrop(PointerEventData eventData)
     {
-        print(4);
+
         following = DragItemEvent.dragItemImage;
         previous = GetComponentInChildren<ItemImage>();
-        print("Ondrop에서 자식 수 : " + transform.childCount);
         if (transform.childCount == 0) // 그 칸에 아무것도 없으면 자리만 바꿔줌.
         {
             DragItemEvent.dragingItem.transform.SetParent(transform);
@@ -36,6 +35,7 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
         if(dropSlot != null)
         {
             dropSlot.TransferData();
+            print("dropSlot");
         }
     }
 
@@ -65,7 +65,6 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
             }
             else // 초과할경우
             {
-                print("초과함");
                 totalCnt = previous.count + following.count;
                 exceededCnt = totalCnt - maxCnt; // 초과양.
                 previous.ChangeItemCnt(maxCnt - previous.count);
@@ -78,11 +77,9 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
         }
         else // 종류가 다르다면 위치만 서로 바꿔준다.
         {
-            print(5);
             //previous = transform.GetChild(0).GetComponent<ItemImage>();
             DragItemEvent followingCs = following.GetComponent<DragItemEvent>();
             previous.transform.SetParent(followingCs.SwitchPos());
-            print(previous.transform.parent);
             previous.transform.localPosition = Vector3.zero;
             DragItemEvent.dragingItem.transform.SetParent(transform);
             DragItemEvent.dragingItem.transform.localPosition = Vector3.zero;

@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class SlotStatic : MonoBehaviour
 {
+    ItemImage item;
+    public GameObject particle;
+    public bool isUsing;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -13,6 +17,31 @@ public class SlotStatic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        SaveItemData();
+        if (isUsing)
+        {
+            item.particleObjectTr.gameObject.SetActive(true);
+        }
+        else if (!isUsing)
+        {
+            item.particleObjectTr.gameObject.SetActive(false);
+        }
+    }
+
+    void SaveItemData()
+    {
+        if(transform.childCount != 4)
+        {
+            item = transform.GetComponentInChildren<ItemImage>();
+        }
+        else if(transform.childCount == 4)
+        {
+            item = null;
+        }
+
+        if(item != null)
+        {
+            particle = item.particleObjectTr.gameObject;
+        }
     }
 }

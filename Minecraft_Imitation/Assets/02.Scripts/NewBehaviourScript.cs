@@ -26,7 +26,6 @@ public class NewBehaviourScript : MonoBehaviour
             ObjectParticleData.ParticleKind.None,
         });
 
-        print(a.result);
     }
 
   

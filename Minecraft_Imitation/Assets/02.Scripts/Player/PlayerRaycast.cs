@@ -140,7 +140,6 @@ public class PlayerRaycast : MonoBehaviour
         if (nowItemImage != null)
         {
             newBlockPos = hitInfo.transform.position + normalVec * SizeVector(hitInfo);
-            print(newBlockPos);
             if (Vector3.Distance(transform.position, newBlockPos) > 1)
             {
                 nowItemImage.ChangeItemCnt(-1);

@@ -10,6 +10,8 @@ public class ItemImage : MonoBehaviour
     public Image itemImage;
     public TextMeshProUGUI itemCount;
     public ObjectParticleData.ParticleKind particleKind;
+    public Transform particleObjectTr;
+    public bool wasInTakeSlot;
 
 
     public void ChangeItemCnt(int value) // 설치하는 경우 사용. 하나만 쓰기때문.
@@ -22,5 +24,10 @@ public class ItemImage : MonoBehaviour
         }
         
         itemCount.text = $"{count}";
+    }
+
+    private void OnDestroy()
+    {
+        Destroy(particleObjectTr.gameObject);
     }
 }

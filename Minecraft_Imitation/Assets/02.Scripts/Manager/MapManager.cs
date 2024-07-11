@@ -190,7 +190,6 @@ public class MapManager : MonoBehaviour
             }
             if(playerPositionData.chunk_X < chunks[4].chunk_x)
             {
-                print(2);
                 StartCoroutine(chunks[5].saveRoutine);
                 SaveChunk(playerPositionData.chunk_X + 1, playerPositionData.chunk_Z, chunks[5]);
                 for (int i = 4; i < 6; i++)
@@ -377,7 +376,6 @@ public class MapManager : MonoBehaviour
 
         }
 
-        print(path);
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create(Application.dataPath + "/" + path + ".binary");
         bf.Serialize(file, blocks);
