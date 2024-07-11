@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MakingSlot : MonoBehaviour
@@ -25,7 +26,7 @@ public class MakingSlot : MonoBehaviour
 
     }
 
-    void SaveAllData()
+    public void SaveAllData()
     {
         for(int i = 0; i < dropSlot.Length; i++)
         {
@@ -39,11 +40,12 @@ public class MakingSlot : MonoBehaviour
                 particleKinds[i] = ObjectParticleData.ParticleKind.None;
             }
         }
+        TransferData();
     }
 
     void TransferData()
     {
-        //DataManager.instance.GetCombinationData(particleKinds);
+        DataManager.instance.GetCombinationData(particleKinds.ToList());
     }
 
 

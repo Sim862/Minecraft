@@ -5,12 +5,17 @@ using UnityEngine.EventSystems;
 
 public class CatchDropEvent : MonoBehaviour, IDropHandler
 {
+    DropSlot dropSlot;
     ItemImage previous;
     ItemImage following;
     bool checkKind;
     int totalCnt;
     int exceededCnt;
     int maxCnt = 64;
+    private void Start()
+    {
+        dropSlot = GetComponent<DropSlot>();
+    }
 
     public void OnDrop(PointerEventData eventData)
     {
@@ -27,6 +32,10 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
         {
             CheckKind(previous, following);
             CalculateCount(previous, following);
+        }
+        if(dropSlot != null)
+        {
+            dropSlot.TransferData();
         }
     }
 

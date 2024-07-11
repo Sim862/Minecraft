@@ -22,8 +22,9 @@ public class DropSlot : MonoBehaviour
     {
         if(transform.childCount != 0)
         {
-            itemImage = GetComponentInChildren<ItemImage>();
+            //itemImage = GetComponentInChildren<ItemImage>();
             makingSlot = GetComponentInParent<MakingSlot>();
+            makingSlot.SaveAllData();
         }
     }
 }
