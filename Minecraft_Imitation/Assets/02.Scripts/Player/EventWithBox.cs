@@ -13,7 +13,7 @@ public class EventWithBox : MonoBehaviour
     GameObject OnClickBlock = null;
     GameObject OnHitRayBlock;
     Mob mob;
-     
+    
     float effCool = 0.5f;
     float currTime = 0;
 
@@ -37,9 +37,6 @@ public class EventWithBox : MonoBehaviour
             }
             if (OnClickBlockCs != null)
                 OnClickBlockCs.Break(test, breakPower); // 그 블럭의 Break를 호출
-            if (OnClickBlock != null)
-            {
-            }
 
             if(camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Mob")) // 좌클릭시 공격 코드.
             {
@@ -48,7 +45,6 @@ public class EventWithBox : MonoBehaviour
                 mob.UpdateHP(transform, -attackPower, pushForce);
                 print(mob.currHP);
             }
-
 
             // effect 스폰 1회성
             if (anyHit && camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Block"))
