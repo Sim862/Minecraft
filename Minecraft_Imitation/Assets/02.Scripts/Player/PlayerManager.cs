@@ -7,7 +7,9 @@ public class PlayerManager : MonoBehaviour
 {
     public static bool onInventory = false;
     public static PlayerManager instance;
+    public GameObject respawnUI;
     public GameObject inventory;
+    public float aimRange;
     public int usingSlot = 0; // 사용중인 퀵슬롯넘버
     public int remainder = 0;
     CamRotate camRotate;
@@ -16,9 +18,11 @@ public class PlayerManager : MonoBehaviour
     float orgPlayerRotSpeed;
     bool cursorLock = true;
     bool canGetItem;
+    public bool playerDead;
     public GameObject player;
 
     public GameObject hand;
+    public GameObject pickPos;
 
     int previous;
     int now;
@@ -52,10 +56,12 @@ public class PlayerManager : MonoBehaviour
         if (InventoryStatic.instance.slots[usingSlot].transform.childCount == 4)
         {
             hand.SetActive(true);
+            pickPos.SetActive(false);
         }
         else
         {
             hand.SetActive(false);
+            pickPos.SetActive(true);
         }
 
     }
@@ -136,4 +142,10 @@ public class PlayerManager : MonoBehaviour
         }
 
     }
+
+    public void PlayerDead()
+    {
+        respawnUI.SetActive(true);
+    }
+
 }

@@ -16,6 +16,7 @@ public class PlayerMove : MonoBehaviour
     public Slider hpSlider; // hp 슬라이더 변수
     PlayerDamaged damagedCs;
     Animator anim;
+    bool isDead;
 
     void Start()
     {
@@ -23,6 +24,7 @@ public class PlayerMove : MonoBehaviour
         cc = GetComponent<CharacterController>();
         damagedCs = gameObject.GetComponent<PlayerDamaged>();
         anim = GetComponent<Animator>();
+        PlayerManager.instance.respawnUI.SetActive(false);
     }
 
 
@@ -31,6 +33,7 @@ public class PlayerMove : MonoBehaviour
         // 4. 현재 플레이어 hp(%)를 hp 슬라이더의 value에 반영한다.
         hpSlider.value = hp / maxHp;
         PlayerMoveMethod();
+        if (isDead) return;
         if (!PlayerManager.onInventory) // 인벤토리가 켜져있으면 안되게
         {
             AnimatorControll();
@@ -58,6 +61,12 @@ public class PlayerMove : MonoBehaviour
             if(yVelocity < -10)
             {
                 hp -= (int)((Mathf.Abs(yVelocity) - 5));
+                if(hp <= 0)
+                {
+                    PlayerManager.instance.PlayerDead();
+                    isDead = true;
+                    return;
+                }
                 damagedCs.DamagedEff();
             }
             // 만약 점프 중이었다면

@@ -49,8 +49,13 @@ public class DropItemEvent : MonoBehaviour
             {
                 objectParticleCs.count = nowItemImage.count;
                 TransferDataWithoutCnt(objectParticleCs, nowItemImage);
+                if(nowItemImage.particleObjectTr != null)
+                {
+                    Destroy(nowItemImage.particleObjectTr.gameObject);
+                }
                 Destroy(nowItemImage.gameObject);
                 Destroy(nowItemImageInQuick.gameObject);
+                
             }
         }
     }

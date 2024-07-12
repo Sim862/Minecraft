@@ -70,8 +70,6 @@ public class MakingSlot : MonoBehaviour
         }
         else
         {
-            print("combinationData == null");
-            print(combinationData);
             if(takeSlot.transform.childCount != 0)
             {
                 Destroy(takeSlot.transform.GetChild(0).gameObject);

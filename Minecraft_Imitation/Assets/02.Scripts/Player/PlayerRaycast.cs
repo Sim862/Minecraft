@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerRaycast : MonoBehaviour
 {
-    public float aimRange = 10;
     public GameObject blockFac;
     public float mouseOneCool = 1;
     public float breakPower = 5;
@@ -26,7 +25,7 @@ public class PlayerRaycast : MonoBehaviour
         // 레이가 부딪힌 대상의 정보를 저장할 변수를 생성한다.
         hitInfo = new RaycastHit();
 
-        bool anyHit = Physics.Raycast(ray, out hitInfo, aimRange); // 에임 사정거리
+        bool anyHit = Physics.Raycast(ray, out hitInfo, PlayerManager.instance.aimRange); // 에임 사정거리
         if (anyHit && PlayerManager.onInventory == false)
         {
             normalVec = hitInfo.normal;

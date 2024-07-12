@@ -38,11 +38,11 @@ public class InventoryStatic : MonoBehaviour
     }
 
 
-    public void SetItemPosition(GameObject item)
+    public void SetItemPosition(GameObject item) // 아이템 먹을때 불러옴.
     {
         for(int i = 0; i < slots.Length; i++)
         {
-            if (slots[i].transform.childCount == 5)
+            if (slots[i].transform.childCount == 5) // 아이템이 이미 있으면.
             {
                 // slot에 있는 아이템이미지의 정보를 가져와
                 ItemImage itemInSlot = slots[i].GetComponentInChildren<ItemImage>();
@@ -69,11 +69,15 @@ public class InventoryStatic : MonoBehaviour
                     }
                 }
             }
-            else if (slots[i].transform.childCount == 4)
+            else if (slots[i].transform.childCount == 4) // 아이템을 처음 먹으면.
             {
                 item.transform.parent = slots[i].transform;
                 item.transform.localPosition = Vector3.zero;
                 item.transform.localScale = Vector3.one;
+                ItemImage itemCs = item.GetComponent<ItemImage>();
+                itemCs.particleObjectTr.SetParent(PlayerManager.instance.pickPos.transform);
+                itemCs.particleObjectTr.localPosition = Vector3.zero;
+                itemCs.particleObjectTr.eulerAngles = Vector3.zero;
                 GameObject item2 = Instantiate(item);
                 InventoryPopup.instance.SetItemPositionInQuickSlot(item2, i);
                 return;
@@ -88,13 +92,6 @@ public class InventoryStatic : MonoBehaviour
     public void Highlight()
     {
         highlight.transform.localPosition = slots[PlayerManager.instance.usingSlot].transform.localPosition;
-    }
-
-    public void SetVisualObject()
-    {
-        // 아이템을 얻으면 아이템 정보를 저장.
-        // 아이템이 사라지면 아이템 정보를 previous에 저장하고
-        //
     }
 
 

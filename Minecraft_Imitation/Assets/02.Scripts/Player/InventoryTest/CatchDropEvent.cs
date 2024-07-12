@@ -35,7 +35,6 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
         if(dropSlot != null)
         {
             dropSlot.TransferData();
-            print("dropSlot");
         }
     }
 

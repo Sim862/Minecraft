@@ -12,6 +12,7 @@ public class ItemImage : MonoBehaviour
     public ObjectParticleData.ParticleKind particleKind;
     public Transform particleObjectTr;
     public bool wasInTakeSlot;
+    public bool isPopup = false;
 
 
     public void ChangeItemCnt(int value) // 설치하는 경우 사용. 하나만 쓰기때문.
@@ -19,6 +20,7 @@ public class ItemImage : MonoBehaviour
         count += value;
         if (count < 1)
         {
+            Destroy(particleObjectTr.gameObject);
             Destroy(gameObject);
             return;
         }
@@ -28,6 +30,10 @@ public class ItemImage : MonoBehaviour
 
     private void OnDestroy()
     {
-        Destroy(particleObjectTr.gameObject);
+        if (isPopup && particleObjectTr != null)
+        {
+            Destroy(particleObjectTr.gameObject);
+        }
+
     }
 }

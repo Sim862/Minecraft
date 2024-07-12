@@ -911,6 +911,7 @@ GameObject:
   - component: {fileID: 6182615618362100509}
   - component: {fileID: 1907959087603099636}
   - component: {fileID: 6016490485295513321}
+  - component: {fileID: 1120898780784816217}
   m_Layer: 5
   m_Name: SlotStatic (6)
   m_TagString: Untagged
@@ -979,6 +980,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1120898780784816217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2746064515511335774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3082584b56e0747bc21509e17323e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  isUsing: 0
 --- !u!1 &2964199522387655712
 GameObject:
   m_ObjectHideFlags: 0
@@ -1590,6 +1605,7 @@ GameObject:
   - component: {fileID: 7406822644761915746}
   - component: {fileID: 6357446576785751984}
   - component: {fileID: 4839114985867728151}
+  - component: {fileID: 4215639161560897581}
   m_Layer: 5
   m_Name: SlotStatic (5)
   m_TagString: Untagged
@@ -1658,6 +1674,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4215639161560897581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4482533275134402629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3082584b56e0747bc21509e17323e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  isUsing: 0
 --- !u!1 &4625589374981512368
 GameObject:
   m_ObjectHideFlags: 0
@@ -1670,6 +1700,7 @@ GameObject:
   - component: {fileID: 4402026681085117823}
   - component: {fileID: 6127789723656760698}
   - component: {fileID: 888650841683121907}
+  - component: {fileID: 8601428829480494624}
   m_Layer: 5
   m_Name: SlotStatic (3)
   m_TagString: Untagged
@@ -1750,6 +1781,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48ca8a4a5be57c54387918975f23be3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8601428829480494624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4625589374981512368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3082584b56e0747bc21509e17323e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  isUsing: 0
 --- !u!1 &4662485762921174495
 GameObject:
   m_ObjectHideFlags: 0
@@ -1836,6 +1881,7 @@ GameObject:
   - component: {fileID: 6790201083087814641}
   - component: {fileID: 3887355988321476926}
   - component: {fileID: 6648577321768388055}
+  - component: {fileID: 6806874416833956530}
   m_Layer: 5
   m_Name: SlotStatic (4)
   m_TagString: Untagged
@@ -1904,6 +1950,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6806874416833956530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4884165179284241753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3082584b56e0747bc21509e17323e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  isUsing: 0
 --- !u!1 &5368862779785468884
 GameObject:
   m_ObjectHideFlags: 0
@@ -2065,6 +2125,7 @@ GameObject:
   - component: {fileID: 1390715509091749067}
   - component: {fileID: 1916281304240001680}
   - component: {fileID: 668954579272590163}
+  - component: {fileID: 2652309243192496368}
   m_Layer: 5
   m_Name: SlotStatic (7)
   m_TagString: Untagged
@@ -2133,6 +2194,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2652309243192496368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5519495816520109454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3082584b56e0747bc21509e17323e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  isUsing: 0
 --- !u!1 &5546632646909923167
 GameObject:
   m_ObjectHideFlags: 0
@@ -2219,6 +2294,7 @@ GameObject:
   - component: {fileID: 7785208691927965434}
   - component: {fileID: 9064182508058957073}
   - component: {fileID: 3777341912314284429}
+  - component: {fileID: 7557163425018817065}
   m_Layer: 5
   m_Name: SlotStatic (2)
   m_TagString: Untagged
@@ -2287,6 +2363,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7557163425018817065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5737956498225076598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3082584b56e0747bc21509e17323e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  isUsing: 0
 --- !u!1 &6121719560254434753
 GameObject:
   m_ObjectHideFlags: 0
@@ -3012,6 +3102,7 @@ GameObject:
   - component: {fileID: 5475161648292810486}
   - component: {fileID: 8457912425287997916}
   - component: {fileID: 7223341371642099387}
+  - component: {fileID: 4347434981062165759}
   m_Layer: 5
   m_Name: SlotStatic (8)
   m_TagString: Untagged
@@ -3080,6 +3171,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4347434981062165759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7824704232500215140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3082584b56e0747bc21509e17323e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  isUsing: 0
 --- !u!1 &7906265774603776866
 GameObject:
   m_ObjectHideFlags: 0
@@ -3254,7 +3359,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8081465162518162387}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3387,6 +3492,7 @@ GameObject:
   - component: {fileID: 378148429079623905}
   - component: {fileID: 4483772281324168837}
   - component: {fileID: 4345918367711822946}
+  - component: {fileID: 3559526803340219080}
   m_Layer: 5
   m_Name: SlotStatic (9)
   m_TagString: Untagged
@@ -3455,6 +3561,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3559526803340219080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8250029403984554586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3082584b56e0747bc21509e17323e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  isUsing: 0
 --- !u!1 &8307003900027453842
 GameObject:
   m_ObjectHideFlags: 0
@@ -3691,6 +3811,7 @@ GameObject:
   - component: {fileID: 2549795184226462117}
   - component: {fileID: 2998749804148809889}
   - component: {fileID: 4094356300751460642}
+  - component: {fileID: 1816066820782811161}
   m_Layer: 5
   m_Name: SlotStatic (1)
   m_TagString: Untagged
@@ -3759,6 +3880,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1816066820782811161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8445999584037737470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3082584b56e0747bc21509e17323e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particle: {fileID: 0}
+  isUsing: 0
 --- !u!1 &8527780988912597417
 GameObject:
   m_ObjectHideFlags: 0

@@ -89,6 +89,7 @@ public class InventoryPopup : MonoBehaviour
                     }
                     else // 종류가 다르면
                     {
+                        staticCs.particleObjectTr = quick.particleObjectTr;
                         staticCs.particleKind = quick.particleKind;
                         staticCs.itemImage.sprite = quick.itemImage.sprite;
                         staticCs.ChangeItemCnt(quick.count - staticCs.count);

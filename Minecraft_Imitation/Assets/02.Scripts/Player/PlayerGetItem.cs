@@ -33,8 +33,8 @@ public class PlayerGetItem : MonoBehaviour
             itemImageCs.itemCount.text = $"{count}";
             itemImageCs.particleKind = particleKind;
             itemImageCs.particleObjectTr = objectParticleCs.particleObject;
-            itemImageCs.particleObjectTr.SetParent(gripPos.transform);
-            itemImageCs.particleObjectTr.localPosition = Vector3.zero;
+            //itemImageCs.particleObjectTr.SetParent(gripPos.transform);
+            //itemImageCs.particleObjectTr.localPosition = Vector3.zero;
             InventoryStatic.instance.SetItemPosition(itemImage);
         }
     }

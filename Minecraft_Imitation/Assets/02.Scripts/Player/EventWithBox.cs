@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class EventWithBox : MonoBehaviour
 {
-    float aimRange = 10;
     BlockData.BlockType test = BlockData.BlockType.Pick;
     public float breakPower = 5;
+    public float attackPower = 5;
+    public float pushForce = 3;
     public GameObject effectFac;
     Block OnClickBlockCs;
     GameObject OnClickBlock = null;
     GameObject OnHitRayBlock;
+    Mob mob;
 
     float effCool = 0.5f;
     float currTime = 0;
@@ -22,7 +24,7 @@ public class EventWithBox : MonoBehaviour
 
         Ray camRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         RaycastHit camHitInfo = new RaycastHit();
-        bool anyHit = Physics.Raycast(camRay, out camHitInfo, aimRange);
+        bool anyHit = Physics.Raycast(camRay, out camHitInfo, PlayerManager.instance.aimRange);
 
         if (anyHit) OnHitRayBlock = camHitInfo.transform.gameObject;// 무언가 맞았다면
         if (anyHit && Input.GetMouseButtonDown(0) && !PlayerManager.onInventory) // 좌클릭을 하면
@@ -38,6 +40,15 @@ public class EventWithBox : MonoBehaviour
             if (OnClickBlock != null)
             {
             }
+
+            if(camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Mob")) // 좌클릭시 공격 코드.
+            {
+                print(camHitInfo.transform.gameObject.name);
+                mob = camHitInfo.transform.GetComponent<Mob>();
+                mob.UpdateHP(transform, -attackPower, pushForce);
+                print(mob.currHP);
+            }
+
 
             // effect 스폰 1회성
             if (anyHit && camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Block"))
