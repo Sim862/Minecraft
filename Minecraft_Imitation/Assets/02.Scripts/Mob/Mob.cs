@@ -45,10 +45,8 @@ public class Mob : MonoBehaviour
 
     public Rigidbody rigidbody;
 
-    public MobData mobData;
+    public MobData mobData { get; private set; }
     public MobData.MobKind mobKind;
-
-    public PositionData positionData;
 
     public int detectionDistance = 8;
 
@@ -68,6 +66,9 @@ public class Mob : MonoBehaviour
     public float movementDelayTime = 4;
     public bool needJump;
 
+    // 현재 위치 데이터
+    protected MobSpawnData mobSpawnData;
+    private Chunk currentChunk;
 
     private static float fallspeedCriteria = -7f;
     private float minVelocity_Y = 0;
@@ -86,11 +87,10 @@ public class Mob : MonoBehaviour
     private List<Node> openNodes;
     private List<Node> closedNode;
 
-    private Node current;
-    private Node nearNode;
-    private Chunk chunk;
-
-    private MoveData moveData;
+    private Node current_temp;
+    private Node nearNode_temp;
+    private Chunk chunk_temp;
+    private MoveData moveData_temp;
 
     private int local_TargetBlockIndex_x;
     private int local_TargetBlockIndex_y;
@@ -113,7 +113,7 @@ public class Mob : MonoBehaviour
     // 시야 각도
     [Range(0, 360)]
     public float viewAngle = 160;
-   
+
     public LayerMask targetMask;  // 타겟으로 지정할 오브젝트들
     public LayerMask obstacleMask; // 시야의 장애물로 지정할 오브젝트들
 
@@ -126,6 +126,7 @@ public class Mob : MonoBehaviour
     public Transform head;
     protected Quaternion headDefaultRotation;
     private Vector3 eulerAngle;
+    private bool resetHeadRotation = false;
 
     #endregion
 
@@ -171,14 +172,16 @@ public class Mob : MonoBehaviour
 
     public void initEntitiy(int chunk_x, int chunk_z, int blockIndex_x, int blockIndex_y, int blockIndex_z)
     {
-        positionData = new PositionData(chunk_x, chunk_z, blockIndex_x, blockIndex_y, blockIndex_z);
 
-        transform.position = MapManager.instance.GetObjectPosition(positionData.chunk, blockIndex_x, blockIndex_y, blockIndex_z);
+        mobSpawnData = new MobSpawnData(mobData, new PositionData(chunk_x, chunk_z, blockIndex_x, blockIndex_y, blockIndex_z));
+
+        transform.position = MapManager.instance.GetObjectPosition(mobSpawnData.positionData.chunk, blockIndex_x, blockIndex_y, blockIndex_z);
         currHP = maxHP;
         mobState = MobState.Idle;
         rigidbody.useGravity = true;
         alive = true;
 
+        SetChunkData();
     }
 
     protected void Rotation()
@@ -204,11 +207,33 @@ public class Mob : MonoBehaviour
                 }
                 else
                 {
+                    resetHeadRotation = true;
                     Quaternion lookRoation = Quaternion.LookRotation(targetTransform.position - head.position);
                     //eulerAngle = lookRoation.eulerAngles;
                     //eulerAngle = new Vector3(eulerAngle.y, 0, 0);
-                    head.rotation = Quaternion.Slerp(head.rotation, lookRoation, Time.deltaTime);
+                    head.rotation = Quaternion.Slerp(head.rotation, lookRoation, Time.deltaTime * 3);
                 }
+            }
+        }
+        else
+        {
+            if (resetHeadRotation)
+            {
+                resetHeadRotation = false;
+                head.rotation = headDefaultRotation;
+            }
+        }
+    }
+
+    private void SetChunkData()
+    {
+        if (currentChunk != mobSpawnData.positionData.chunk)
+        {
+            if (currentChunk != null)
+            {
+                currentChunk.chunkData.RemoveMobSpawnData(mobSpawnData, this);
+                currentChunk = mobSpawnData.positionData.chunk;
+                currentChunk.chunkData.AddMobSpawnData(mobSpawnData, this);
             }
         }
     }
@@ -261,9 +286,10 @@ public class Mob : MonoBehaviour
             wayPoint_Current = wayPoints[0];
             wayPoints.RemoveAt(0);
 
+            //print(gameObject.name + " - " + wayPoint_Current.positionData.chunk_X + " : " + wayPoint_Current.positionData.chunk_Z + " : " + wayPoint_Current.positionData.blockIndex_x + " ; " + wayPoint_Current.positionData.blockIndex_z);
             wayPosition = MapManager.instance.GetObjectPosition(wayPoint_Current.positionData.chunk,
                 wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z);
-            blockEnum = MapManager.instance.GetChunk(wayPoint_Current.positionData.chunk_X, wayPoint_Current.positionData.chunk_Z).blocksEnum[wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z];
+            blockEnum = MapManager.instance.GetChunk(wayPoint_Current.positionData.chunk_X, wayPoint_Current.positionData.chunk_Z).chunkData.blocksEnum[wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z];
             needJump = wayPoint_Current.needJump;
         }
         else
@@ -275,7 +301,9 @@ public class Mob : MonoBehaviour
                 mobState = MobState.Idle;
 
                 currSpeed = normalSpeed;
-                nextMovementTime = Random.Range(3f, 10f);
+                //nextMovementTime = Random.Range(3f, 10f);
+                nextMovementTime = Random.Range(1f, 2f);
+
             }
         }
     }
@@ -287,7 +315,7 @@ public class Mob : MonoBehaviour
         if(wayPosition != Vector3.zero)
         {
             wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
-            positionData = MapManager.instance.PositionToBlockData(transform.position);
+            mobSpawnData.positionData = MapManager.instance.PositionToBlockData(transform.position);
             if (wayPositionDistance > 2) // 이동할 위치가 한블럭 보다 크다 = 내 위치가 변했다 -> 이동 취소
             {
                 movementDelayTime = 4;
@@ -339,11 +367,11 @@ public class Mob : MonoBehaviour
                 dir = (wayPosition - transform.position).normalized;
 
                  Vector3 cross = Vector3.Cross(transform.forward, new Vector3(wayPosition.x - transform.position.x, 0, wayPosition.z - transform.position.z).normalized);
-                if (cross.y > -0.35)
+                if (cross.y > 0.35)
                 {
                     transform.Rotate(new Vector3(0, rotationSpeed * Time.deltaTime, 0));
                 }
-                else if (cross.y < -.35)
+                else if (cross.y < -0.35)
                 {
                     transform.Rotate(new Vector3(0, -rotationSpeed * Time.deltaTime, 0));
                 }
@@ -413,10 +441,11 @@ public class Mob : MonoBehaviour
         closedNode = new List<Node>();
 
         // 시작 위치 셋팅
-        current = new Node(positionData, 0, GetH(positionData.blockIndex_x + (positionData.chunk_X * Chunk.x), positionData.blockIndex_y, positionData.blockIndex_z + (positionData.chunk_Z * Chunk.z),
+        current_temp = new Node(mobSpawnData.positionData, 0, 
+            GetH(mobSpawnData.positionData.blockIndex_x + (mobSpawnData.positionData.chunk_X * Chunk.x),mobSpawnData.positionData.blockIndex_y, mobSpawnData.positionData.blockIndex_z + (mobSpawnData.positionData.chunk_Z * Chunk.z),
             targetPositionData.blockIndex_x + (targetPositionData.chunk_X * Chunk.x), targetPositionData.blockIndex_y, targetPositionData.blockIndex_z) + (targetPositionData.chunk_Z * Chunk.z), false, null);
-        openNodes.Add(current);
-        nearNode = current;
+        openNodes.Add(current_temp);
+        nearNode_temp = current_temp;
 
 
         // 탐색 시작
@@ -435,9 +464,9 @@ public class Mob : MonoBehaviour
                         minF = openNodes[i].f;
                         minH = openNodes[i].h;
                         min_Index = i;
-                        if(nearNode.h > minH)
+                        if(nearNode_temp.h > minH)
                         {
-                            nearNode = openNodes[i];
+                            nearNode_temp = openNodes[i];
                         }
                     }
                 }
@@ -445,19 +474,19 @@ public class Mob : MonoBehaviour
 
             if (minF == int.MaxValue || count <= 0)
             {
-                current = nearNode;
+                current_temp = nearNode_temp;
                 break; // 오픈노드가 없다면 길없음
             }
 
-            current = openNodes[min_Index];
+            current_temp = openNodes[min_Index];
             openNodes.RemoveAt(min_Index);
-            closedNode.Add(current);
+            closedNode.Add(current_temp);
 
 
-            if (current.positionData.CheckSamePosition(targetPositionData))
+            if (current_temp.positionData.CheckSamePosition(targetPositionData))
                 break;
 
-            canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
+            canJump = MapManager.instance.CheckJump(current_temp.positionData, objectHeight);
 
 
             // 대각선 이동 검사를 위한 bool 값
@@ -467,22 +496,22 @@ public class Mob : MonoBehaviour
             minus_Z = false;
 
             // 동서남북 검사
-            plus_X = AddOpenNodes(current.positionData.blockIndex_x + 1, current.positionData.blockIndex_z, canJump, targetPositionData);
-            minus_X = AddOpenNodes(current.positionData.blockIndex_x - 1, current.positionData.blockIndex_z, canJump, targetPositionData);
-            plus_Z = AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + 1, canJump, targetPositionData);
-            minus_Z = AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z - 1, canJump, targetPositionData);
+            plus_X = AddOpenNodes(current_temp.positionData.blockIndex_x + 1, current_temp.positionData.blockIndex_z, canJump, targetPositionData);
+            minus_X = AddOpenNodes(current_temp.positionData.blockIndex_x - 1, current_temp.positionData.blockIndex_z, canJump, targetPositionData);
+            plus_Z = AddOpenNodes(current_temp.positionData.blockIndex_x, current_temp.positionData.blockIndex_z + 1, canJump, targetPositionData);
+            minus_Z = AddOpenNodes(current_temp.positionData.blockIndex_x, current_temp.positionData.blockIndex_z - 1, canJump, targetPositionData);
 
         }
 
         wayPoints.Clear();
-        if (current == null)
+        if (current_temp == null)
         {
-            current = nearNode;
+            current_temp = nearNode_temp;
         }
-        while (current != null)
+        while (current_temp != null)
         {
-            wayPoints.Add(current);
-            current = current.parent;
+            wayPoints.Add(current_temp);
+            current_temp = current_temp.parent;
         }
         wayPoints.Reverse();
     }
@@ -496,9 +525,9 @@ public class Mob : MonoBehaviour
         closedNode = new List<Node>();
 
         // 시작 위치 셋팅
-        current = new Node(positionData, 0, 0, false, null);
-        openNodes.Add(current);
-        nearNode = current;
+        current_temp = new Node(mobSpawnData.positionData, 0, 0, false, null);
+        openNodes.Add(current_temp);
+        nearNode_temp = current_temp;
 
 
         // 탐색 시작
@@ -509,41 +538,44 @@ public class Mob : MonoBehaviour
 
             if (openNodes.Count > 0)
             {
-                nearNode = openNodes[Random.Range(0, openNodes.Count)];
-                minF = nearNode.f;
+                nearNode_temp = openNodes[Random.Range(0, openNodes.Count)];
+                minF = nearNode_temp.f;
             }
 
 
             if (minF == int.MaxValue)
             {
-                current = null;
+                current_temp = null;
                 break; // 오픈노드가 없다면 길없음
             }
 
-            current = nearNode;
-            openNodes.Remove(nearNode);
-            closedNode.Add(nearNode);
+            current_temp = nearNode_temp;
+            openNodes.Remove(nearNode_temp);
+            closedNode.Add(nearNode_temp);
 
             openNodes.Clear();
+            //if (current.positionData.blockIndex_x > 11 || current.positionData.blockIndex_z > 11)
+            //{
+            //    print(gameObject.name + " - " + current.positionData.blockIndex_x + " , " + current.positionData.blockIndex_y + " , " + current.positionData.blockIndex_z);
+            //}
+            canJump = MapManager.instance.CheckJump(current_temp.positionData, objectHeight);
 
-            canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
-
-            plus_X = AddOpenNodes(current.positionData.blockIndex_x + 1, current.positionData.blockIndex_z, canJump);
-            minus_X = AddOpenNodes(current.positionData.blockIndex_x - 1, current.positionData.blockIndex_z, canJump);
-            plus_Z = AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + 1, canJump);
-            minus_Z = AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z - 1, canJump);
+            plus_X = AddOpenNodes(current_temp.positionData.blockIndex_x + 1, current_temp.positionData.blockIndex_z, canJump);
+            minus_X = AddOpenNodes(current_temp.positionData.blockIndex_x - 1, current_temp.positionData.blockIndex_z, canJump);
+            plus_Z = AddOpenNodes(current_temp.positionData.blockIndex_x, current_temp.positionData.blockIndex_z + 1, canJump);
+            minus_Z = AddOpenNodes(current_temp.positionData.blockIndex_x, current_temp.positionData.blockIndex_z - 1, canJump);
 
         }
 
         wayPoints.Clear();
-        if (current == null)
+        if (current_temp == null)
         {
-            current = nearNode;
+            current_temp = nearNode_temp;
         }
-        while (current != null)
+        while (current_temp != null)
         {
-            wayPoints.Add(current);
-            current = current.parent;
+            wayPoints.Add(current_temp);
+            current_temp = current_temp.parent;
         }
         wayPoints.Reverse();
     }
@@ -563,9 +595,9 @@ public class Mob : MonoBehaviour
         closedNode = new List<Node>();
 
         // 시작 위치 셋팅
-        current = new Node(positionData, 0, 0,false, null);
-        openNodes.Add(current);
-        nearNode = current;
+        current_temp = new Node(mobSpawnData.positionData, 0, 0,false, null);
+        openNodes.Add(current_temp);
+        nearNode_temp = current_temp;
 
 
         // 탐색 시작
@@ -576,58 +608,58 @@ public class Mob : MonoBehaviour
 
             if (openNodes.Count > 0)
             {
-                nearNode = openNodes[Random.Range(0, openNodes.Count)];
-                minF = nearNode.f;
+                nearNode_temp = openNodes[Random.Range(0, openNodes.Count)];
+                minF = nearNode_temp.f;
             }
 
 
             if (minF == int.MaxValue)
             {
-                current = null;
+                current_temp = null;
                 break; // 오픈노드가 없다면 길없음
             }
-            current = nearNode;
-            openNodes.Remove(nearNode);
-            closedNode.Add(nearNode);
+            current_temp = nearNode_temp;
+            openNodes.Remove(nearNode_temp);
+            closedNode.Add(nearNode_temp);
 
             openNodes.Clear();
 
             Vector3 runawayDirection = (transform.position - target.position).normalized;
 
-            print(current.positionData.chunk_X + ", " + current.positionData.chunk_Z + ", " +
-                current.positionData.blockIndex_x + ", " + current.positionData.blockIndex_y + ", " + current.positionData.blockIndex_z);
+            print(current_temp.positionData.chunk_X + ", " + current_temp.positionData.chunk_Z + ", " +
+                current_temp.positionData.blockIndex_x + ", " + current_temp.positionData.blockIndex_y + ", " + current_temp.positionData.blockIndex_z);
 
-            canJump = MapManager.instance.CheckJump(current.positionData, objectHeight);
+            canJump = MapManager.instance.CheckJump(current_temp.positionData, objectHeight);
 
             if (runawayDirection.x > 0)
             {
-                AddOpenNodes(current.positionData.blockIndex_x + 1, current.positionData.blockIndex_z, canJump);
+                AddOpenNodes(current_temp.positionData.blockIndex_x + 1, current_temp.positionData.blockIndex_z, canJump);
             }
             else
             {
-                AddOpenNodes(current.positionData.blockIndex_x - 1, current.positionData.blockIndex_z, canJump);
+                AddOpenNodes(current_temp.positionData.blockIndex_x - 1, current_temp.positionData.blockIndex_z, canJump);
             }
 
             if (runawayDirection.z > 0)
             {
-                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z + 1, canJump);
+                AddOpenNodes(current_temp.positionData.blockIndex_x, current_temp.positionData.blockIndex_z + 1, canJump);
             }
             else
             {
-                AddOpenNodes(current.positionData.blockIndex_x, current.positionData.blockIndex_z - 1, canJump);
+                AddOpenNodes(current_temp.positionData.blockIndex_x, current_temp.positionData.blockIndex_z - 1, canJump);
             }
 
         }
 
         wayPoints.Clear();
-        if (current == null)
+        if (current_temp == null)
         {
-            current = nearNode;
+            current_temp = nearNode_temp;
         }
-        while (current != null)
+        while (current_temp != null)
         {
-            wayPoints.Add(current);
-            current = current.parent;
+            wayPoints.Add(current_temp);
+            current_temp = current_temp.parent;
         }
         wayPoints.Reverse();
     }
@@ -642,8 +674,8 @@ public class Mob : MonoBehaviour
                 targetPositionData.blockIndex_y, targetPositionData.blockIndex_z);
         }
 
-        int chunk_X = current.positionData.chunk_X;
-        int chunk_Z = current.positionData.chunk_Z;
+        int chunk_X = current_temp.positionData.chunk_X;
+        int chunk_Z = current_temp.positionData.chunk_Z;
         if (index_x < 0)
         {
             chunk_X--;
@@ -664,19 +696,20 @@ public class Mob : MonoBehaviour
             chunk_Z++;
             index_z = 0;
         }
-        chunk = MapManager.instance.GetChunk(chunk_X, chunk_Z);
-        if(chunk == null)
+       
+        chunk_temp = MapManager.instance.GetChunk(chunk_X, chunk_Z);
+        if(chunk_temp == null)
         {
             return false;
         }
-        moveData = MapManager.instance.CheckBlock(chunk, index_x,  current.positionData.blockIndex_y, index_z, objectHeight, fallHeight, canJump);
+        moveData_temp = MapManager.instance.CheckBlock(chunk_temp, index_x,  current_temp.positionData.blockIndex_y, index_z, objectHeight, fallHeight, canJump);
 
-        if (moveData.weight == int.MaxValue) // 벽이라서 못감
+        if (moveData_temp.weight == int.MaxValue) // 벽이라서 못감
         {
             return false;
         }
 
-        PositionData afterPositionData = new PositionData(chunk_X, chunk_Z, index_x, moveData.afterIndexY, index_z);
+        PositionData afterPositionData = new PositionData(chunk_X, chunk_Z, index_x, moveData_temp.afterIndexY, index_z);
 
         foreach (var item in closedNode)
         {
@@ -686,17 +719,17 @@ public class Mob : MonoBehaviour
             }
         }
 
-        int g = current.g + moveData.weight;
+        int g = current_temp.g + moveData_temp.weight;
         int h;
         bool j = false;
-        if(moveData.weight >= 20)
+        if(moveData_temp.weight >= 20)
         {
             j = true;
         }
 
         if (targetPositionData != null)
         {
-            h = GetH(index_x + (chunk_X * Chunk.x), moveData.afterIndexY, index_z + (chunk_Z * Chunk.z),
+            h = GetH(index_x + (chunk_X * Chunk.x), moveData_temp.afterIndexY, index_z + (chunk_Z * Chunk.z),
             targetPositionData.blockIndex_x + (targetPositionData.chunk_X * Chunk.x), targetPositionData.blockIndex_y, targetPositionData.blockIndex_z + (targetPositionData.chunk_Z * Chunk.z));
         }
         else
@@ -713,15 +746,20 @@ public class Mob : MonoBehaviour
                     item.positionData = afterPositionData;
                     item.g = g;
                     item.h = h;
-                    item.parent = current;
+                    item.parent = current_temp;
                     return true;
                 }
             }
         }
-        Node temp = new Node(afterPositionData, g, h, j, current);
+        if(index_x > 11 || index_x < 0 || index_z > 11 || index_z < 0)
+        {
+            print(index_x + " , " + moveData_temp.afterIndexY + " , " + index_x);
+        }
+        Node temp = new Node(afterPositionData, g, h, j, current_temp);
 
         openNodes.Add(temp);
-        
+
+
         return true;
     }
 

@@ -31,12 +31,12 @@ public class Pig : Mob
         if (alive)
         {
             Fall();
-            positionData = MapManager.instance.PositionToBlockData(transform.position);
+            mobSpawnData.positionData = MapManager.instance.PositionToBlockData(transform.position);
 
+            //print(mobSpawnData.positionData.chunk_X + " , " + mobSpawnData.positionData.chunk_Z);
             if (mobState == MobState.Idle)
             {
-                //nextMovementTime -= Time.deltaTime;
-                nextMovementTime = 10;
+                nextMovementTime -= Time.deltaTime;
                 if (nextMovementTime <= 0)
                 {
                     nextMovementTime = 5;
@@ -46,7 +46,6 @@ public class Pig : Mob
                 else if(nextMovementTime > 5) // 랜덤값이 5보다 큰 객체는 주변 탐색
                 {
                     FindVisibleTargets();
-                    print(targetTransform);
                     if (targetTransform != null)
                     {
                         Rotation();
