@@ -12,6 +12,11 @@ public class InventoryStatic : MonoBehaviour
     public int exceededCnt;
     int maxCnt = 64;
 
+    
+
+    ItemImage previous;
+    ItemImage now;
+
 
     // Start is called before the first frame update
     void Awake()
@@ -29,22 +34,15 @@ public class InventoryStatic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            GameObject testobj = Instantiate(test);
-            SetItemPosition(testobj);
-            print("h누름");
-        }
         Highlight();
     }
 
 
-    public void SetItemPosition(GameObject item)
+    public void SetItemPosition(GameObject item) // 아이템 먹을때 불러옴.
     {
-        print("아이템포지션 시작");
         for(int i = 0; i < slots.Length; i++)
         {
-            if (slots[i].transform.childCount == 5)
+            if (slots[i].transform.childCount == 5) // 아이템이 이미 있으면.
             {
                 // slot에 있는 아이템이미지의 정보를 가져와
                 ItemImage itemInSlot = slots[i].GetComponentInChildren<ItemImage>();
@@ -62,7 +60,6 @@ public class InventoryStatic : MonoBehaviour
                     }
                     else // 초과할경우
                     {
-                        print("초과함");
                         totalCnt = itemInSlot.count + itemImage.count;
                         exceededCnt = totalCnt - maxCnt; // 초과양.
                         itemInSlot.ChangeItemCnt(maxCnt - itemInSlot.count);
@@ -72,11 +69,15 @@ public class InventoryStatic : MonoBehaviour
                     }
                 }
             }
-            else if (slots[i].transform.childCount == 4)
+            else if (slots[i].transform.childCount == 4) // 아이템을 처음 먹으면.
             {
                 item.transform.parent = slots[i].transform;
                 item.transform.localPosition = Vector3.zero;
                 item.transform.localScale = Vector3.one;
+                ItemImage itemCs = item.GetComponent<ItemImage>();
+                itemCs.particleObjectTr.SetParent(PlayerManager.instance.pickPos.transform);
+                itemCs.particleObjectTr.localPosition = Vector3.zero;
+                itemCs.particleObjectTr.eulerAngles = Vector3.zero;
                 GameObject item2 = Instantiate(item);
                 InventoryPopup.instance.SetItemPositionInQuickSlot(item2, i);
                 return;
@@ -91,5 +92,12 @@ public class InventoryStatic : MonoBehaviour
     public void Highlight()
     {
         highlight.transform.localPosition = slots[PlayerManager.instance.usingSlot].transform.localPosition;
+    }
+
+
+    public void CheckIsUsing(int i, bool isUsing)
+    {
+        SlotStatic slotStatic = slots[i].GetComponent<SlotStatic>();
+        slotStatic.isUsing = isUsing;
     }
 }

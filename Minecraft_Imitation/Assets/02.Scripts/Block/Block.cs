@@ -54,11 +54,9 @@ public class Block : MonoBehaviour
 
     public void Break(BlockData.BlockType blockType, float Power) // 한번만 호출하면 블럭 체력 까이기 시작. 피 까이는 상태.
     {
-        print("break 시작");
         if (canBreak)
         {
             StopBroke(); // CheckBreak가 실행 중이라면 실행.
-            print("break 시작 및 canBreak");
             if (blockData.blockType == blockType)
             {
                 typeCheck = true;
@@ -76,7 +74,6 @@ public class Block : MonoBehaviour
     {
         if (checkBreak_Coroutine != null) // CheckBreak가 실행 중이라면
         {
-            print("블럭 파괴 중지");
             StopCoroutine(checkBreak_Coroutine);
             checkBreak_Coroutine = null;
 
@@ -96,7 +93,6 @@ public class Block : MonoBehaviour
             objectParticle.GetComponent<Rigidbody>().AddForce(Vector3.up * 50);
         }
 
-        print("블럭 파괴");
         // 쉐이더 초기화 추가
         broken = false;
         canBreak = false;
@@ -107,7 +103,6 @@ public class Block : MonoBehaviour
 
     IEnumerator CheckBreak(float Power)
     {
-        print("블럭 파괴 시작");
         if (blockData.brockBreakSound != Sound.AudioClipName.None)
         {
             if(sfxAudioSource != null)

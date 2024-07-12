@@ -7,7 +7,9 @@ public class PlayerManager : MonoBehaviour
 {
     public static bool onInventory = false;
     public static PlayerManager instance;
+    public GameObject respawnUI;
     public GameObject inventory;
+    public float aimRange;
     public int usingSlot = 0; // 사용중인 퀵슬롯넘버
     public int remainder = 0;
     CamRotate camRotate;
@@ -16,7 +18,15 @@ public class PlayerManager : MonoBehaviour
     float orgPlayerRotSpeed;
     bool cursorLock = true;
     bool canGetItem;
+    public bool playerDead;
     public GameObject player;
+
+    public GameObject hand;
+    public GameObject pickPos;
+
+    int previous;
+    int now;
+
     private void Awake()
     {
         player = GameObject.FindWithTag("Player");
@@ -28,6 +38,7 @@ public class PlayerManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        now = usingSlot;
     }
     
     void Update()
@@ -42,6 +53,17 @@ public class PlayerManager : MonoBehaviour
         {
             NowUsingSlotNumber();
         }
+        if (InventoryStatic.instance.slots[usingSlot].transform.childCount == 4)
+        {
+            hand.SetActive(true);
+            pickPos.SetActive(false);
+        }
+        else
+        {
+            hand.SetActive(false);
+            pickPos.SetActive(true);
+        }
+
     }
 
     public void OnOffInventory()
@@ -101,6 +123,10 @@ public class PlayerManager : MonoBehaviour
                 usingSlot = 8;
             }
         }
+        previous = now;
+        now = usingSlot;
+        InventoryStatic.instance.CheckIsUsing(previous, false);
+        InventoryStatic.instance.CheckIsUsing(now, true);
     }
 
     public bool CheckGetItem() // 용도 : 인벤토리에 들어갈 수 있으면true.
@@ -116,4 +142,10 @@ public class PlayerManager : MonoBehaviour
         }
 
     }
+
+    public void PlayerDead()
+    {
+        respawnUI.SetActive(true);
+    }
+
 }

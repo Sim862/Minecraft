@@ -915,7 +915,6 @@ public class MapManager : MonoBehaviour
         }
         ChunkData chunkData = new ChunkData(blocks);
 
-        print(path);
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create(Application.dataPath + "/" + path + ".binary");
         bf.Serialize(file, chunkData);

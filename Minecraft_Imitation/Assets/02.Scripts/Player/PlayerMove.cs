@@ -16,6 +16,7 @@ public class PlayerMove : MonoBehaviour
     public Slider hpSlider; // hp 슬라이더 변수
     PlayerDamaged damagedCs;
     Animator anim;
+    bool isDead;
 
     void Start()
     {
@@ -23,6 +24,7 @@ public class PlayerMove : MonoBehaviour
         cc = GetComponent<CharacterController>();
         damagedCs = gameObject.GetComponent<PlayerDamaged>();
         anim = GetComponent<Animator>();
+        PlayerManager.instance.respawnUI.SetActive(false);
     }
 
 
@@ -30,13 +32,24 @@ public class PlayerMove : MonoBehaviour
     {
         // 4. 현재 플레이어 hp(%)를 hp 슬라이더의 value에 반영한다.
         hpSlider.value = hp / maxHp;
+
         PlayerMoveMethod();
+
+        if (isDead) return;
+
+        if (hp <= 0)
+        {
+            PlayerManager.instance.PlayerDead();
+            isDead = true;
+            return;
+        }
         if (!PlayerManager.onInventory) // 인벤토리가 켜져있으면 안되게
         {
             AnimatorControll();
         }
 
-        MapManager.instance.playerPositionData = MapManager.instance.PositionToBlockData(transform.position);
+        
+        //MapManager.instance.playerPositionData = MapManager.instance.PositionToBlockData(transform.position);
     }
 
     void PlayerMoveMethod()
@@ -58,8 +71,13 @@ public class PlayerMove : MonoBehaviour
             if(yVelocity < -10)
             {
                 hp -= (int)((Mathf.Abs(yVelocity) - 5));
+                if(hp <= 0)
+                {
+                    PlayerManager.instance.PlayerDead();
+                    isDead = true;
+                    return;
+                }
                 damagedCs.DamagedEff();
-                print("데미지 받음");
             }
             // 만약 점프 중이었다면
             if (isJumping)
@@ -94,13 +112,20 @@ public class PlayerMove : MonoBehaviour
 
     void AnimatorControll()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
             anim.SetBool("isAction", true);
         }
-        else if (Input.GetMouseButtonUp(0))
+        else if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
         {
             anim.SetBool("isAction", false);
         }
     }
+
+
+    public void UpdateHP(float dmg)
+    {
+        hp += dmg;
+    }
+
 }

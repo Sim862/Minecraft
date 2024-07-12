@@ -9,6 +9,7 @@ public class InventoryPopup : MonoBehaviour
     public GameObject[] inven = new GameObject[0];
     public GameObject withMaker;
     public GameObject withoutMaker;
+    public GameObject nowMakeSlots;
     public bool useMaker;
     int usingSlot;
     GameObject staticGo;
@@ -88,6 +89,7 @@ public class InventoryPopup : MonoBehaviour
                     }
                     else // 종류가 다르면
                     {
+                        staticCs.particleObjectTr = quick.particleObjectTr;
                         staticCs.particleKind = quick.particleKind;
                         staticCs.itemImage.sprite = quick.itemImage.sprite;
                         staticCs.ChangeItemCnt(quick.count - staticCs.count);
@@ -114,11 +116,13 @@ public class InventoryPopup : MonoBehaviour
         {
             withMaker.SetActive(true);
             withoutMaker.SetActive(false);
+            nowMakeSlots = withMaker;
         }
         else if (!useMaker)
         {
             withMaker.SetActive(false);
             withoutMaker.SetActive(true);
+            nowMakeSlots = withoutMaker;
         }
     }
 
