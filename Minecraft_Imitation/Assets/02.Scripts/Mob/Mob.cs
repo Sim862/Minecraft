@@ -665,6 +665,10 @@ public class Mob : MonoBehaviour
             index_z = 0;
         }
         chunk = MapManager.instance.GetChunk(chunk_X, chunk_Z);
+        if(chunk == null)
+        {
+            return false;
+        }
         moveData = MapManager.instance.CheckBlock(chunk, index_x,  current.positionData.blockIndex_y, index_z, objectHeight, fallHeight, canJump);
 
         if (moveData.weight == int.MaxValue) // 벽이라서 못감

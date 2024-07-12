@@ -99,6 +99,18 @@ public class Chunk
     }
 }
 
+public class MobSpawnData
+{
+    public MobSpawnData(GameObjectData gameObjectData, PositionData positionData)
+    {
+        this.gameObjectData = gameObjectData;
+        this.positionData = positionData;
+    }
+
+    public GameObjectData gameObjectData;
+    public PositionData positionData;
+}
+
 public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
@@ -107,7 +119,7 @@ public class MapManager : MonoBehaviour
 
     public Block blockPrefab;
 
-    public PositionData playerPositionData; // transform.postion 아님 청크 위치와 파일명
+    public PositionData playerPositionData;
     private Chunk[] chunks = new Chunk[9];
     public int[,,] blocks = new int[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
     private BlockData blockData;
@@ -396,10 +408,128 @@ public class MapManager : MonoBehaviour
 
             }
             #endregion
+            #region Z축으로 이동
             else if (playerPositionData.chunk_X == chunks[4].chunk_X)
             {
 
+                #region 아래로 이동
+                if (playerPositionData.chunk_Z < chunks[4].chunk_Z)
+                {
+                    // 오른쪽 아래
+                    StopCoroutine(chunks[8].saveRoutine);
+                    SaveChunk(chunks[8].chunk_X, chunks[8].chunk_Z, chunks[8]);
+                    ReturnBlockPool_Chunk(chunks[8]);
+
+                    for (int i = 5; i <= 8; i+=3)
+                    {
+                        newChunks[i] = chunks[i - 3];
+                    }
+
+
+                    LoadChunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z - 2);
+                    newChunks[2] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z - 2, blocks);
+
+                    InitChunk_CreateBlocks(newChunks[2]);
+                    StartCoroutine(newChunks[2].saveRoutine);
+
+                    // --------------------------------------------------------------------------------------
+
+                    // 아래
+                    StopCoroutine(chunks[7].saveRoutine);
+                    SaveChunk(chunks[7].chunk_X, chunks[7].chunk_Z, chunks[7]);
+                    ReturnBlockPool_Chunk(chunks[7]);
+
+                    for (int i = 4; i <= 7; i += 3)
+                    {
+                        newChunks[i] = chunks[i - 3];
+                    }
+
+
+                    LoadChunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2);
+                    newChunks[1] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2, blocks);
+
+                    InitChunk_CreateBlocks(newChunks[1]);
+                    StartCoroutine(newChunks[1].saveRoutine);
+
+                    // --------------------------------------------------------------------------------------
+
+                    // 왼쪽 아래
+                    StopCoroutine(chunks[6].saveRoutine);
+                    SaveChunk(chunks[6].chunk_X, chunks[6].chunk_Z, chunks[6]);
+                    ReturnBlockPool_Chunk(chunks[6]);
+                    for (int i = 3; i <= 6; i+=3)
+                    {
+                        newChunks[i] = chunks[i - 3];
+                    }
+
+                    LoadChunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z - 2);
+                    newChunks[0] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z - 2, blocks);
+
+                    InitChunk_CreateBlocks(newChunks[0]);
+                    StartCoroutine(newChunks[0].saveRoutine);
+                }
+                #endregion
+                #region 위로 이동
+                else if (playerPositionData.chunk_Z > chunks[4].chunk_Z)
+                {
+                    // 오른쪽 위
+                    StopCoroutine(chunks[2].saveRoutine);
+                    SaveChunk(chunks[2].chunk_X, chunks[2].chunk_Z, chunks[2]);
+                    ReturnBlockPool_Chunk(chunks[2]);
+
+                    for (int i = 5; i >= 2; i -= 3)
+                    {
+                        newChunks[i] = chunks[i + 3];
+                    }
+
+
+                    LoadChunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2);
+                    newChunks[8] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2, blocks);
+
+                    InitChunk_CreateBlocks(newChunks[8]);
+                    StartCoroutine(newChunks[8].saveRoutine);
+
+                    // --------------------------------------------------------------------------------------
+
+                    // 위
+                    StopCoroutine(chunks[1].saveRoutine);
+                    SaveChunk(chunks[1].chunk_X, chunks[1].chunk_Z, chunks[1]);
+                    ReturnBlockPool_Chunk(chunks[1]);
+
+                    for (int i = 4; i >= 1; i -= 3)
+                    {
+                        newChunks[i] = chunks[i + 3];
+                    }
+
+
+                    LoadChunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2);
+                    newChunks[7] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2, blocks);
+
+                    InitChunk_CreateBlocks(newChunks[7]);
+                    StartCoroutine(newChunks[7].saveRoutine);
+
+                    // --------------------------------------------------------------------------------------
+
+                    // 왼쪽 위
+                    StopCoroutine(chunks[0].saveRoutine);
+                    SaveChunk(chunks[0].chunk_X, chunks[0].chunk_Z, chunks[0]);
+                    ReturnBlockPool_Chunk(chunks[0]);
+
+                    for (int i = 3; i >= 0; i -= 3)
+                    {
+                        newChunks[i] = chunks[i + 3];
+                    }
+
+                    LoadChunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2);
+                    newChunks[6] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2, blocks);
+
+                    InitChunk_CreateBlocks(newChunks[6]);
+                    StartCoroutine(newChunks[6].saveRoutine);
+                }
+                #endregion
             }
+            #endregion
+            #region 오른쪽으로 이동했을떄
             else
             {
 
@@ -479,7 +609,7 @@ public class MapManager : MonoBehaviour
                     // 왼쪽 아래
                     StopCoroutine(chunks[6].saveRoutine);
                     SaveChunk(chunks[6].chunk_X, chunks[6].chunk_Z, chunks[6]);
-                    ReturnBlockPool_Chunk(chunks[8]);
+                    ReturnBlockPool_Chunk(chunks[6]);
 
                     for (int i = 3; i >= 0; i -= 3)
                     {
@@ -491,83 +621,82 @@ public class MapManager : MonoBehaviour
 
                     InitChunk_CreateBlocks(newChunks[0]);
                     StartCoroutine(newChunks[0].saveRoutine);
-                    \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ 여기까지 함
                 }
                 #endregion
-                #region 왼쪽으로 만 이동
+                #region 오른쪽으로 만 이동
                 else if (playerPositionData.chunk_Z == chunks[4].chunk_Z)
                 {
-                    // 왼쪽 아래
-                    StopCoroutine(chunks[2].saveRoutine);
-                    SaveChunk(chunks[2].chunk_X, chunks[2].chunk_Z, chunks[2]);
-                    ReturnBlockPool_Chunk(chunks[2]);
-
-                    for (int i = 1; i < 3; i++)
-                    {
-                        newChunks[i] = chunks[i - 1];
-                    }
-
-
-                    LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 1);
-                    newChunks[0] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 1, blocks);
-
-                    InitChunk_CreateBlocks(newChunks[0]);
-                    StartCoroutine(newChunks[0].saveRoutine);
-
-                    // --------------------------------------------------------------------------------------
-
-                    // 왼쪽 위
-                    StopCoroutine(chunks[8].saveRoutine);
-                    SaveChunk(chunks[8].chunk_X, chunks[8].chunk_Z, chunks[8]);
-                    ReturnBlockPool_Chunk(chunks[8]);
-                    for (int i = 7; i < 9; i++)
-                    {
-                        newChunks[i] = chunks[i - 1];
-                    }
-
-                    LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1);
-                    newChunks[6] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1, blocks);
-
-                    InitChunk_CreateBlocks(newChunks[6]);
-                    StartCoroutine(newChunks[6].saveRoutine);
-                }
-                #endregion
-                #region 왼쪽으로 위 이동
-                else
-                {
-                    // 왼쪽
-                    StopCoroutine(chunks[8].saveRoutine);
-                    SaveChunk(chunks[8].chunk_X, chunks[8].chunk_Z, chunks[8]);
-                    ReturnBlockPool_Chunk(chunks[8]);
-
-                    for (int i = 7; i < 9; i++)
-                    {
-                        newChunks[i] = chunks[i - 1];
-                    }
-
-                    LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1);
-                    newChunks[6] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1, blocks);
-
-                    InitChunk_CreateBlocks(newChunks[6]);
-                    StartCoroutine(newChunks[6].saveRoutine);
-
-                    // --------------------------------------------------------
-
-                    // 왼쪽 대각선 위
+                    // 오른쪽 아래
                     StopCoroutine(chunks[0].saveRoutine);
                     SaveChunk(chunks[0].chunk_X, chunks[0].chunk_Z, chunks[0]);
                     ReturnBlockPool_Chunk(chunks[0]);
 
-                    for (int i = 3; i < 7; i += 3)
+                    for (int i = 0; i < 2; i++)
+                    {
+                        newChunks[i] = chunks[i + 1];
+                    }
+
+
+                    LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 1);
+                    newChunks[2] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 1, blocks);
+
+                    InitChunk_CreateBlocks(newChunks[2]);
+                    StartCoroutine(newChunks[2].saveRoutine);
+
+                    // --------------------------------------------------------------------------------------
+
+                    // 오른쪽 위
+                    StopCoroutine(chunks[6].saveRoutine);
+                    SaveChunk(chunks[6].chunk_X, chunks[6].chunk_Z, chunks[6]);
+                    ReturnBlockPool_Chunk(chunks[6]);
+                    for (int i = 6; i < 8; i++)
+                    {
+                        newChunks[i] = chunks[i + 1];
+                    }
+
+                    LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1);
+                    newChunks[8] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1, blocks);
+
+                    InitChunk_CreateBlocks(newChunks[8]);
+                    StartCoroutine(newChunks[8].saveRoutine);
+                }
+                #endregion
+                #region 오른쪽으로 위 (대각선) 이동
+                else
+                {
+                    // 오른쪽
+                    StopCoroutine(chunks[6].saveRoutine);
+                    SaveChunk(chunks[6].chunk_X, chunks[6].chunk_Z, chunks[6]);
+                    ReturnBlockPool_Chunk(chunks[6]);
+
+                    for (int i = 6; i < 8; i++)
+                    {
+                        newChunks[i] = chunks[i + 1];
+                    }
+
+                    LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1);
+                    newChunks[8] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1, blocks);
+
+                    InitChunk_CreateBlocks(newChunks[8]);
+                    StartCoroutine(newChunks[8].saveRoutine);
+
+                    // --------------------------------------------------------
+
+                    // 오른쪽 대각선 위
+                    StopCoroutine(chunks[2].saveRoutine);
+                    SaveChunk(chunks[2].chunk_X, chunks[2].chunk_Z, chunks[2]);
+                    ReturnBlockPool_Chunk(chunks[2]);
+
+                    for (int i = 5; i < 9; i += 3)
                     {
                         newChunks[i - 3] = newChunks[i];
                     }
 
-                    LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 2);
-                    newChunks[6] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 2, blocks);
+                    LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 2);
+                    newChunks[8] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 2, blocks);
 
-                    InitChunk_CreateBlocks(newChunks[6]);
-                    StartCoroutine(newChunks[6].saveRoutine);
+                    InitChunk_CreateBlocks(newChunks[8]);
+                    StartCoroutine(newChunks[8].saveRoutine);
                     // -------------------------------------------------------------
 
                     // 위
@@ -580,32 +709,32 @@ public class MapManager : MonoBehaviour
                         newChunks[i - 3] = newChunks[i];
                     }
 
-                    LoadChunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2);
-                    newChunks[7] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2, blocks);
+                    LoadChunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2);
+                    newChunks[7] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2, blocks);
 
                     InitChunk_CreateBlocks(newChunks[7]);
                     StartCoroutine(newChunks[7].saveRoutine);
-                    //// -----------------------------------------------------------
+                    // -----------------------------------------------------------
 
-                    // 오른쪽 위
-                    StopCoroutine(chunks[2].saveRoutine);
-                    SaveChunk(chunks[2].chunk_X, chunks[2].chunk_Z, chunks[2]);
-                    ReturnBlockPool_Chunk(chunks[2]);
+                    // 왼쪽 위
+                    StopCoroutine(chunks[0].saveRoutine);
+                    SaveChunk(chunks[0].chunk_X, chunks[0].chunk_Z, chunks[0]);
+                    ReturnBlockPool_Chunk(chunks[0]);
 
-                    for (int i = 5; i < 9; i += 3)
+                    for (int i = 3; i < 7; i += 3)
                     {
                         newChunks[i - 3] = newChunks[i];
                     }
 
                     LoadChunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2);
-                    newChunks[8] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[6] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2, blocks);
 
-                    InitChunk_CreateBlocks(newChunks[8]);
-                    StartCoroutine(newChunks[8].saveRoutine);
+                    InitChunk_CreateBlocks(newChunks[6]);
+                    StartCoroutine(newChunks[6].saveRoutine);
                 }
                 #endregion
             }
-
+            #endregion
             chunks = newChunks;
         }
     }
@@ -813,6 +942,7 @@ public class MapManager : MonoBehaviour
                 block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // 블럭 오브젝트 생성
             }
             block.InitBlock(blockData, new PositionData(chunk.chunk_X,chunk.chunk_Z,x,y,z)); // 블럭 데이터의 설정값으로 블럭 오브젝트 설정
+            block.name = x + "." + y + "," + z;
             chunk.blockObjects[x, y, z] = block; // 블럭 3차원 배열에 블럭 오브젝트 저장
             chunk.needSave = true;
         }
@@ -876,7 +1006,7 @@ public class MapManager : MonoBehaviour
         else
         {
             chunk_X = ((Mathf.RoundToInt(objectPosition.x) - Chunk.x) / Chunk.x);
-            blockIndex_X = (Chunk.x - Mathf.RoundToInt(objectPosition.x)) % Chunk.x;
+            blockIndex_X = Chunk.x + Mathf.RoundToInt(objectPosition.x) % Chunk.x;
         }
         if (objectPosition.z >= 0)
         {
@@ -886,7 +1016,7 @@ public class MapManager : MonoBehaviour
         else
         {
             chunk_Z = ((Mathf.RoundToInt(objectPosition.z) - Chunk.z) / Chunk.z);
-            blockIndex_Z = (Chunk.z - Mathf.RoundToInt(objectPosition.z)) % Chunk.z;
+            blockIndex_Z = Chunk.z + (Mathf.RoundToInt(objectPosition.z) % Chunk.z);
         }
 
         PositionData positionData = new PositionData(chunk_X,chunk_Z,blockIndex_X,(int)objectPosition.y - Chunk.defaultY,blockIndex_Z);
@@ -906,7 +1036,6 @@ public class MapManager : MonoBehaviour
             }
         }
 
-        print(1);
         return null; // 해당 청크를 찾지 못했음
     }
 
@@ -947,13 +1076,19 @@ public class MapManager : MonoBehaviour
                 index--;
                 continue;
             }
-
-            // 블럭 검사
-            if (chunk.blocksEnum[x, index, z] == 0)
-                groundCheck[i] = 0; // 블럭 없음
-            else
-                groundCheck[i] = 1; // 블럭 있음
-
+            try
+            {
+                // 블럭 검사
+                if (chunk.blocksEnum[x, index, z] == 0)
+                    groundCheck[i] = 0; // 블럭 없음
+                else
+                    groundCheck[i] = 1; // 블럭 있음
+            }
+            catch(IndexOutOfRangeException erro)
+            {
+                moveData.weight = int.MaxValue;
+                return moveData;
+            }
             // 점프를 사용해야 이동할수 있는 위치
             if (i == groundCheck.Length -1)
             {
