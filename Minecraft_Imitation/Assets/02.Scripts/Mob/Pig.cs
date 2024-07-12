@@ -32,6 +32,7 @@ public class Pig : Mob
         {
             Fall();
             mobSpawnData.positionData = MapManager.instance.PositionToBlockData(transform.position);
+            SetChunkData();
 
             //print(mobSpawnData.positionData.chunk_X + " , " + mobSpawnData.positionData.chunk_Z);
             if (mobState == MobState.Idle)

@@ -619,7 +619,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blockPrefab: {fileID: 794007677553812406, guid: b1c644645a7632d47a40969391e35b73, type: 3}
-  playerPosition: {x: 0, y: 0, z: 0}
+  chunkData:
+    mobSpawnDatas: []
   createBlock: 0
   chunkIndex: 4
   blockKind1: 0

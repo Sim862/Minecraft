@@ -28,11 +28,8 @@ public class DataManager : MonoBehaviour
     int inven_Check = 0;
     #endregion
 
-    public Mob[] monsterList;
-    public Dictionary<MobData.MobKind, Mob> monsterDictionary = new Dictionary<MobData.MobKind, Mob>();
-
-    public Mob[] passiveMobList;
-    public Dictionary<MobData.MobKind, Mob> passiveMobDictionary = new Dictionary<MobData.MobKind, Mob>();
+    public Mob[] mobList;
+    public Dictionary<MobData.MobKind, Mob> mobDictionary = new Dictionary<MobData.MobKind, Mob>();
 
     public ObjectParticle[] objectParticles;
     public Dictionary<ObjectParticleData.ParticleKind, ObjectParticle> objectParticleDictionary = new Dictionary<ObjectParticleData.ParticleKind, ObjectParticle>();
@@ -64,6 +61,8 @@ public class DataManager : MonoBehaviour
         InitObjectParticleList();
         // 조합 데이터 초기화
         ReadCombinationData();
+        // 몹 데이터 초기화
+        InitMobList();
     }
 
 
@@ -76,6 +75,8 @@ public class DataManager : MonoBehaviour
         data.Close();
         return data_str;
     }
+
+    #region 블럭
 
     // 블럭 데이터 파싱
     private void ReadBlockData()
@@ -113,6 +114,10 @@ public class DataManager : MonoBehaviour
             }
         }
     }
+#endregion
+
+
+    #region 조합식
 
     // 조합식 데이터 파싱
     private void ReadCombinationData()
@@ -234,6 +239,10 @@ public class DataManager : MonoBehaviour
         // 적합한게 없었으니 None
         return null;
     }
+#endregion
+
+
+    #region 오브젝트 파티클
 
     // 오브젝트 파티클 Dictionary 초기화
     private void InitObjectParticleList()
@@ -269,4 +278,31 @@ public class DataManager : MonoBehaviour
         }
         return blockKind;
     }
+
+    #endregion
+
+
+    #region 몹
+
+    // Mob Dictionary 초기화
+    private void InitMobList()
+    {
+        for (int i = 0; i < mobList.Length; i++)
+        {
+            mobDictionary.Add(mobList[i].mobKind, mobList[i]);
+        }
+    }
+
+    // Getter
+    public Mob GetMobPrefab(MobData.MobKind mobKind)
+    {
+        if (mobDictionary.ContainsKey(mobKind))
+        {
+            return mobDictionary[mobKind];
+        }
+
+        return null;
+    }
+
+    #endregion
 }

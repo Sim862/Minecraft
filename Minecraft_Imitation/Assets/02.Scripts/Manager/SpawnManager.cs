@@ -10,6 +10,8 @@ public class SpawnManager : MonoBehaviour
     private int monsterMaxCount = 5;
     private Dictionary<MobData.MobKind, List<Mob>> mobList = new Dictionary<MobData.MobKind, List<Mob>>();
 
+    public int passiveMobCount = 0;
+
     private void Awake()
     {
         if (instance == null)
@@ -22,7 +24,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
     
-    public void CreateMob(Mob mob)
+    public void AddMob(Mob mob)
     {
         if (mobList.ContainsKey(mob.mobData.mobKind))
         {
@@ -32,6 +34,8 @@ public class SpawnManager : MonoBehaviour
         {
             mobList.Add(mob.mobData.mobKind, new List<Mob>() { mob });
         }
+
+        passiveMobCount++;
     }
 
     public void RemoveMob(Mob mob)
@@ -41,6 +45,7 @@ public class SpawnManager : MonoBehaviour
             mobList[mob.mobData.mobKind].Remove(mob);
         }
 
+        passiveMobCount--;
         Destroy(mob.gameObject);
     }
 

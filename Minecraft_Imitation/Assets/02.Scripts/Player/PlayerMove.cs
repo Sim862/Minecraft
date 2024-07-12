@@ -49,7 +49,7 @@ public class PlayerMove : MonoBehaviour
         }
 
         
-        //MapManager.instance.playerPositionData = MapManager.instance.PositionToBlockData(transform.position);
+        MapManager.instance.playerPositionData = MapManager.instance.PositionToBlockData(transform.position);
     }
 
     void PlayerMoveMethod()

@@ -10,6 +10,8 @@ using System.Security.Cryptography;
 using UnityEditor.PackageManager;
 using UnityEngine;
 using static BlockData;
+
+[Serializable]
 public class PositionData
 {
     public PositionData(int chunk_X, int chunk_Z, int blockIndex_x, int blockIndex_y, int blockIndex_z)
@@ -61,15 +63,17 @@ public class Chunk
     public static readonly int z = 12;
     public static readonly int defaultY = -60;
     // 생성자
-    public Chunk(int chunk_X, int chunk_Z, int[,,] blocks)
+    public Chunk(int chunk_X, int chunk_Z, ChunkData chunkData)
     {
         this.chunk_X = chunk_X;
         this.chunk_Z = chunk_Z;
-        chunkData = new ChunkData(blocks);
+        this.chunkData = chunkData;
         blockParent = new GameObject(chunk_X+"-"+ chunk_Z).transform;
         blockParent.SetParent(MapManager.instance.transform);
         saveRoutine = Coroutine_SaveChunk(this);
     }
+
+    public List<Mob> mobGameObjects = new List<Mob>();
 
     // 생성된 블럭 오브젝트 부모
     public Transform blockParent;
@@ -82,6 +86,30 @@ public class Chunk
 
     // 코루틴
     public IEnumerator saveRoutine;
+
+
+    public void AddMobSpawnData(MobSpawnData mobSpawnData, Mob mob)
+    {
+        if (!chunkData.mobSpawnDatas.Contains(mobSpawnData))
+        {
+            chunkData.mobSpawnDatas.Add(mobSpawnData);
+            mobGameObjects.Add(mob);
+        }
+        else
+        {
+            UnityEngine.Debug.Log(135123);
+        }
+    }
+    public void RemoveMobSpawnData(MobSpawnData mobSpawnData, Mob mob)
+    {
+        if (chunkData.mobSpawnDatas.Contains(mobSpawnData))
+        {
+            chunkData.mobSpawnDatas.Remove(mobSpawnData);
+            mobGameObjects.Remove(mob);
+        }
+    }
+
+
 
     // 변경사항이 생기면 12초 마다 저장
     private IEnumerator Coroutine_SaveChunk(Chunk chunk)
@@ -107,40 +135,20 @@ public class ChunkData
         this.blocksEnum = blocksEnum;
     }
 
-
-    public void AddMobSpawnData(MobSpawnData mobSpawnData, Mob gameObject)
-    {
-        if (!mobSpawnDatas.Contains(mobSpawnData))
-        {
-            mobSpawnDatas.Add(mobSpawnData);
-            mobGameObjects.Add(gameObject);
-        }
-    }
-    public void RemoveMobSpawnData(MobSpawnData mobSpawnData, Mob gameObject)
-    {
-        if (mobSpawnDatas.Contains(mobSpawnData))
-        {
-            mobSpawnDatas.Remove(mobSpawnData);
-            mobGameObjects.Remove(gameObject);
-        }
-    }
-
-
     public int[,,] blocksEnum = new int[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
-    public List<MobSpawnData> mobSpawnDatas = new List<MobSpawnData>();
-    public List<Mob> mobGameObjects= new List<Mob>();
+    public List<MobSpawnData> mobSpawnDatas;
 }
 
 [Serializable]
 public class MobSpawnData
 {
-    public MobSpawnData(GameObjectData gameObjectData, PositionData positionData)
+    public MobSpawnData(MobData mob, PositionData positionData)
     {
-        this.gameObjectData = gameObjectData;
+        this.mobData = mob;
         this.positionData = positionData;
     }
 
-    public GameObjectData gameObjectData;
+    public MobData mobData;
     public PositionData positionData;
 }
 
@@ -165,6 +173,8 @@ public class MapManager : MonoBehaviour
     private int value;
 
 
+    MobSpawnData temp_MobSpawnData;
+    Mob temp_Mob;
 
     private void Awake()
     {
@@ -238,8 +248,6 @@ public class MapManager : MonoBehaviour
             #region 왼쪽으로 이동했을떄
             if (playerPositionData.chunk_X < chunks[4].chunk_X)
             {
-                StopCoroutine(chunks[5].saveRoutine); // 오른쪽 끝 청크 저장 타이머 종류 후 저장
-                SaveChunk(chunks[5].chunk_X, chunks[5].chunk_Z, chunks[5]);
                 Remove_Chunk(chunks[5]);
                 // 청크 이동
                 for (int i = 4; i < 6; i++)
@@ -249,10 +257,10 @@ public class MapManager : MonoBehaviour
 
                 // 청크 데이터 로드
                 LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z);
-                newChunks[3] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z, blocks);
+                newChunks[3] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z, chunkData);
 
                 // 블럭 생성
-                InitChunk_CreateBlocks(newChunks[3]);
+                InitChunk(newChunks[3]);
                 // 블럭 저장 주기 시작
                 StartCoroutine(newChunks[3].saveRoutine);
 
@@ -260,8 +268,6 @@ public class MapManager : MonoBehaviour
                 if (playerPositionData.chunk_Z < chunks[4].chunk_Z)
                 {
                     // 왼쪽 아래
-                    StopCoroutine(chunks[2].saveRoutine);
-                    SaveChunk(chunks[2].chunk_X, chunks[2].chunk_Z, chunks[2]);
                     Remove_Chunk(chunks[2]);
 
                     for (int i = 1; i < 3; i++)
@@ -270,16 +276,14 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 1);
-                    newChunks[0] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 1, blocks);
+                    newChunks[0] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 1, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[0]);
+                    InitChunk(newChunks[0]);
                     StartCoroutine(newChunks[0].saveRoutine);
 
                     // --------------------------------------------------------
 
                     // 왼쪽 대각선 아래
-                    StopCoroutine(chunks[6].saveRoutine);
-                    SaveChunk(chunks[6].chunk_X, chunks[6].chunk_Z, chunks[6]);
                     Remove_Chunk(chunks[6]);
 
                     for (int i = 3; i >= 0 ; i -= 3)
@@ -288,15 +292,13 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 2);
-                    newChunks[0] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 2, blocks);
+                    newChunks[0] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[0]);
+                    InitChunk(newChunks[0]);
                     StartCoroutine(newChunks[0].saveRoutine);
                     // -------------------------------------------------------------
 
                     // 아래
-                    StopCoroutine(chunks[7].saveRoutine);
-                    SaveChunk(chunks[7].chunk_X, chunks[7].chunk_Z, chunks[7]);
                     Remove_Chunk(chunks[7]);
 
                     for (int i = 4; i > 0; i -= 3)
@@ -305,15 +307,13 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z - 2);
-                    newChunks[1] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z - 2, blocks);
+                    newChunks[1] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z - 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[1]);
+                    InitChunk(newChunks[1]);
                     StartCoroutine(newChunks[1].saveRoutine);
                     //// -----------------------------------------------------------
 
                     // 오른쪽 아래
-                    StopCoroutine(chunks[8].saveRoutine);
-                    SaveChunk(chunks[8].chunk_X, chunks[8].chunk_Z, chunks[8]);
                     Remove_Chunk(chunks[8]);
 
                     for (int i = 5; i >= 0; i -= 3)
@@ -322,9 +322,9 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2);
-                    newChunks[2] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2, blocks);
+                    newChunks[2] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[2]);
+                    InitChunk(newChunks[2]);
                     StartCoroutine(newChunks[2].saveRoutine);
 
                 }
@@ -333,8 +333,6 @@ public class MapManager : MonoBehaviour
                 else if (playerPositionData.chunk_Z == chunks[4].chunk_Z)
                 {
                     // 왼쪽 아래
-                    StopCoroutine(chunks[2].saveRoutine);
-                    SaveChunk(chunks[2].chunk_X, chunks[2].chunk_Z, chunks[2]);
                     Remove_Chunk(chunks[2]);
 
                     for (int i = 1; i < 3; i++)
@@ -344,16 +342,14 @@ public class MapManager : MonoBehaviour
 
 
                     LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 1);
-                    newChunks[0] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 1, blocks);
+                    newChunks[0] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z - 1, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[0]);
+                    InitChunk(newChunks[0]);
                     StartCoroutine(newChunks[0].saveRoutine);
 
                     // --------------------------------------------------------------------------------------
 
                     // 왼쪽 위
-                    StopCoroutine(chunks[8].saveRoutine);
-                    SaveChunk(chunks[8].chunk_X, chunks[8].chunk_Z, chunks[8]);
                     Remove_Chunk(chunks[8]);
                     for (int i = 7; i < 9; i++)
                     {
@@ -361,9 +357,9 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1);
-                    newChunks[6] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1, blocks);
+                    newChunks[6] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[6]);
+                    InitChunk(newChunks[6]);
                     StartCoroutine(newChunks[6].saveRoutine);
                 }
                 #endregion
@@ -371,8 +367,6 @@ public class MapManager : MonoBehaviour
                 else
                 {
                     // 왼쪽
-                    StopCoroutine(chunks[8].saveRoutine);
-                    SaveChunk(chunks[8].chunk_X, chunks[8].chunk_Z, chunks[8]);
                     Remove_Chunk(chunks[8]);
 
                     for (int i = 7; i < 9; i++)
@@ -381,16 +375,14 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1);
-                    newChunks[6] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1, blocks);
+                    newChunks[6] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 1, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[6]);
+                    InitChunk(newChunks[6]);
                     StartCoroutine(newChunks[6].saveRoutine);
 
                     // --------------------------------------------------------
 
                     // 왼쪽 대각선 위
-                    StopCoroutine(chunks[0].saveRoutine);
-                    SaveChunk(chunks[0].chunk_X, chunks[0].chunk_Z, chunks[0]);
                     Remove_Chunk(chunks[0]);
 
                     for (int i = 3; i < 7; i += 3)
@@ -399,15 +391,13 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 2);
-                    newChunks[6] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[6] = new Chunk(chunks[4].chunk_X - 2, chunks[4].chunk_Z + 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[6]);
+                    InitChunk(newChunks[6]);
                     StartCoroutine(newChunks[6].saveRoutine);
                     // -------------------------------------------------------------
 
                     // 위
-                    StopCoroutine(chunks[1].saveRoutine);
-                    SaveChunk(chunks[1].chunk_X, chunks[1].chunk_Z, chunks[1]);
                     Remove_Chunk(chunks[1]);
 
                     for (int i = 4; i < 8; i += 3)
@@ -416,15 +406,13 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2);
-                    newChunks[7] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[7] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[7]);
+                    InitChunk(newChunks[7]);
                     StartCoroutine(newChunks[7].saveRoutine);
                     //// -----------------------------------------------------------
 
                     // 오른쪽 위
-                    StopCoroutine(chunks[2].saveRoutine);
-                    SaveChunk(chunks[2].chunk_X, chunks[2].chunk_Z, chunks[2]);
                     Remove_Chunk(chunks[2]);
 
                     for (int i = 5; i < 9; i += 3)
@@ -433,9 +421,9 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2);
-                    newChunks[8] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[8] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[8]);
+                    InitChunk(newChunks[8]);
                     StartCoroutine(newChunks[8].saveRoutine);
                 }
                 #endregion
@@ -450,8 +438,6 @@ public class MapManager : MonoBehaviour
                 if (playerPositionData.chunk_Z < chunks[4].chunk_Z)
                 {
                     // 오른쪽 아래
-                    StopCoroutine(chunks[8].saveRoutine);
-                    SaveChunk(chunks[8].chunk_X, chunks[8].chunk_Z, chunks[8]);
                     Remove_Chunk(chunks[8]);
 
                     for (int i = 5; i <= 8; i+=3)
@@ -461,16 +447,14 @@ public class MapManager : MonoBehaviour
 
 
                     LoadChunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z - 2);
-                    newChunks[2] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z - 2, blocks);
+                    newChunks[2] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z - 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[2]);
+                    InitChunk(newChunks[2]);
                     StartCoroutine(newChunks[2].saveRoutine);
 
                     // --------------------------------------------------------------------------------------
 
                     // 아래
-                    StopCoroutine(chunks[7].saveRoutine);
-                    SaveChunk(chunks[7].chunk_X, chunks[7].chunk_Z, chunks[7]);
                     Remove_Chunk(chunks[7]);
 
                     for (int i = 4; i <= 7; i += 3)
@@ -480,16 +464,14 @@ public class MapManager : MonoBehaviour
 
 
                     LoadChunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2);
-                    newChunks[1] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2, blocks);
+                    newChunks[1] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[1]);
+                    InitChunk(newChunks[1]);
                     StartCoroutine(newChunks[1].saveRoutine);
 
                     // --------------------------------------------------------------------------------------
 
                     // 왼쪽 아래
-                    StopCoroutine(chunks[6].saveRoutine);
-                    SaveChunk(chunks[6].chunk_X, chunks[6].chunk_Z, chunks[6]);
                     Remove_Chunk(chunks[6]);
                     for (int i = 3; i <= 6; i+=3)
                     {
@@ -497,9 +479,9 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z - 2);
-                    newChunks[0] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z - 2, blocks);
+                    newChunks[0] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z - 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[0]);
+                    InitChunk(newChunks[0]);
                     StartCoroutine(newChunks[0].saveRoutine);
                 }
                 #endregion
@@ -507,8 +489,6 @@ public class MapManager : MonoBehaviour
                 else if (playerPositionData.chunk_Z > chunks[4].chunk_Z)
                 {
                     // 오른쪽 위
-                    StopCoroutine(chunks[2].saveRoutine);
-                    SaveChunk(chunks[2].chunk_X, chunks[2].chunk_Z, chunks[2]);
                     Remove_Chunk(chunks[2]);
 
                     for (int i = 5; i >= 2; i -= 3)
@@ -518,16 +498,14 @@ public class MapManager : MonoBehaviour
 
 
                     LoadChunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2);
-                    newChunks[8] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[8] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[8]);
+                    InitChunk(newChunks[8]);
                     StartCoroutine(newChunks[8].saveRoutine);
 
                     // --------------------------------------------------------------------------------------
 
                     // 위
-                    StopCoroutine(chunks[1].saveRoutine);
-                    SaveChunk(chunks[1].chunk_X, chunks[1].chunk_Z, chunks[1]);
                     Remove_Chunk(chunks[1]);
 
                     for (int i = 4; i >= 1; i -= 3)
@@ -537,16 +515,14 @@ public class MapManager : MonoBehaviour
 
 
                     LoadChunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2);
-                    newChunks[7] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[7] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[7]);
+                    InitChunk(newChunks[7]);
                     StartCoroutine(newChunks[7].saveRoutine);
 
                     // --------------------------------------------------------------------------------------
 
                     // 왼쪽 위
-                    StopCoroutine(chunks[0].saveRoutine);
-                    SaveChunk(chunks[0].chunk_X, chunks[0].chunk_Z, chunks[0]);
                     Remove_Chunk(chunks[0]);
 
                     for (int i = 3; i >= 0; i -= 3)
@@ -555,9 +531,9 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2);
-                    newChunks[6] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[6] = new Chunk(chunks[4].chunk_X - 1, chunks[4].chunk_Z + 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[6]);
+                    InitChunk(newChunks[6]);
                     StartCoroutine(newChunks[6].saveRoutine);
                 }
                 #endregion
@@ -566,9 +542,6 @@ public class MapManager : MonoBehaviour
             #region 오른쪽으로 이동했을떄
             else
             {
-
-                StopCoroutine(chunks[3].saveRoutine);
-                SaveChunk(chunks[3].chunk_X, chunks[3].chunk_Z, chunks[3]);
                 Remove_Chunk(chunks[3]);
                 // 청크 이동
                 for (int i = 4; i > 2; i--)
@@ -578,10 +551,10 @@ public class MapManager : MonoBehaviour
 
                 // 청크 데이터 로드
                 LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z);
-                newChunks[5] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z, blocks);
+                newChunks[5] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z, chunkData);
 
                 // 블럭 생성
-                InitChunk_CreateBlocks(newChunks[5]);
+                InitChunk(newChunks[5]);
                 // 블럭 저장 주기 시작
                 StartCoroutine(newChunks[5].saveRoutine);
 
@@ -589,8 +562,6 @@ public class MapManager : MonoBehaviour
                 if (playerPositionData.chunk_Z < chunks[4].chunk_Z)
                 {
                     // 오른쪽 아래
-                    StopCoroutine(chunks[0].saveRoutine);
-                    SaveChunk(chunks[0].chunk_X, chunks[0].chunk_Z, chunks[0]);
                     Remove_Chunk(chunks[0]);
 
                     for (int i = 0; i < 3; i++)
@@ -599,16 +570,14 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 1);
-                    newChunks[2] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 1, blocks);
+                    newChunks[2] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 1, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[2]);
+                    InitChunk(newChunks[2]);
                     StartCoroutine(newChunks[2].saveRoutine);
 
                     // --------------------------------------------------------
 
                     // 오른쪽 대각선 아래
-                    StopCoroutine(chunks[8].saveRoutine);
-                    SaveChunk(chunks[8].chunk_X, chunks[8].chunk_Z, chunks[8]);
                     Remove_Chunk(chunks[8]);
 
                     for (int i = 5; i >= 0; i -= 3)
@@ -617,15 +586,13 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 2);
-                    newChunks[2] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 2, blocks);
+                    newChunks[2] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[2]);
+                    InitChunk(newChunks[2]);
                     StartCoroutine(newChunks[2].saveRoutine);
                     // -------------------------------------------------------------
 
                     // 아래
-                    StopCoroutine(chunks[7].saveRoutine);
-                    SaveChunk(chunks[7].chunk_X, chunks[7].chunk_Z, chunks[7]);
                     Remove_Chunk(chunks[7]);
 
                     for (int i = 4; i > 0; i -= 3)
@@ -634,15 +601,13 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z - 2);
-                    newChunks[1] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z - 2, blocks);
+                    newChunks[1] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z - 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[1]);
+                    InitChunk(newChunks[1]);
                     StartCoroutine(newChunks[1].saveRoutine);
                     //// -----------------------------------------------------------
 
                     // 왼쪽 아래
-                    StopCoroutine(chunks[6].saveRoutine);
-                    SaveChunk(chunks[6].chunk_X, chunks[6].chunk_Z, chunks[6]);
                     Remove_Chunk(chunks[6]);
 
                     for (int i = 3; i >= 0; i -= 3)
@@ -651,9 +616,9 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2);
-                    newChunks[0] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2, blocks);
+                    newChunks[0] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z - 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[0]);
+                    InitChunk(newChunks[0]);
                     StartCoroutine(newChunks[0].saveRoutine);
                 }
                 #endregion
@@ -661,8 +626,6 @@ public class MapManager : MonoBehaviour
                 else if (playerPositionData.chunk_Z == chunks[4].chunk_Z)
                 {
                     // 오른쪽 아래
-                    StopCoroutine(chunks[0].saveRoutine);
-                    SaveChunk(chunks[0].chunk_X, chunks[0].chunk_Z, chunks[0]);
                     Remove_Chunk(chunks[0]);
 
                     for (int i = 0; i < 2; i++)
@@ -672,16 +635,14 @@ public class MapManager : MonoBehaviour
 
 
                     LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 1);
-                    newChunks[2] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 1, blocks);
+                    newChunks[2] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z - 1, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[2]);
+                    InitChunk(newChunks[2]);
                     StartCoroutine(newChunks[2].saveRoutine);
 
                     // --------------------------------------------------------------------------------------
 
                     // 오른쪽 위
-                    StopCoroutine(chunks[6].saveRoutine);
-                    SaveChunk(chunks[6].chunk_X, chunks[6].chunk_Z, chunks[6]);
                     Remove_Chunk(chunks[6]);
                     for (int i = 6; i < 8; i++)
                     {
@@ -689,9 +650,9 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1);
-                    newChunks[8] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1, blocks);
+                    newChunks[8] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[8]);
+                    InitChunk(newChunks[8]);
                     StartCoroutine(newChunks[8].saveRoutine);
                 }
                 #endregion
@@ -699,8 +660,6 @@ public class MapManager : MonoBehaviour
                 else
                 {
                     // 오른쪽
-                    StopCoroutine(chunks[6].saveRoutine);
-                    SaveChunk(chunks[6].chunk_X, chunks[6].chunk_Z, chunks[6]);
                     Remove_Chunk(chunks[6]);
 
                     for (int i = 6; i < 8; i++)
@@ -709,16 +668,14 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1);
-                    newChunks[8] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1, blocks);
+                    newChunks[8] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 1, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[8]);
+                    InitChunk(newChunks[8]);
                     StartCoroutine(newChunks[8].saveRoutine);
 
                     // --------------------------------------------------------
 
                     // 오른쪽 대각선 위
-                    StopCoroutine(chunks[2].saveRoutine);
-                    SaveChunk(chunks[2].chunk_X, chunks[2].chunk_Z, chunks[2]);
                     Remove_Chunk(chunks[2]);
 
                     for (int i = 5; i < 9; i += 3)
@@ -727,15 +684,13 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 2);
-                    newChunks[8] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[8] = new Chunk(chunks[4].chunk_X + 2, chunks[4].chunk_Z + 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[8]);
+                    InitChunk(newChunks[8]);
                     StartCoroutine(newChunks[8].saveRoutine);
                     // -------------------------------------------------------------
 
                     // 위
-                    StopCoroutine(chunks[1].saveRoutine);
-                    SaveChunk(chunks[1].chunk_X, chunks[1].chunk_Z, chunks[1]);
                     Remove_Chunk(chunks[1]);
 
                     for (int i = 4; i < 8; i += 3)
@@ -744,15 +699,13 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2);
-                    newChunks[7] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[7] = new Chunk(chunks[4].chunk_X + 1, chunks[4].chunk_Z + 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[7]);
+                    InitChunk(newChunks[7]);
                     StartCoroutine(newChunks[7].saveRoutine);
                     // -----------------------------------------------------------
 
                     // 왼쪽 위
-                    StopCoroutine(chunks[0].saveRoutine);
-                    SaveChunk(chunks[0].chunk_X, chunks[0].chunk_Z, chunks[0]);
                     Remove_Chunk(chunks[0]);
 
                     for (int i = 3; i < 7; i += 3)
@@ -761,9 +714,9 @@ public class MapManager : MonoBehaviour
                     }
 
                     LoadChunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2);
-                    newChunks[6] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2, blocks);
+                    newChunks[6] = new Chunk(chunks[4].chunk_X, chunks[4].chunk_Z + 2, chunkData);
 
-                    InitChunk_CreateBlocks(newChunks[6]);
+                    InitChunk(newChunks[6]);
                     StartCoroutine(newChunks[6].saveRoutine);
                 }
                 #endregion
@@ -784,8 +737,8 @@ public class MapManager : MonoBehaviour
                 //LoadChunk("Chunk" + (x+playerChunckVector.chunk_X) + "_" + (z + playerChunckVector.chunk_Z)); // 청크파일 로드 후 blocks에서 블럭 데이터 셋팅
                 //chunks[index] = new Chunk((int)(x + playerChunckVector.chunk_X), (int)(z + playerChunckVector.chunk_Z), blocks);
                 LoadChunk(x+ playerPositionData.chunk_X, z + playerPositionData.chunk_Z); // 청크파일 로드 후 blocks에서 블럭 데이터 셋팅
-                chunks[index] = new Chunk((int)(x), (int)(z), blocks);
-                InitChunk_CreateBlocks(chunks[index]);
+                chunks[index] = new Chunk((int)(x), (int)(z), chunkData);
+                InitChunk(chunks[index]);
                 StartCoroutine(chunks[index].saveRoutine);
                 index++;
             }
@@ -840,7 +793,6 @@ public class MapManager : MonoBehaviour
         {
             FileStream file = File.Open(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary", FileMode.Open);
             chunkData = (ChunkData)bf.Deserialize(file);
-            blocks = chunkData.blocksEnum;
             file.Close();
         }
 
@@ -865,6 +817,8 @@ public class MapManager : MonoBehaviour
                 }
 
             }
+
+            chunkData = new ChunkData(blocks);
         }
     }
 
@@ -943,6 +897,35 @@ public class MapManager : MonoBehaviour
         InitChunk_CreateBlocks(chunk);
         StartCoroutine(chunk.saveRoutine);
 
+        //if (chunk.chunkData.mobSpawnDatas.Count == 0)
+        //{
+        //    if(UnityEngine.Random.value > 0.5f)
+        //    {
+
+        //        for (int i = 0; i < 1; i++)
+        //        {
+        //            int x = UnityEngine.Random.Range(0, 11);
+        //            int z = UnityEngine.Random.Range(0, 11);
+        //            temp_Mob = DataManager.instance.GetMobPrefab(MobData.MobKind.Pig);
+        //            temp_Mob = Instantiate(temp_Mob, GetObjectPosition(chunk,5,8,5),Quaternion.Euler(0,UnityEngine.Random.value * 360, 0));
+        //            temp_Mob.initEntitiy(chunk.chunk_X, chunk.chunk_Z, 5, 8, 5);
+        //            SpawnManager.instance.AddMob(temp_Mob);
+        //        }
+        //    }
+        //}
+        //else
+        //{
+        for (int i = 0; i < chunk.chunkData.mobSpawnDatas.Count; i++)
+        {
+            temp_MobSpawnData = chunk.chunkData.mobSpawnDatas[i];
+            temp_Mob = DataManager.instance.GetMobPrefab(temp_MobSpawnData.mobData.mobKind);
+            temp_Mob = Instantiate(temp_Mob,
+                GetObjectPosition(temp_MobSpawnData.positionData.chunk, temp_MobSpawnData.positionData.blockIndex_x, temp_MobSpawnData.positionData.blockIndex_y, temp_MobSpawnData.positionData.blockIndex_z),
+                Quaternion.Euler(0, UnityEngine.Random.value * 360, 0), SpawnManager.instance.transform);
+            temp_Mob.initEntitiy(chunk.chunk_X, chunk.chunk_Z, temp_MobSpawnData.positionData.blockIndex_x, temp_MobSpawnData.positionData.blockIndex_y, temp_MobSpawnData.positionData.blockIndex_z);
+            SpawnManager.instance.AddMob(temp_Mob);
+        }
+        //}
     }
 
     // 청크에 있는 모든 블럭 스폰
@@ -1009,11 +992,15 @@ public class MapManager : MonoBehaviour
 
     public void Remove_Chunk(Chunk chunk) // 사각형 블럭만 가능
     {
-        for (int i = 0; i < chunk.chunkData.mobSpawnDatas.Count; i++)
+        for (int i = 0; i < chunk.mobGameObjects.Count; i++)
         {
-            SpawnManager.instance.RemoveMob(chunk.chunkData.mobGameObjects[i]);
+            SpawnManager.instance?.RemoveMob(chunk.mobGameObjects[i]);
         }
-        chunk.chunkData.mobGameObjects.Clear();
+        chunk.mobGameObjects.Clear();
+
+        StopCoroutine(chunk.saveRoutine); // 오른쪽 끝 청크 저장 타이머 종류 후 저장
+        SaveChunk(chunk.chunk_X, chunk.chunk_Z, chunk);
+
 
         // 풀에 블럭 리턴
         for (int x = 0; x < Chunk.x; x++)
@@ -1039,10 +1026,13 @@ public class MapManager : MonoBehaviour
 
     public Vector3 GetObjectPosition(Chunk chunk, int x, int y, int z)
     {
-        Vector3 vector = new Vector3(chunk.chunk_X * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_Z * Chunk.z + z);
-
         return new Vector3(chunk.chunk_X * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_Z * Chunk.z + z); // index 값을 사용해 위치 설정
     }
+    public Vector3 GetObjectPosition(int chunk_x, int chunk_z, int x, int y, int z)
+    {
+        return new Vector3(chunk_x * Chunk.x + x, y + Chunk.defaultY, chunk_z * Chunk.z + z); // index 값을 사용해 위치 설정
+    }
+
 
     public PositionData PositionToBlockData(Vector3 objectPosition)
     {

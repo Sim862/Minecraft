@@ -48,6 +48,10 @@ public class Mob : MonoBehaviour
     public MobData mobData { get; private set; }
     public MobData.MobKind mobKind;
 
+    public ObjectParticleData.ParticleKind[] dropItems;
+
+    public ParticleSystem deathParticle;
+
     public int detectionDistance = 8;
 
     protected MobState mobState;
@@ -172,15 +176,12 @@ public class Mob : MonoBehaviour
 
     public void initEntitiy(int chunk_x, int chunk_z, int blockIndex_x, int blockIndex_y, int blockIndex_z)
     {
-
         mobSpawnData = new MobSpawnData(mobData, new PositionData(chunk_x, chunk_z, blockIndex_x, blockIndex_y, blockIndex_z));
-
-        transform.position = MapManager.instance.GetObjectPosition(mobSpawnData.positionData.chunk, blockIndex_x, blockIndex_y, blockIndex_z);
+        transform.position = MapManager.instance.GetObjectPosition(chunk_x, chunk_z, blockIndex_x, blockIndex_y, blockIndex_z);
         currHP = maxHP;
         mobState = MobState.Idle;
         rigidbody.useGravity = true;
         alive = true;
-
         SetChunkData();
     }
 
@@ -225,15 +226,20 @@ public class Mob : MonoBehaviour
         }
     }
 
-    private void SetChunkData()
+    protected void SetChunkData()
     {
         if (currentChunk != mobSpawnData.positionData.chunk)
         {
             if (currentChunk != null)
             {
-                currentChunk.chunkData.RemoveMobSpawnData(mobSpawnData, this);
+                currentChunk.RemoveMobSpawnData(mobSpawnData, this);
                 currentChunk = mobSpawnData.positionData.chunk;
-                currentChunk.chunkData.AddMobSpawnData(mobSpawnData, this);
+                currentChunk.AddMobSpawnData(mobSpawnData, this);
+            }
+            else
+            {
+                currentChunk = mobSpawnData.positionData.chunk;
+                currentChunk.AddMobSpawnData(mobSpawnData, this);
             }
         }
     }
@@ -252,6 +258,37 @@ public class Mob : MonoBehaviour
             minVelocity_Y = 0;
         }
     }
+
+    protected void Death()
+    {
+        StartCoroutine(Coroutine_Death());
+    }
+
+    private IEnumerator Coroutine_Death()
+    {
+        float angleCheck = 0;
+        while (angleCheck < 90)
+        {
+            transform.Rotate(0, 0, 2);
+            angleCheck += 2;
+            yield return new WaitForSeconds(0.01f);
+        }
+        ParticleSystem temp = Instantiate(deathParticle, transform.position, Quaternion.identity);
+        Destroy(temp, 2);
+
+        yield return new WaitForSeconds(0.2f);
+
+        for (int i = 0; i < dropItems.Length; i++)
+        {
+            Instantiate(DataManager.instance.GetObjectParticlePrefab(dropItems[i]), 
+                new Vector3(transform.position.x + i - 0.5f, transform.position.y, transform.position.z + i - 0.5f), Quaternion.identity, SpawnManager.instance.transform);
+        }
+
+        mobSpawnData.positionData.chunk.RemoveMobSpawnData(mobSpawnData, this);
+        SpawnManager.instance.RemoveMob(this);
+
+    }
+
 
     private void SetChunkPositionData()
     {
@@ -315,7 +352,6 @@ public class Mob : MonoBehaviour
         if(wayPosition != Vector3.zero)
         {
             wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
-            mobSpawnData.positionData = MapManager.instance.PositionToBlockData(transform.position);
             if (wayPositionDistance > 2) // 이동할 위치가 한블럭 보다 크다 = 내 위치가 변했다 -> 이동 취소
             {
                 movementDelayTime = 4;
@@ -408,7 +444,7 @@ public class Mob : MonoBehaviour
             {
                 currHP = 0;
                 alive = false;
-                // 죽는 이벤트 추가
+                Death();
             }
             else
             {
@@ -416,8 +452,8 @@ public class Mob : MonoBehaviour
                 {
                     mobState = MobState.Hit;
                     this.target = target;
-                    rigidbody.AddForce((transform.position - target.position).normalized+ Vector3.up * KnockBackPower * force);
-                    nextMovementTime = 1.5f;
+                    rigidbody.AddForce((transform.position - target.position + Vector3.up * 2).normalized  * KnockBackPower * force);
+                    nextMovementTime = 1f;
                 }
             }
         }
@@ -625,9 +661,6 @@ public class Mob : MonoBehaviour
             openNodes.Clear();
 
             Vector3 runawayDirection = (transform.position - target.position).normalized;
-
-            print(current_temp.positionData.chunk_X + ", " + current_temp.positionData.chunk_Z + ", " +
-                current_temp.positionData.blockIndex_x + ", " + current_temp.positionData.blockIndex_y + ", " + current_temp.positionData.blockIndex_z);
 
             canJump = MapManager.instance.CheckJump(current_temp.positionData, objectHeight);
 
