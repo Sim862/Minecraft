@@ -13,7 +13,7 @@ public class EventWithBox : MonoBehaviour
     GameObject OnClickBlock = null;
     GameObject OnHitRayBlock;
     Mob mob;
-
+     
     float effCool = 0.5f;
     float currTime = 0;
 

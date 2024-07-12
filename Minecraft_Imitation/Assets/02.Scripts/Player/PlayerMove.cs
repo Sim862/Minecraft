@@ -32,13 +32,23 @@ public class PlayerMove : MonoBehaviour
     {
         // 4. 현재 플레이어 hp(%)를 hp 슬라이더의 value에 반영한다.
         hpSlider.value = hp / maxHp;
+
         PlayerMoveMethod();
+
         if (isDead) return;
+
+        if (hp <= 0)
+        {
+            PlayerManager.instance.PlayerDead();
+            isDead = true;
+            return;
+        }
         if (!PlayerManager.onInventory) // 인벤토리가 켜져있으면 안되게
         {
             AnimatorControll();
         }
 
+        
         //MapManager.instance.playerPositionData = MapManager.instance.PositionToBlockData(transform.position);
     }
 
@@ -111,4 +121,11 @@ public class PlayerMove : MonoBehaviour
             anim.SetBool("isAction", false);
         }
     }
+
+
+    public void UpdateHP(float dmg)
+    {
+        hp += dmg;
+    }
+
 }
