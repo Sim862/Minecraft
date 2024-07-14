@@ -31,7 +31,6 @@ public class ItemImage : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        print(gameObject.transform.parent);
         itemCount.text = $"{count}";
     }
 

@@ -98,7 +98,12 @@ public class InventoryPopup : MonoBehaviour
                 }
             }
             CheckQuickSlot();
-        } // +
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                print("isDraging은 " + isDraging);
+                print("dragingItem은 " + dragingItem.name);
+            }
+        } 
         // 클릭했을 때 현재 마우스가 가리키고 있는게 뭔지 체크.
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
@@ -113,19 +118,130 @@ public class InventoryPopup : MonoBehaviour
             {
                 previousItemImage = rayObject.GetComponent<ItemImage>();
             }
-            print("현재 가리키고 있는 게임의 layer는 : " + rayObject.layer);
+            
         }
 
-        
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (isDraging && dragingItem != null)
+            {
+                if (rayObject.layer == LayerMask.NameToLayer("Slot")) //슬롯이 있으면
+                {
+                    // 그 자리 들어가고
+                    dragingItem.transform.SetParent(rayObject.transform);
+                    dragingItem.transform.localPosition = Vector3.zero;
+                    dragingItem.GetComponent<Image>().raycastTarget = true;
+                    dragItemImage = null;
+                    dragingItem = null;
+                    isDraging = false;
+                }
+                else if (rayObject.layer == LayerMask.NameToLayer("ItemImage")) // 슬롯이 아니라 이미지가 있으면
+                {
+                    previousItemImage = rayObject.GetComponent<ItemImage>();
+                    if (dragItemImage.particleKind != previousItemImage.particleKind)// 이미지가 다르면
+                    {
+                        // 그 자리 들어가고
+                        dragingItem.transform.SetParent(rayObject.transform.parent);
+                        dragingItem.transform.localPosition = Vector3.zero;
+                        dragingItem.GetComponent<Image>().raycastTarget = true;
+                        dragingItem = previousItemImage.gameObject;
+                        // 그 자리 있던 이미지가 따라가게
+                        dragItemImage = previousItemImage;
+                        dragingItem.transform.SetParent(transform);
+                        dragingItem.GetComponent<Image>().raycastTarget = false;
+                    }
+                    else if (dragItemImage.particleKind == previousItemImage.particleKind)// 이미지 검사후
+                    {
+                        // 이미지가 같은 거면 숫자 체크
+                        TransferCnt(previousItemImage, dragItemImage, true);
+                        print(previousItemImage);
+                        print(previousItemImage.transform.parent);
+                        print(previousItemImage.gameObject);
+                        print(dragingItem);
+                        print(dragItemImage);
+                    }
+                }
+            }
+            else if (!isDraging && rayObject.layer == LayerMask.NameToLayer("ItemImage"))
+            {
+                isDraging = true;
+                dragingItem = rayObject;
+                dragItemImage = dragingItem.GetComponent<ItemImage>();
+                dragingItem.transform.SetParent(transform);
+                dragingItem.GetComponent<Image>().raycastTarget = false;
+                makingSlot = nowMakeSlots.transform.GetChild(1).GetComponent<MakingSlot>();
+                makingSlot.SaveAllData();
+                if (dragItemImage.wasInTakeSlot)
+                {
+                    DecreaseInMakeSlot();
+                    dragItemImage.wasInTakeSlot = false;
+                }
+            }
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            if (isDraging && dragingItem != null)
+            {
+                // 이미지가 마우스 따라다니고 있을 때
+                if (rayObject.layer == LayerMask.NameToLayer("Slot")) // 슬롯에 이미지가 없으면
+                {
+                    // 그 슬롯에 한개만 줌.
+                    newItem = Instantiate(dragingItem, rayObject.transform);
+                    newItem.transform.localPosition = Vector3.zero;
+                    newItem.GetComponent<Image>().raycastTarget = true;
+                    newItemImage = newItem.GetComponent<ItemImage>();
+                    dragItemImage.ChangeItemCnt(-1);
+                    newItemImage.ChangeItemCnt(1 - newItemImage.count);
+                }
+                else if (rayObject.layer == LayerMask.NameToLayer("ItemImage")) // 슬롯에 이미지가 있을 때
+                {
+                    previousItemImage = rayObject.GetComponent<ItemImage>();
+                    if (previousItemImage.particleKind == dragItemImage.particleKind)// 이미지가 같으면
+                    {
+                        // 한개만 그 이미지에게 주고
+                        TransferCnt(previousItemImage, dragItemImage, false);
+                    }
+                    else if (previousItemImage.particleKind != dragItemImage.particleKind)// 이미지가 다르면
+                    {
+                        // 이미지가 다르면 전체 바꿈.
+                        // 그 자리 들어가고
+                        dragingItem.transform.SetParent(rayObject.transform.parent);
+                        dragingItem.transform.localPosition = Vector3.zero;
+                        dragingItem.GetComponent<Image>().raycastTarget = true;
+                        dragingItem = previousItemImage.gameObject;
+                        // 그 자리 있던 이미지가 따라가게
+                        dragItemImage = previousItemImage;
+                        dragingItem.transform.SetParent(transform);
+                        dragingItem.GetComponent<Image>().raycastTarget = false;
+                    }
+                }
+            }
+            else if (!isDraging && rayObject.layer == LayerMask.NameToLayer("ItemImage"))
+            {
+                // 개수는 반개만 해서 
+                // 마우스 따라가게
+                print("우클릭");
+                isDraging = true;
+                GameObject halfDragingItem = Instantiate(rayObject, transform); // 새로운 이미지 생성.
+                dragingItem = halfDragingItem;
+                dragItemImage = halfDragingItem.GetComponent<ItemImage>();
+                previousItemImage.ChangeItemCnt(-(previousItemImage.count / 2) - (previousItemImage.count%2));
+                dragItemImage.ChangeItemCnt(-(dragItemImage.count / 2));
+                dragingItem.GetComponent<Image>().raycastTarget = false;
+            }
+        }
+        if(isDraging && dragingItem != null)
+        {
+            dragingItem.transform.position = Input.mousePosition;
+        }
 
-
-        // 이미지가 마우스 따라다니고 있을 때
+        #region 아이템을 놓는 이벤트
+        /*// 이미지가 마우스 따라다니고 있을 때
         if (isDraging && dragingItem != null)
         {
             dragingItem.transform.position = Input.mousePosition;
             if (Input.GetMouseButtonDown(0))// 다시 좌클릭시 
             {
-                print("?");
                 if(rayObject.layer == LayerMask.NameToLayer("Slot")) //슬롯이 있으면
                 {
                     // 그 자리 들어가고
@@ -150,23 +266,27 @@ public class InventoryPopup : MonoBehaviour
                         dragItemImage = previousItemImage;
                         dragingItem.transform.SetParent(transform);
                         dragingItem.GetComponent<Image>().raycastTarget = false;
-                        /*makingSlot = nowMakeSlots.transform.GetChild(1).GetComponent<MakingSlot>();
+                        *//*makingSlot = nowMakeSlots.transform.GetChild(1).GetComponent<MakingSlot>();
                         makingSlot.SaveAllData();
                         if (dragItemImage.wasInTakeSlot)
                         {
                             DecreaseInMakeSlot();
                             dragItemImage.wasInTakeSlot = false;
-                        }*/
+                        }*//*
                     }
                     else if (dragItemImage.particleKind == previousItemImage.particleKind)// 이미지 검사후
                     {
                         // 이미지가 같은 거면 숫자 체크
                         TransferCnt(previousItemImage, dragItemImage, true);
+                        print(previousItemImage);
+                        print(previousItemImage.transform.parent);
+                        print(previousItemImage.gameObject);
                         print(dragingItem);
+                        print(dragItemImage);
                     }
                 }
             }
-            else if (Input.GetMouseButtonDown(1))
+            else if (Input.GetMouseButtonDown(1)) // 다시 우클릭시
             {
                 // 이미지가 마우스 따라다니고 있을 때
                 if (rayObject.layer == LayerMask.NameToLayer("Slot")) // 슬롯에 이미지가 없으면
@@ -203,10 +323,12 @@ public class InventoryPopup : MonoBehaviour
                 }
                 
             }
-        }
+            print("출력1 : " + dragingItem);
+        }*/
+        #endregion
 
         #region 드래그 시작 이벤트
-        // 처음 좌클릭시 마우스 따라가기.
+        /*// 처음 좌클릭시 마우스 따라가기.
         if (rayObject != null && rayObject.layer == LayerMask.NameToLayer("ItemImage") && !isDraging)
         {
             if (Input.GetMouseButtonDown(0) && !isDraging)
@@ -238,7 +360,8 @@ public class InventoryPopup : MonoBehaviour
                 dragItemImage.ChangeItemCnt(-(dragItemImage.count / 2) - (dragItemImage.count % 2));
                 dragingItem.GetComponent<Image>().raycastTarget = false;
             }
-        }
+            print("출력2 : " + dragingItem);
+        }*/
         #endregion
 
     }
@@ -405,6 +528,7 @@ public class InventoryPopup : MonoBehaviour
                     Destroy(drag.particleObjectTr);
                 }
                 drag.particleObjectTr = null;
+                print(drag.gameObject);
                 Destroy(drag.gameObject);
                 dragItemImage = null;
                 dragingItem = null;
