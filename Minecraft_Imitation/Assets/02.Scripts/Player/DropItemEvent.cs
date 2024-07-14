@@ -15,7 +15,6 @@ public class DropItemEvent : MonoBehaviour
 
     void Update()
     {
-
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             shiftOn = true;
@@ -25,8 +24,6 @@ public class DropItemEvent : MonoBehaviour
             shiftOn = false;
         }
         DropItem();
-
-        
     }
 
     // 이미지 변경하고 오브젝트파티클에 정보전달.

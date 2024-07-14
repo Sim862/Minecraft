@@ -23,7 +23,7 @@ public class QuickSlot : MonoBehaviour
         if(transform.childCount == 0 && item != null)
         {
             itemExisted = true;
-            if (itemExisted)
+            if (itemExisted && item.particleObjectTr!=null)
             {
                 item.particleObjectTr.gameObject.SetActive(false);
                 itemExisted = false;
