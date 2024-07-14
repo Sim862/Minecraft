@@ -19,7 +19,7 @@ public class CatchDropEvent : MonoBehaviour, IDropHandler
 
     public void OnDrop(PointerEventData eventData)
     {
-
+        print("드랍이벤트 받음");
         following = DragItemEvent.dragItemImage;
         previous = GetComponentInChildren<ItemImage>();
         if (transform.childCount == 0) // 그 칸에 아무것도 없으면 자리만 바꿔줌.

@@ -27,7 +27,7 @@ public class SlotStatic : MonoBehaviour
             
             item = transform.GetComponentInChildren<ItemImage>();
             item.isPopup = false;
-            if (item != null)
+            if (item != null && item.particleObjectTr != null)
             {
                 particle = item.particleObjectTr.gameObject;
                 if (isUsing)

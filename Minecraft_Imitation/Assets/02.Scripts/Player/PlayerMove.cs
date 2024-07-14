@@ -14,6 +14,7 @@ public class PlayerMove : MonoBehaviour
     public float hp = 20; // 플레이어 체력 변수
     float maxHp = 20; // 최대 체력 변수
     public Slider hpSlider; // hp 슬라이더 변수
+    float orgSpeed;
     PlayerDamaged damagedCs;
     Animator anim;
     bool isDead;
@@ -36,6 +37,15 @@ public class PlayerMove : MonoBehaviour
         PlayerMoveMethod();
 
         if (isDead) return;
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            orgSpeed = moveSpeed;
+            moveSpeed *= 1.3f;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            moveSpeed = orgSpeed;
+        }
 
         if (hp <= 0)
         {

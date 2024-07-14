@@ -75,9 +75,12 @@ public class InventoryStatic : MonoBehaviour
                 item.transform.localPosition = Vector3.zero;
                 item.transform.localScale = Vector3.one;
                 ItemImage itemCs = item.GetComponent<ItemImage>();
-                itemCs.particleObjectTr.SetParent(PlayerManager.instance.pickPos.transform);
-                itemCs.particleObjectTr.localPosition = Vector3.zero;
-                itemCs.particleObjectTr.eulerAngles = Vector3.zero;
+                if ((itemCs.particleObjectTr != null))
+                {
+                    itemCs.particleObjectTr.SetParent(PlayerManager.instance.pickPos.transform);
+                    itemCs.particleObjectTr.localPosition = Vector3.zero;
+                    itemCs.particleObjectTr.eulerAngles = Vector3.zero;
+                }
                 GameObject item2 = Instantiate(item);
                 InventoryPopup.instance.SetItemPositionInQuickSlot(item2, i);
                 return;
