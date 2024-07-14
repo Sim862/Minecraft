@@ -7,7 +7,8 @@ public class Pig : Mob
 {
 
     public Transform temp;
-    
+
+    private float idleSoundTimer = 0;
 
     void Update()
     {
@@ -26,7 +27,7 @@ public class Pig : Mob
         LifeCycle();
     }
 
-    private void LifeCycle()
+    public void LifeCycle()
     {
         if (alive)
         {
@@ -35,8 +36,17 @@ public class Pig : Mob
             SetChunkData();
 
             //print(mobSpawnData.positionData.chunk_X + " , " + mobSpawnData.positionData.chunk_Z);
+            idleSoundTimer += Time.deltaTime;
             if (mobState == MobState.Idle)
             {
+                if (idleSoundTimer > 3)
+                {
+                    if (Random.value < 0.3)
+                    {
+                        SoundManager.instance.ActiveOnShotSFXSound(idleSound, transform, transform.position);
+                    }
+                    idleSoundTimer = 0;
+                }
                 nextMovementTime -= Time.deltaTime;
                 if (nextMovementTime <= 0)
                 {

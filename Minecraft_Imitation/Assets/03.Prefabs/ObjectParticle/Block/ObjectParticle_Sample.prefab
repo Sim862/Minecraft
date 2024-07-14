@@ -66,7 +66,7 @@ GameObject:
   - component: {fileID: 2556760105803233535}
   - component: {fileID: 5420936105177163834}
   m_Layer: 6
-  m_Name: ObjectParticle_Stone
+  m_Name: ObjectParticle_Sample
   m_TagString: ObjectParticle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,12 +152,13 @@ MonoBehaviour:
   rigidbody: {fileID: 0}
   rigidCollider: {fileID: 0}
   particleObject: {fileID: 3998662556383513029}
-  rotatingSpeed: 1
-  rotatingLength: 0.1
+  rotatingSpeed: 10
+  moveLength: 0.15
   moveSpeed: 5
-  particleKind: 4
-  count: 0
-  icon: {fileID: 21300000, guid: 6352d0701f3f27b49957dba7512d34f3, type: 3}
+  particleKind: 0
+  particleType: 0
+  count: 1
+  icon: {fileID: 0}
   canSetup: 1
 --- !u!1 &7733235666004420616
 GameObject:
@@ -222,7 +223,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f8a904e52d5a7704cbd29372219381a1, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

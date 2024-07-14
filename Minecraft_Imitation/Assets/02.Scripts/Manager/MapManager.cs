@@ -87,6 +87,7 @@ public class Chunk
     // 코루틴
     public IEnumerator saveRoutine;
 
+    public bool initMonster = false;
 
     public void AddMobSpawnData(MobSpawnData mobSpawnData, Mob mob)
     {
@@ -94,10 +95,6 @@ public class Chunk
         {
             chunkData.mobSpawnDatas.Add(mobSpawnData);
             mobGameObjects.Add(mob);
-        }
-        else
-        {
-            UnityEngine.Debug.Log(135123);
         }
     }
     public void RemoveMobSpawnData(MobSpawnData mobSpawnData, Mob mob)
@@ -130,9 +127,13 @@ public class Chunk
 [Serializable]
 public class ChunkData
 {
-    public ChunkData(int[,,] blocksEnum)
+    public ChunkData(int[,,] blocksEnum, List<MobSpawnData> mobSpawnDatas = null)
     {
         this.blocksEnum = blocksEnum;
+        if(mobSpawnDatas == null)
+        {
+            this.mobSpawnDatas = new List<MobSpawnData>();
+        }
     }
 
     public int[,,] blocksEnum = new int[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
@@ -723,6 +724,8 @@ public class MapManager : MonoBehaviour
             }
             #endregion
             chunks = newChunks;
+
+            SpawnMonster();
         }
     }
 
@@ -743,6 +746,8 @@ public class MapManager : MonoBehaviour
                 index++;
             }
         }
+
+        SpawnMonster();
     }
 
     //public void Save_9Chunks()
@@ -896,36 +901,6 @@ public class MapManager : MonoBehaviour
     {
         InitChunk_CreateBlocks(chunk);
         StartCoroutine(chunk.saveRoutine);
-
-        //if (chunk.chunkData.mobSpawnDatas.Count == 0)
-        //{
-        //    if(UnityEngine.Random.value > 0.5f)
-        //    {
-
-        //        for (int i = 0; i < 1; i++)
-        //        {
-        //            int x = UnityEngine.Random.Range(0, 11);
-        //            int z = UnityEngine.Random.Range(0, 11);
-        //            temp_Mob = DataManager.instance.GetMobPrefab(MobData.MobKind.Pig);
-        //            temp_Mob = Instantiate(temp_Mob, GetObjectPosition(chunk,5,8,5),Quaternion.Euler(0,UnityEngine.Random.value * 360, 0));
-        //            temp_Mob.initEntitiy(chunk.chunk_X, chunk.chunk_Z, 5, 8, 5);
-        //            SpawnManager.instance.AddMob(temp_Mob);
-        //        }
-        //    }
-        //}
-        //else
-        //{
-        for (int i = 0; i < chunk.chunkData.mobSpawnDatas.Count; i++)
-        {
-            temp_MobSpawnData = chunk.chunkData.mobSpawnDatas[i];
-            temp_Mob = DataManager.instance.GetMobPrefab(temp_MobSpawnData.mobData.mobKind);
-            temp_Mob = Instantiate(temp_Mob,
-                GetObjectPosition(temp_MobSpawnData.positionData.chunk, temp_MobSpawnData.positionData.blockIndex_x, temp_MobSpawnData.positionData.blockIndex_y, temp_MobSpawnData.positionData.blockIndex_z),
-                Quaternion.Euler(0, UnityEngine.Random.value * 360, 0), SpawnManager.instance.transform);
-            temp_Mob.initEntitiy(chunk.chunk_X, chunk.chunk_Z, temp_MobSpawnData.positionData.blockIndex_x, temp_MobSpawnData.positionData.blockIndex_y, temp_MobSpawnData.positionData.blockIndex_z);
-            SpawnManager.instance.AddMob(temp_Mob);
-        }
-        //}
     }
 
     // 청크에 있는 모든 블럭 스폰
@@ -1022,6 +997,54 @@ public class MapManager : MonoBehaviour
         }
     }
 
+    private void SpawnMonster()
+    {
+        for (int i = 0; i < chunks.Length; i++)
+        {
+            if(chunks[i].initMonster == false)
+            {
+                if(chunks[i].chunkData.mobSpawnDatas == null)
+                {
+                    chunks[i].chunkData.mobSpawnDatas = new List<MobSpawnData>();
+                }
+
+                if (chunks[i].chunkData.mobSpawnDatas.Count == 0)
+                {
+                    //if (UnityEngine.Random.value > 0.5f)
+                    //{
+
+                    //    for (int j = 0; j < 1; j++)
+                    //    {
+                    //        int x = UnityEngine.Random.Range(0, 11);
+                    //        int z = UnityEngine.Random.Range(0, 11);
+                    //        temp_Mob = DataManager.instance.GetMobPrefab(MobData.MobKind.Pig);
+                    //        temp_Mob = Instantiate(temp_Mob, GetObjectPosition(chunks[i], 5, 8, 5), Quaternion.Euler(0, UnityEngine.Random.value * 360, 0));
+                    //        temp_Mob.initEntitiy(chunks[i].chunk_X, chunks[i].chunk_Z, 5, 8, 5);
+                    //        SpawnManager.instance.AddMob(temp_Mob);
+                    //    }
+                    //}
+                }
+                else
+                {
+                    for (int j = 0; j < chunks[i].chunkData.mobSpawnDatas.Count; j++)
+                    {
+                        temp_MobSpawnData = chunks[i].chunkData.mobSpawnDatas[j];
+                        temp_Mob = DataManager.instance.GetMobPrefab(temp_MobSpawnData.mobData.mobKind);
+                        temp_Mob = Instantiate(temp_Mob,
+                            GetObjectPosition(temp_MobSpawnData.positionData.chunk, temp_MobSpawnData.positionData.blockIndex_x, temp_MobSpawnData.positionData.blockIndex_y, temp_MobSpawnData.positionData.blockIndex_z),
+                            Quaternion.Euler(0, UnityEngine.Random.value * 360, 0), SpawnManager.instance.transform);
+                        temp_Mob.initEntitiy(chunks[i].chunk_X, chunks[i].chunk_Z, temp_MobSpawnData.positionData.blockIndex_x, temp_MobSpawnData.positionData.blockIndex_y, temp_MobSpawnData.positionData.blockIndex_z);
+                        chunks[i].chunkData.mobSpawnDatas[j] = temp_Mob.mobSpawnData;
+                        chunks[i].mobGameObjects.Add(temp_Mob);
+                        SpawnManager.instance.AddMob(temp_Mob);
+                    }
+                }
+
+                chunks[i].initMonster = true;
+            }
+        }
+    }
+
     #endregion
 
     public Vector3 GetObjectPosition(Chunk chunk, int x, int y, int z)
@@ -1109,7 +1132,16 @@ public class MapManager : MonoBehaviour
         {
             print(positionData.blockIndex_x + " , " + positionData.blockIndex_y);
         }
-        if (positionData.chunk.chunkData.blocksEnum[positionData.blockIndex_x, positionData.blockIndex_y + objectHeight, positionData.blockIndex_z] == 0) // 머리위에 블럭이 없으면 점프 가능
+        int e;
+        try
+        {
+            e = positionData.chunk.chunkData.blocksEnum[positionData.blockIndex_x, positionData.blockIndex_y + objectHeight, positionData.blockIndex_z];
+        }
+        catch(IndexOutOfRangeException error)
+        {
+            return false;
+        }
+        if (e == 0) // 머리위에 블럭이 없으면 점프 가능
         {
             return true;
         }

@@ -64,6 +64,7 @@ public class BlockData : GameObjectData
     }
     public enum BlockType
     {
+        None,
         Knife,
         Ax,
         Shovel,
@@ -114,9 +115,10 @@ public class MobData : GameObjectData
 
 public class ObjectParticleData : GameObjectData
 {
-    public ObjectParticleData(ParticleKind particleKind) : base(ObjectKind.ObjectParticle)
+    public ObjectParticleData(ParticleKind particleKind, BlockData.BlockType particleType) : base(ObjectKind.ObjectParticle)
     {
         this.particleKind = particleKind;
+        this.particleType = particleType;
     }
     public enum ParticleKind // 플레이어가 먹거나 뱉을 수 있는 오브젝트 목록
     {
@@ -132,10 +134,16 @@ public class ObjectParticleData : GameObjectData
         Knife,
         Ax,
         Shovel,
+        WoodenPickaxe, StonePickaxe, IronPickaxe, GoldenPickaxe, DiamondPickaxe,
         Pick,
-        Hoe
+        Hoe,
+
+    //  Food  -----------------------------------------------------------------------
+        RawPorkchop,
+
     }
     public ParticleKind particleKind;
+    public BlockData.BlockType particleType;
 }
 
 [System.Serializable]

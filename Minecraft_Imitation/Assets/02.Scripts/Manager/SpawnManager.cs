@@ -40,6 +40,7 @@ public class SpawnManager : MonoBehaviour
 
     public void RemoveMob(Mob mob)
     {
+        mob.alive = false;
         if (mobList.ContainsKey(mob.mobData.mobKind))
         {
             mobList[mob.mobData.mobKind].Remove(mob);

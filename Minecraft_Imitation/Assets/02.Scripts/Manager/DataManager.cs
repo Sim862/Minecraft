@@ -31,7 +31,9 @@ public class DataManager : MonoBehaviour
     public Mob[] mobList;
     public Dictionary<MobData.MobKind, Mob> mobDictionary = new Dictionary<MobData.MobKind, Mob>();
 
-    public ObjectParticle[] objectParticles;
+    public ObjectParticle[] objectParticles_Block;
+    public ObjectParticle[] objectParticles_Tool;
+    public ObjectParticle[] objectParticles_Food;
     public Dictionary<ObjectParticleData.ParticleKind, ObjectParticle> objectParticleDictionary = new Dictionary<ObjectParticleData.ParticleKind, ObjectParticle>();
 
     private string particleKind_String;
@@ -247,10 +249,21 @@ public class DataManager : MonoBehaviour
     // 오브젝트 파티클 Dictionary 초기화
     private void InitObjectParticleList()
     {
-        for (int i = 0; i < objectParticles.Length; i++)
+        for (int i = 0; i < objectParticles_Block.Length; i++)
         {
-            objectParticleDictionary.Add(objectParticles[i].particleKind, objectParticles[i]);
+            objectParticleDictionary.Add(objectParticles_Block[i].particleKind, objectParticles_Block[i]);
         }
+
+        for (int i = 0; i < objectParticles_Tool.Length; i++)
+        {
+            objectParticleDictionary.Add(objectParticles_Tool[i].particleKind, objectParticles_Tool[i]);
+        }
+
+        for (int i = 0; i < objectParticles_Food.Length; i++)
+        {
+            objectParticleDictionary.Add(objectParticles_Food[i].particleKind, objectParticles_Food[i]);
+        }
+        
     }
     
     // 오브젝트 파티클 가져오기

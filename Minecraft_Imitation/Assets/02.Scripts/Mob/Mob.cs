@@ -44,6 +44,7 @@ public class Mob : MonoBehaviour
     }
 
     public Rigidbody rigidbody;
+    public Animator animator;
 
     public MobData mobData { get; private set; }
     public MobData.MobKind mobKind;
@@ -56,7 +57,7 @@ public class Mob : MonoBehaviour
 
     protected MobState mobState;
 
-    protected bool alive = false;
+    public bool alive = false;
     public float maxHP = 100;
     public float currHP = 0;
     public float runSpeed = 3f;
@@ -71,7 +72,7 @@ public class Mob : MonoBehaviour
     public bool needJump;
 
     // 현재 위치 데이터
-    protected MobSpawnData mobSpawnData;
+    public MobSpawnData mobSpawnData;
     private Chunk currentChunk;
 
     private static float fallspeedCriteria = -7f;
@@ -134,6 +135,11 @@ public class Mob : MonoBehaviour
 
     #endregion
 
+    #region 사운드
+    public Sound.AudioClipName idleSound;
+    public Sound.AudioClipName deathSound;
+    #endregion
+
 
 
     private void Awake()
@@ -182,7 +188,6 @@ public class Mob : MonoBehaviour
         mobState = MobState.Idle;
         rigidbody.useGravity = true;
         alive = true;
-        SetChunkData();
     }
 
     protected void Rotation()
@@ -226,15 +231,18 @@ public class Mob : MonoBehaviour
         }
     }
 
-    protected void SetChunkData()
+    public void SetChunkData()
     {
         if (currentChunk != mobSpawnData.positionData.chunk)
         {
             if (currentChunk != null)
             {
-                currentChunk.RemoveMobSpawnData(mobSpawnData, this);
-                currentChunk = mobSpawnData.positionData.chunk;
-                currentChunk.AddMobSpawnData(mobSpawnData, this);
+                if (mobSpawnData.positionData.chunk != null)
+                {
+                    currentChunk.RemoveMobSpawnData(mobSpawnData, this);
+                    currentChunk = mobSpawnData.positionData.chunk;
+                    currentChunk.AddMobSpawnData(mobSpawnData, this);
+                }
             }
             else
             {
@@ -269,19 +277,24 @@ public class Mob : MonoBehaviour
         float angleCheck = 0;
         while (angleCheck < 90)
         {
-            transform.Rotate(0, 0, 2);
-            angleCheck += 2;
+            transform.Rotate(0, 0, 6);
+            angleCheck += 6;
             yield return new WaitForSeconds(0.01f);
         }
-        ParticleSystem temp = Instantiate(deathParticle, transform.position, Quaternion.identity);
-        Destroy(temp, 2);
+        if (deathParticle != null)
+        {
+            ParticleSystem temp = Instantiate(deathParticle, transform.position, Quaternion.identity);
+            Destroy(temp, 2);
+        }
 
         yield return new WaitForSeconds(0.2f);
 
         for (int i = 0; i < dropItems.Length; i++)
         {
-            Instantiate(DataManager.instance.GetObjectParticlePrefab(dropItems[i]), 
-                new Vector3(transform.position.x + i - 0.5f, transform.position.y, transform.position.z + i - 0.5f), Quaternion.identity, SpawnManager.instance.transform);
+            Rigidbody temp = Instantiate(DataManager.instance.GetObjectParticlePrefab(dropItems[i]), 
+                new Vector3(transform.position.x + i - 0.5f, transform.position.y, transform.position.z + i - 0.5f), 
+                Quaternion.identity, SpawnManager.instance.transform).GetComponent<Rigidbody>();
+            temp.AddForce(Vector3.up * 100);
         }
 
         mobSpawnData.positionData.chunk.RemoveMobSpawnData(mobSpawnData, this);
@@ -324,13 +337,33 @@ public class Mob : MonoBehaviour
             wayPoints.RemoveAt(0);
 
             //print(gameObject.name + " - " + wayPoint_Current.positionData.chunk_X + " : " + wayPoint_Current.positionData.chunk_Z + " : " + wayPoint_Current.positionData.blockIndex_x + " ; " + wayPoint_Current.positionData.blockIndex_z);
-            wayPosition = MapManager.instance.GetObjectPosition(wayPoint_Current.positionData.chunk,
+            wayPosition = MapManager.instance.GetObjectPosition(wayPoint_Current.positionData.chunk_X, wayPoint_Current.positionData.chunk_Z,
                 wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z);
-            blockEnum = MapManager.instance.GetChunk(wayPoint_Current.positionData.chunk_X, wayPoint_Current.positionData.chunk_Z).chunkData.blocksEnum[wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z];
+            try
+            {
+                blockEnum = MapManager.instance.GetChunk(wayPoint_Current.positionData.chunk_X, wayPoint_Current.positionData.chunk_Z).chunkData.blocksEnum[wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z];
+            }
+            catch(IndexOutOfRangeException error)
+            {
+                animator.SetBool("Move", false);
+                wayPosition = Vector3.zero;
+                needJump = false;
+                if (mobState == MobState.Move)
+                {
+                    mobState = MobState.Idle;
+
+                    currSpeed = normalSpeed;
+                    //nextMovementTime = Random.Range(3f, 10f);
+                    nextMovementTime = Random.Range(1f, 2f);
+
+                }
+            }
             needJump = wayPoint_Current.needJump;
         }
         else
         {
+
+            animator.SetBool("Move", false);
             wayPosition = Vector3.zero;
             needJump = false;
             if (mobState == MobState.Move)
@@ -370,7 +403,8 @@ public class Mob : MonoBehaviour
                 movementDelayTime -= Time.deltaTime;
                 if (needJump)
                 {
-                    if(wayPositionDistance > 1f)
+                    animator.SetBool("Move", false);
+                    if (wayPositionDistance > 1f)
                     {
                         if (wayPosition.y - transform.position.y < -0.2)
                         {
@@ -396,6 +430,8 @@ public class Mob : MonoBehaviour
                 }
                 else
                 {
+                    animator.SetBool("Move", true);
+
                     dir = new Vector3((wayPosition.x - transform.position.x), 0, (wayPosition.z - transform.position.z)).normalized;
                     transform.position += dir * currSpeed * Time.deltaTime;
                 }
@@ -442,18 +478,24 @@ public class Mob : MonoBehaviour
 
             if (currHP <= 0)
             {
+                SoundManager.instance.ActiveOnShotSFXSound(deathSound, transform, transform.position);
                 currHP = 0;
                 alive = false;
                 Death();
             }
             else
             {
+                SoundManager.instance.ActiveOnShotSFXSound(idleSound, transform, transform.position);
                 if (target != null) // Vector zero는 낙하데미지
                 {
                     mobState = MobState.Hit;
                     this.target = target;
-                    rigidbody.AddForce((transform.position - target.position + Vector3.up * 2).normalized  * KnockBackPower * force);
+                    rigidbody.AddForce((transform.position - target.position + Vector3.up * 3).normalized  * KnockBackPower * force);
                     nextMovementTime = 1f;
+                }
+                else
+                {
+                    SoundManager.instance.ActiveOnShotSFXSound(Sound.AudioClipName.Landing, null, transform.position);
                 }
             }
         }

@@ -11,8 +11,8 @@ public class ObjectParticle : MonoBehaviour
     public Rigidbody rigidbody;
     public Collider rigidCollider;
     public Transform particleObject;
-    public float rotatingSpeed = 1;
-    public float rotatingLength = 0.15f;
+    public float rotateSpeed = 1;
+    public float rotateLength = 0.15f;
     public float moveSpeed = 5;
     float runningTime = 0f; 
     float y = 0f;
@@ -20,12 +20,13 @@ public class ObjectParticle : MonoBehaviour
     private List<Transform> particleObjects = new List<Transform>();
     
     public ObjectParticleData.ParticleKind particleKind; // 오브젝트 파티클 종류
+    public BlockData.BlockType particleType; // 오브젝트 파티클 종류
     public int count = 1;
     public Sprite icon;
     public bool canSetup;
     private Transform target;
     private bool onTarget = false;
-
+    public float power = 1;
     private bool drop = false;
     private float pickupCooltime = 1.5f;
 
@@ -112,15 +113,15 @@ public class ObjectParticle : MonoBehaviour
 
     private void MovementPosY() // Y축 이동
     {
-        runningTime += Time.deltaTime * rotatingSpeed;
-        y = Mathf.Sin(runningTime) * rotatingLength;
+        runningTime += Time.deltaTime * rotateSpeed;
+        y = Mathf.Sin(runningTime) * rotateLength;
         particleObject.transform.position += Vector3.up * y * Time.deltaTime;
 
     }
 
     private void ParticleObjectMovement() // 회전
     {
-        particleObject.Rotate(Vector3.up * rotatingSpeed * Time.deltaTime);
+        particleObject.Rotate(Vector3.up * rotateSpeed * Time.deltaTime * 10);
         
     }
 
@@ -214,15 +215,15 @@ public class ObjectParticle : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (!onTarget && !drop)
-        {
-            if (other.CompareTag("ObjectParticle"))
-            {
-                if(other.GetComponent<ObjectParticle>() == null)
-                CollisionParticle(other.GetComponentInParent<ObjectParticle>());
-            }
-        }
-    }
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    if (!onTarget && !drop)
+    //    {
+    //        if (other.CompareTag("ObjectParticle"))
+    //        {
+    //            if(other.GetComponent<ObjectParticle>() == null)
+    //            CollisionParticle(other.GetComponentInParent<ObjectParticle>());
+    //        }
+    //    }
+    //}
 }

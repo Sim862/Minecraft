@@ -13,8 +13,11 @@ public class Sound
         None,
         DirtBroken,
         DirtBreak,
+
+        Landing,
+        // 돼지
         Pig_Idle,
-        Pig_Step
+        Pig_Death,
     }
     public AudioClipName audioClipName;
     public AudioClip audioClip
