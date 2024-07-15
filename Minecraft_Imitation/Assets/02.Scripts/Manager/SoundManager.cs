@@ -4,6 +4,7 @@ using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.Audio;
 using static BlockData;
+using static Sound;
 
 [System.Serializable]
 public class Sound
@@ -26,6 +27,9 @@ public class Sound
         // 거미
         Spider_Idle,
         Spider_Death,
+
+        //
+        Background
     }
     public AudioClipName audioClipName;
     public AudioClip audioClip
@@ -66,11 +70,14 @@ public class SoundManager : MonoBehaviour
             instance = this;
         else
             Destroy(this.gameObject);
+
+        DontDestroyOnLoad(this);
     }
     private void Start()
     {
         bgmAudioSource = GetComponent<AudioSource>();
         InitSounds();
+        ActiveBGM();
     }
     
     // 인스펙터 창에서 받아온 사운드를 Dictionary로 정리
@@ -94,6 +101,15 @@ public class SoundManager : MonoBehaviour
         foreach (SFXAudioSource item in sfxAudioSources)
         {
             item.SetVolume(sfxVolume);
+        }
+    }
+
+    public void ActiveBGM(bool start = true)
+    {
+        bgmAudioSource.Stop();
+        if (start)
+        {
+            bgmAudioSource.PlayOneShot(soundDictionary[Sound.AudioClipName.Background].audioClip);
         }
     }
 

@@ -642,8 +642,8 @@ MonoBehaviour:
     m_Bits: 8208
   visibleTargets: []
   head: {fileID: 412733162605890295}
-  idleSound: 4
-  deathSound: 5
+  idleSound: 6
+  deathSound: 7
   init_test: 0
   start_test: 0
   c_x: 0

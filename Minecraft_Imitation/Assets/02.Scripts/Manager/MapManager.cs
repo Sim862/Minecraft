@@ -1010,19 +1010,19 @@ public class MapManager : MonoBehaviour
 
                 if (chunks[i].chunkData.mobSpawnDatas.Count == 0)
                 {
-                    //if (UnityEngine.Random.value > 0.5f)
-                    //{
+                    if (UnityEngine.Random.value > 0.8f)
+                    {
 
-                    //    for (int j = 0; j < 1; j++)
-                    //    {
-                    //        int x = UnityEngine.Random.Range(0, 11);
-                    //        int z = UnityEngine.Random.Range(0, 11);
-                    //        temp_Mob = DataManager.instance.GetMobPrefab(MobData.MobKind.Spider);
-                    //        temp_Mob = Instantiate(temp_Mob, GetObjectPosition(chunks[i], 5, 8, 5), Quaternion.Euler(0, UnityEngine.Random.value * 360, 0));
-                    //        temp_Mob.initEntitiy(chunks[i].chunk_X, chunks[i].chunk_Z, 5, 8, 5);
-                    //        SpawnManager.instance.AddMob(temp_Mob);
-                    //    }
-                    //}
+                        //for (int j = 0; j < 1; j++)
+                        //{
+                        //    int x = UnityEngine.Random.Range(0, 11);
+                        //    int z = UnityEngine.Random.Range(0, 11);
+                        //    temp_Mob = DataManager.instance.GetMobPrefab(MobData.MobKind.Spider);
+                        //    temp_Mob = Instantiate(temp_Mob, GetObjectPosition(chunks[i], 5, 8, 5), Quaternion.Euler(0, UnityEngine.Random.value * 360, 0));
+                        //    temp_Mob.initEntitiy(chunks[i].chunk_X, chunks[i].chunk_Z, 5, 8, 5);
+                        //    SpawnManager.instance.AddMob(temp_Mob);
+                        //}
+                    }
                 }
                 else
                 {
@@ -1049,7 +1049,14 @@ public class MapManager : MonoBehaviour
 
     public Vector3 GetObjectPosition(Chunk chunk, int x, int y, int z)
     {
-        return new Vector3(chunk.chunk_X * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_Z * Chunk.z + z); // index 값을 사용해 위치 설정
+        try
+        {
+            return new Vector3(chunk.chunk_X * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_Z * Chunk.z + z);
+        }
+        catch(Exception e){
+            UnityEngine.Debug.Log(chunk == null);
+        }
+        return Vector3.zero;  // index 값을 사용해 위치 설정
     }
     public Vector3 GetObjectPosition(int chunk_x, int chunk_z, int x, int y, int z)
     {

@@ -349,7 +349,7 @@ public class Mob : MonoBehaviour
             {
                 blockEnum = MapManager.instance.GetChunk(wayPoint_Current.positionData.chunk_X, wayPoint_Current.positionData.chunk_Z).chunkData.blocksEnum[wayPoint_Current.positionData.blockIndex_x, wayPoint_Current.positionData.blockIndex_y, wayPoint_Current.positionData.blockIndex_z];
             }
-            catch(IndexOutOfRangeException error)
+            catch(Exception error)
             {
                 if (animator != null)
                 {
@@ -505,6 +505,8 @@ public class Mob : MonoBehaviour
                 SoundManager.instance.ActiveOnShotSFXSound(idleSound, transform, transform.position);
                 if (target != null) // Vector zero는 낙하데미지
                 {
+                    SoundManager.instance.ActiveOnShotSFXSound(idleSound, null, transform.position);
+                    SoundManager.instance.ActiveOnShotSFXSound(Sound.AudioClipName.Player_Attack, null, target.position);
                     mobState = MobState.Hit;
                     this.target = target;
                     rigidbody.AddForce((transform.position - target.position + Vector3.up * 3).normalized  * KnockBackPower * force);

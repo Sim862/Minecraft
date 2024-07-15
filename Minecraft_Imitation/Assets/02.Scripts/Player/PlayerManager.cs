@@ -186,12 +186,10 @@ public class PlayerManager : MonoBehaviour
 
     public void PlayerRespawn()
     {
-        print("됨?");
         playerMove.hp = playerMove.maxHp;
         playerDead = false;
         respawnUI.SetActive(false);
         cursorLock = true;
-        print("됨????");
 
     }
 
