@@ -149,10 +149,6 @@ public class DataManager : MonoBehaviour
                 )
             );
         }
-        for (int i = 0; i < combinationDatas.Count; i++)
-        {
-            print(combinationDatas[i].result + " , " + combinationDatas[i].x + " - " + combinationDatas[i].y);
-        }
     }
 
     public CombinationData GetCombinationData(List<ObjectParticleData.ParticleKind> inven)
@@ -259,6 +255,7 @@ public class DataManager : MonoBehaviour
 
         for (int i = 0; i < objectParticles_Tool.Length; i++)
         {
+            print(objectParticles_Tool[i].particleKind);
             objectParticleDictionary.Add(objectParticles_Tool[i].particleKind, objectParticles_Tool[i]);
         }
 

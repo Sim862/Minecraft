@@ -53,6 +53,8 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: f8a904e52d5a7704cbd29372219381a1, type: 2}
   - blockKind: 5
     material: {fileID: 2100000, guid: 37f34f8994a975a40975ee8da67dfb33, type: 2}
+  - blockKind: 6
+    material: {fileID: 2100000, guid: 456ca1bd2761b5c46a9b4475add4dd3f, type: 2}
   blockDatas: []
   mobList:
   - {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}

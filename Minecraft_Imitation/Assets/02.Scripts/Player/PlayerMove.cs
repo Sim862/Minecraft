@@ -8,9 +8,9 @@ public class PlayerMove : MonoBehaviour
 {
     CharacterController cc; // 캐릭터 컨트롤러 변수
     public float moveSpeed = 7f;// 이동 속도 변수
-    float gravity = -20f; // 중력 변수
+    float gravity = -6.673f; // 중력 변수
     public float yVelocity = 0f; // 수직 속력 변수
-    public float jumpPower = 10f; // 점프력 변수
+    public float jumpPower = 1.8f; // 점프력 변수
     public bool isJumping = false; // 점프 상태 변수
     public float hp = 20; // 플레이어 체력 변수
     public float maxHp = 20; // 최대 체력 변수
@@ -100,16 +100,16 @@ public class PlayerMove : MonoBehaviour
         // 만약 바닥에 다시 착지했다면 == 땅에 닿고있다면
         if (cc.collisionFlags == CollisionFlags.Below || cc.isGrounded)
         {
-            if(yVelocity < -10)
+            if(yVelocity < -3)
             {
-                UpdateHP(-(int)((Mathf.Abs(yVelocity) - 5)));
+                UpdateHP(-(int)((Mathf.Abs(yVelocity) - 2)));
                 if(hp <= 0)
                 {
                     PlayerManager.instance.PlayerDead();
                     PlayerManager.instance.playerDead = true;
                     return;
                 }
-                damagedCs.DamagedEff();
+                
             }
             // 만약 점프 중이었다면
             if (isJumping)
@@ -123,6 +123,7 @@ public class PlayerMove : MonoBehaviour
         else
         {
             yVelocity += gravity * Time.deltaTime;
+            print(yVelocity);
         }
 
         // 2-2. 만약 키보드 spacebar 키를 눌렀다면, 그리고 점프상태가 아니라면
@@ -162,6 +163,7 @@ public class PlayerMove : MonoBehaviour
         if(dmg < 0)
         {
             SoundManager.instance.ActiveOnShotSFXSound(Sound.AudioClipName.Player_Hurt, transform, transform.position);
+            damagedCs.DamagedEff();
         }
     }
 

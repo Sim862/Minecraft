@@ -1,13 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using static BlockData;
 
@@ -157,7 +152,7 @@ public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
     
-    public static Queue<Block> blockPool = new Queue<Block>();
+    public static Queue<Block> blockPool = new Queue<Block>(12*12*125);
 
     public Block blockPrefab;
 

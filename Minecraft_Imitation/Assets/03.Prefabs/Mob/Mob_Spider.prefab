@@ -153,7 +153,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   mobKind: 3
   dropItems: 
-  deathParticle: {fileID: 0}
+  deathParticle: {fileID: 6650199810314842004, guid: c004ba8c0b51ed14db6d4c64f4bc6019, type: 3}
   detectionDistance: 8
   alive: 0
   maxHP: 20
@@ -200,6 +200,7 @@ MonoBehaviour:
   blockEnum: 0
   jumpforce: 10
   temp: {fileID: 0}
+  damage: -5
 --- !u!1 &7809674417257078189
 GameObject:
   m_ObjectHideFlags: 0

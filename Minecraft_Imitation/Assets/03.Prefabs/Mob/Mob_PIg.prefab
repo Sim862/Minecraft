@@ -608,7 +608,7 @@ MonoBehaviour:
   animator: {fileID: 8572201920582805784}
   mobKind: 0
   dropItems: 10000000
-  deathParticle: {fileID: 0}
+  deathParticle: {fileID: 6650199810314842004, guid: c004ba8c0b51ed14db6d4c64f4bc6019, type: 3}
   detectionDistance: 8
   alive: 0
   maxHP: 20

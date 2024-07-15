@@ -391,9 +391,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   yVelocity: 0
-  jumpPower: 3
+  jumpPower: 1.8
   isJumping: 0
   hp: 20
+  maxHp: 20
   hpSlider: {fileID: 0}
 --- !u!114 &4835342582885868384
 MonoBehaviour:
@@ -433,7 +434,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e740f5699b86f524485eca5228a6633c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aimRange: 10
   blockFac: {fileID: 8520211022113816624, guid: b1c644645a7632d47a40969391e35b73, type: 3}
   mouseOneCool: 1
   breakPower: 5
@@ -450,6 +450,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   breakPower: 5
+  attackPower: 5
+  pushForce: 3
   effectFac: {fileID: 6813416509558619124, guid: c004ba8c0b51ed14db6d4c64f4bc6019, type: 3}
 --- !u!114 &5181110593280269835
 MonoBehaviour:

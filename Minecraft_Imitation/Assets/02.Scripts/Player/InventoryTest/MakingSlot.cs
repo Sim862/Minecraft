@@ -28,7 +28,6 @@ public class MakingSlot : MonoBehaviour
 
     public void SaveAllData()
     {
-        print("SaveAllData실행");
         
         for(int i = 0; i < dropSlot.Length; i++)
         {
@@ -57,7 +56,6 @@ public class MakingSlot : MonoBehaviour
 
     void TransferData()
     {
-        print("takeSlot에 정보전달");
         combinationData = DataManager.instance.GetCombinationData(particleKinds.ToList());
         if(combinationData != null)
         {

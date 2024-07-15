@@ -60,7 +60,8 @@ public class BlockData : GameObjectData
         Wood,
         Water,
         Stone,
-        WoodenPlank
+        WoodenPlank,
+        Leaves,
     }
     public enum BlockType
     {
@@ -130,6 +131,7 @@ public class ObjectParticleData : GameObjectData
         Water,
         Stone,
         WoodenPlank,
+        Leaves,
 
     //  Item  ----------------------------------------------------------------------- 
         Stick,
