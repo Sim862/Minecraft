@@ -166,10 +166,29 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 47e7d1b916a02724fb522c8895449b72, type: 3}
   - audioClipName: 4
     audioClips:
+    - {fileID: 8300000, guid: 7a1e04732bec91246884f8942e750521, type: 3}
+    - {fileID: 8300000, guid: 4080ddb3e0154d04fa3cb0d4a6bd9974, type: 3}
+    - {fileID: 8300000, guid: 8031e926beab03b45abc4af9d3b79cdc, type: 3}
+  - audioClipName: 5
+    audioClips:
+    - {fileID: 8300000, guid: a42da61e66f99b744a2887c50c7989f2, type: 3}
+    - {fileID: 8300000, guid: 9a032427c2844bf4f86e6ccfe896ee83, type: 3}
+    - {fileID: 8300000, guid: 524d35fa96c229f4b93353672c22efd2, type: 3}
+    - {fileID: 8300000, guid: de07269a9b4679b409be72f3e9d0ab7a, type: 3}
+  - audioClipName: 6
+    audioClips:
     - {fileID: 8300000, guid: e5b54c71577bf1b41bf08a5a80f5f03d, type: 3}
     - {fileID: 8300000, guid: a95e606be07a9544587f71a13fe4b462, type: 3}
     - {fileID: 8300000, guid: 9b6da3794a8d75b45b1f75ae70db7839, type: 3}
-  - audioClipName: 5
+  - audioClipName: 7
     audioClips:
     - {fileID: 8300000, guid: c158c9e6c92309747a4b40267b8ed216, type: 3}
+  - audioClipName: 8
+    audioClips:
+    - {fileID: 8300000, guid: c66dad2703aa48b46b35fe65c9912169, type: 3}
+    - {fileID: 8300000, guid: ef9a0ebf578cad84587e856006ff0d8c, type: 3}
+    - {fileID: 8300000, guid: 3a612d8c228cb744d9059cb9a1f14d73, type: 3}
+  - audioClipName: 9
+    audioClips:
+    - {fileID: 8300000, guid: 96ade1c0675aa6a47bc614f78a33e3d9, type: 3}
   sfxVolume: 0.5

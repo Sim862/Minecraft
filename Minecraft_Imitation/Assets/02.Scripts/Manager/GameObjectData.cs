@@ -107,6 +107,7 @@ public class MobData : GameObjectData
         Pig,
         chicken,
         Creeper,
+        Spider,
     }
 
     public MobKind mobKind;
