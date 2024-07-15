@@ -63,6 +63,7 @@ MonoBehaviour:
   - {fileID: 5420936105177163834, guid: 4051ad30b20121645a5a4ea4a7bfcb60, type: 3}
   - {fileID: 876144888023053152, guid: 1c3bb763009542d43872bbee50ed1870, type: 3}
   objectParticles_Tool:
+  - {fileID: 1759838183476344396, guid: b4646856a59203e478d463eb384e2de8, type: 3}
   - {fileID: 104527621449029585, guid: b276e10b307934f47a9f27f278f42458, type: 3}
   - {fileID: 11174043037292748, guid: 38ed87fcc176db54ca3fb1505bd5d269, type: 3}
   - {fileID: 2438041807876694213, guid: 1760758caf7ceb7468bb348c4822ff11, type: 3}
