@@ -190,6 +190,10 @@ public class MapManager : MonoBehaviour
     {
         Load_9Chunks();
 
+        for (int i = 0; i < 1000; i++)
+        {
+            blockPool.Enqueue(Instantiate(blockPrefab, Vector3.one * -99, Quaternion.identity, transform));
+        }
     }
 
     public bool createBlock = false;
