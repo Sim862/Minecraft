@@ -149,6 +149,10 @@ public class DataManager : MonoBehaviour
                 )
             );
         }
+        for (int i = 0; i < combinationDatas.Count; i++)
+        {
+            print(combinationDatas[i].result + " , " + combinationDatas[i].x + " - " + combinationDatas[i].y);
+        }
     }
 
     public CombinationData GetCombinationData(List<ObjectParticleData.ParticleKind> inven)
@@ -164,17 +168,17 @@ public class DataManager : MonoBehaviour
         {
             if (inven[i] != ParticleKind.None)
             {
-                inven_Y = inven_Check_Y;
+                inven_x = inven_Check_Y;
                 inven_Check++;
-                if (inven_Check > inven_x)
+                if (inven_Check > inven_Y)
                 {
-                    inven_x = inven_Check;
+                    inven_Y = inven_Check;
                 }
             }
             if (inven_Check >= 3)
             {
                 inven_Check = 0;
-                if(inven_Y != 0)
+                if(inven_x != 0)
                 {
                     inven_Check_Y++;
                 }
@@ -224,7 +228,6 @@ public class DataManager : MonoBehaviour
             {
                 if (currectDataList[i].particleKinds[j] != inven[j]) // enum이 틀리면 부적합
                 {
-                    print("부적합 : "+currectDataList[i].particleKinds[j] + ", " + inven[j]);
                     break;
                 }
                 else

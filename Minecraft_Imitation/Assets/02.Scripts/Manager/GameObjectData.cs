@@ -107,6 +107,7 @@ public class MobData : GameObjectData
         Pig,
         chicken,
         Creeper,
+        Spider,
     }
 
     public MobKind mobKind;
@@ -131,6 +132,7 @@ public class ObjectParticleData : GameObjectData
         WoodenPlank,
 
     //  Item  ----------------------------------------------------------------------- 
+        Stick,
         Knife,
         Ax,
         Shovel,

@@ -146,7 +146,10 @@ public class Mob : MonoBehaviour
     {
         mobData = new MobData(mobKind);
         rigidbody = GetComponent<Rigidbody>();
-        headDefaultRotation = head.rotation;
+        if (head != null)
+        {
+            headDefaultRotation = head.rotation;
+        }
     }
 
     public bool init_test = false;
@@ -213,11 +216,14 @@ public class Mob : MonoBehaviour
                 }
                 else
                 {
-                    resetHeadRotation = true;
-                    Quaternion lookRoation = Quaternion.LookRotation(targetTransform.position - head.position);
-                    //eulerAngle = lookRoation.eulerAngles;
-                    //eulerAngle = new Vector3(eulerAngle.y, 0, 0);
-                    head.rotation = Quaternion.Slerp(head.rotation, lookRoation, Time.deltaTime * 3);
+                    if (head != null)
+                    {
+                        resetHeadRotation = true;
+                        Quaternion lookRoation = Quaternion.LookRotation(targetTransform.position - head.position);
+                        //eulerAngle = lookRoation.eulerAngles;
+                        //eulerAngle = new Vector3(eulerAngle.y, 0, 0);
+                        head.rotation = Quaternion.Slerp(head.rotation, lookRoation, Time.deltaTime * 3);
+                    }
                 }
             }
         }
@@ -345,7 +351,10 @@ public class Mob : MonoBehaviour
             }
             catch(IndexOutOfRangeException error)
             {
-                animator.SetBool("Move", false);
+                if (animator != null)
+                {
+                    animator.SetBool("Move", false);
+                }
                 wayPosition = Vector3.zero;
                 needJump = false;
                 if (mobState == MobState.Move)
@@ -362,8 +371,10 @@ public class Mob : MonoBehaviour
         }
         else
         {
-
-            animator.SetBool("Move", false);
+            if (animator != null)
+            {
+                animator.SetBool("Move", false);
+            }
             wayPosition = Vector3.zero;
             needJump = false;
             if (mobState == MobState.Move)
@@ -403,7 +414,10 @@ public class Mob : MonoBehaviour
                 movementDelayTime -= Time.deltaTime;
                 if (needJump)
                 {
-                    animator.SetBool("Move", false);
+                    if (animator != null)
+                    {
+                        animator.SetBool("Move", false);
+                    }
                     if (wayPositionDistance > 1f)
                     {
                         if (wayPosition.y - transform.position.y < -0.2)
@@ -430,7 +444,10 @@ public class Mob : MonoBehaviour
                 }
                 else
                 {
-                    animator.SetBool("Move", true);
+                    if (animator != null)
+                    {
+                        animator.SetBool("Move", true);
+                    }
 
                     dir = new Vector3((wayPosition.x - transform.position.x), 0, (wayPosition.z - transform.position.z)).normalized;
                     transform.position += dir * currSpeed * Time.deltaTime;

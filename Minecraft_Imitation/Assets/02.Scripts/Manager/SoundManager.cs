@@ -15,9 +15,17 @@ public class Sound
         DirtBreak,
 
         Landing,
+        // 플레이어
+        Player_Hurt,
+        Player_Attack,
+
         // 돼지
         Pig_Idle,
         Pig_Death,
+
+        // 거미
+        Spider_Idle,
+        Spider_Death,
     }
     public AudioClipName audioClipName;
     public AudioClip audioClip

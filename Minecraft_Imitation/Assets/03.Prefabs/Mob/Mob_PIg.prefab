@@ -611,7 +611,7 @@ MonoBehaviour:
   deathParticle: {fileID: 0}
   detectionDistance: 8
   alive: 0
-  maxHP: 100
+  maxHP: 20
   currHP: 0
   runSpeed: 3
   normalSpeed: 1.5

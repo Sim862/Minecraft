@@ -1017,7 +1017,7 @@ public class MapManager : MonoBehaviour
                     //    {
                     //        int x = UnityEngine.Random.Range(0, 11);
                     //        int z = UnityEngine.Random.Range(0, 11);
-                    //        temp_Mob = DataManager.instance.GetMobPrefab(MobData.MobKind.Pig);
+                    //        temp_Mob = DataManager.instance.GetMobPrefab(MobData.MobKind.Spider);
                     //        temp_Mob = Instantiate(temp_Mob, GetObjectPosition(chunks[i], 5, 8, 5), Quaternion.Euler(0, UnityEngine.Random.value * 360, 0));
                     //        temp_Mob.initEntitiy(chunks[i].chunk_X, chunks[i].chunk_Z, 5, 8, 5);
                     //        SpawnManager.instance.AddMob(temp_Mob);
