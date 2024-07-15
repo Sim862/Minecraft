@@ -20,6 +20,8 @@ public class InventoryPopup : MonoBehaviour
     Transform staticItem;
     Transform quickItem;
 
+
+
     #region 마우스 관련 변수
     EventSystem eventSystem;
     GraphicRaycaster graphicRaycaster;
@@ -72,6 +74,8 @@ public class InventoryPopup : MonoBehaviour
     private void Update()
     {
         CheckUseMaker();
+        makingSlot = nowMakeSlots.transform.GetChild(1).GetComponent<MakingSlot>();
+        makingSlot.SaveAllData();
         if (!PlayerManager.onInventory) return; // 인벤토리가 꺼져있으면 바로 탈출
         if (PlayerManager.onInventory)
         {
@@ -119,6 +123,7 @@ public class InventoryPopup : MonoBehaviour
                 previousItemImage = rayObject.GetComponent<ItemImage>();
             }
             
+
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -152,13 +157,19 @@ public class InventoryPopup : MonoBehaviour
                     }
                     else if (dragItemImage.particleKind == previousItemImage.particleKind)// 이미지 검사후
                     {
-                        // 이미지가 같은 거면 숫자 체크
-                        TransferCnt(previousItemImage, dragItemImage, true);
-                        print(previousItemImage);
-                        print(previousItemImage.transform.parent);
-                        print(previousItemImage.gameObject);
-                        print(dragingItem);
-                        print(dragItemImage);
+                        
+                        if (previousItemImage.wasInTakeSlot)
+                        {
+                            TransferCnt(dragItemImage, previousItemImage, true);
+                            DecreaseInMakeSlot();
+                        }
+                        else if (!previousItemImage.wasInTakeSlot)
+                        {
+                            // 이미지가 같은 거면 숫자 체크
+                            TransferCnt(previousItemImage, dragItemImage, true);
+
+                        }
+                        
                     }
                 }
             }
@@ -169,14 +180,13 @@ public class InventoryPopup : MonoBehaviour
                 dragItemImage = dragingItem.GetComponent<ItemImage>();
                 dragingItem.transform.SetParent(transform);
                 dragingItem.GetComponent<Image>().raycastTarget = false;
-                makingSlot = nowMakeSlots.transform.GetChild(1).GetComponent<MakingSlot>();
-                makingSlot.SaveAllData();
                 if (dragItemImage.wasInTakeSlot)
                 {
                     DecreaseInMakeSlot();
                     dragItemImage.wasInTakeSlot = false;
                 }
             }
+            
         }
         else if (Input.GetMouseButtonDown(1))
         {
@@ -190,6 +200,7 @@ public class InventoryPopup : MonoBehaviour
                     newItem.transform.localPosition = Vector3.zero;
                     newItem.GetComponent<Image>().raycastTarget = true;
                     newItemImage = newItem.GetComponent<ItemImage>();
+                    if (dragItemImage.count == 1) isDraging = false;
                     dragItemImage.ChangeItemCnt(-1);
                     newItemImage.ChangeItemCnt(1 - newItemImage.count);
                 }
@@ -198,8 +209,17 @@ public class InventoryPopup : MonoBehaviour
                     previousItemImage = rayObject.GetComponent<ItemImage>();
                     if (previousItemImage.particleKind == dragItemImage.particleKind)// 이미지가 같으면
                     {
-                        // 한개만 그 이미지에게 주고
-                        TransferCnt(previousItemImage, dragItemImage, false);
+                        if (previousItemImage.wasInTakeSlot)
+                        {
+                            TransferCnt(dragItemImage, previousItemImage, true);
+                            DecreaseInMakeSlot();
+
+                        }
+                        else if(!previousItemImage.wasInTakeSlot)
+                        {
+                            // 한개만 그 이미지에게 주고
+                            TransferCnt(previousItemImage, dragItemImage, false);
+                        }
                     }
                     else if (previousItemImage.particleKind != dragItemImage.particleKind)// 이미지가 다르면
                     {
@@ -216,19 +236,36 @@ public class InventoryPopup : MonoBehaviour
                     }
                 }
             }
-            else if (!isDraging && rayObject.layer == LayerMask.NameToLayer("ItemImage"))
+            else if (!isDraging && rayObject.layer == LayerMask.NameToLayer("ItemImage")) // 첫 우클릭
             {
                 // 개수는 반개만 해서 
                 // 마우스 따라가게
-                print("우클릭");
                 isDraging = true;
-                GameObject halfDragingItem = Instantiate(rayObject, transform); // 새로운 이미지 생성.
-                dragingItem = halfDragingItem;
-                dragItemImage = halfDragingItem.GetComponent<ItemImage>();
-                previousItemImage.ChangeItemCnt(-(previousItemImage.count / 2) - (previousItemImage.count%2));
-                dragItemImage.ChangeItemCnt(-(dragItemImage.count / 2));
-                dragingItem.GetComponent<Image>().raycastTarget = false;
+                if (previousItemImage.wasInTakeSlot)
+                {
+                    dragingItem = previousItemImage.gameObject;
+                    dragingItem.transform.SetParent(transform);
+                    dragItemImage = previousItemImage;
+                    dragItemImage.GetComponent<Image>().raycastTarget = false;
+                    dragItemImage.wasInTakeSlot = false;
+                    previousItemImage = null;
+                    if (dragItemImage.wasInTakeSlot)
+                    {
+                        DecreaseInMakeSlot();
+                        dragItemImage.wasInTakeSlot = false;
+                    }
+                }
+                else if (!previousItemImage.wasInTakeSlot)
+                {
+                    GameObject halfDragingItem = Instantiate(rayObject, transform); // 새로운 이미지 생성.
+                    dragingItem = halfDragingItem;
+                    dragItemImage = halfDragingItem.GetComponent<ItemImage>();
+                    previousItemImage.ChangeItemCnt(-(previousItemImage.count / 2) - (previousItemImage.count % 2));
+                    dragItemImage.ChangeItemCnt(-(dragItemImage.count / 2));
+                    dragingItem.GetComponent<Image>().raycastTarget = false;
+                }
             }
+            
         }
         if(isDraging && dragingItem != null)
         {
@@ -462,8 +499,9 @@ public class InventoryPopup : MonoBehaviour
 
 
 
-    void DecreaseInMakeSlot()
+    public void DecreaseInMakeSlot()
     {
+        print("makeSlot 감소");
         for (int i = 0; i < makingSlot.dropSlot.Length; i++)
         {
             ItemImage item = null;
@@ -474,7 +512,19 @@ public class InventoryPopup : MonoBehaviour
             if (makingSlot.dropSlot[i].transform.childCount != 0)
             {
                 item = makingSlot.dropSlot[i].GetComponentInChildren<ItemImage>();
-                item.ChangeItemCnt(-1);
+                if(item.count == 1)
+                {
+                    item.ChangeItemCnt(-1);
+                    if(item != null)
+                    {
+                        Destroy(item.gameObject);
+                        print(i + " 번째 슬롯의 자식 수 : " +makingSlot.dropSlot[i].transform.childCount);
+                    }
+                }
+                else
+                {
+                    item.ChangeItemCnt(-1);
+                }
             }
         }
     }
@@ -482,9 +532,15 @@ public class InventoryPopup : MonoBehaviour
     int totalCnt;
     int exceededCnt;
     int maxCnt = 64;
-
-    // 전체를 줄 때는 cnt에 drag.count
-    // 하나만 줄 때는 cnt에 1 
+    /// <summary>
+    /// 전체를 줄 때는 cnt에 drag.count
+    /// 하나만 줄 때는 cnt에 1 
+    /// wasIntakeSlot은 drag에 previous를 넣음.
+    /// </summary>
+    /// <param name="previous"></param>
+    /// <param name="drag"></param>
+    /// <param name="all"></param>
+    // 
     void TransferCnt(ItemImage previous, ItemImage drag, bool all)
     {
         int cnt = 0;
@@ -502,16 +558,23 @@ public class InventoryPopup : MonoBehaviour
             previous.ChangeItemCnt(cnt); // 옮긴느 개수만큼.
             if (all)
             {
-                if(drag.particleObjectTr != null && previous.particleObjectTr != drag.particleObjectTr)
+                if (drag.wasInTakeSlot)
                 {
-                    Destroy(drag.particleObjectTr);
+                    
                 }
-                drag.particleObjectTr = null;
-                print(drag.gameObject);
-                Destroy(drag.gameObject);
-                dragItemImage = null;
-                dragingItem = null;
-                isDraging = false;
+                else
+                {
+                    if (drag.particleObjectTr != null && previous.particleObjectTr != drag.particleObjectTr)
+                    {
+                        Destroy(drag.particleObjectTr);
+                    }
+                    drag.particleObjectTr = null;
+                    print(drag.gameObject);
+                    Destroy(drag.gameObject);
+                    dragItemImage = null;
+                    dragingItem = null;
+                    isDraging = false;
+                }
             }
             if(!all)
             {

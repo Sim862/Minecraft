@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Minecraft_Imitation/Assets/Chunk0_10.binary.meta
 guid: 8ad375fd4e5cf3049841baaa02cfb0eb
+========
+guid: f87ba71653a169f478211f42c4018d3f
+>>>>>>>> 887d8cbfec797113927dbb888c3feb4b274c9a09:Minecraft_Imitation/Assets/Chunk0_6.binary.meta
 DefaultImporter:
   externalObjects: {}
   userData: 

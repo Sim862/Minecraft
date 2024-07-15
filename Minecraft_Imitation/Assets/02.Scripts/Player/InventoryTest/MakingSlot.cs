@@ -28,9 +28,12 @@ public class MakingSlot : MonoBehaviour
 
     public void SaveAllData()
     {
+        print("SaveAllData실행");
+        
         for(int i = 0; i < dropSlot.Length; i++)
         {
             ItemImage item = null;
+            
             if (dropSlot[i] == null) // 4칸짜리일 경우 오류방지.
             {
                 continue;
@@ -47,13 +50,14 @@ public class MakingSlot : MonoBehaviour
             {
                 particleKinds[i] = ObjectParticleData.ParticleKind.None;
             }
+            //print("내 " +i+ "번째 슬롯 자식수는 :  "+dropSlot[i].transform.childCount);
         }
         TransferData();
     }
 
     void TransferData()
     {
-        
+        print("takeSlot에 정보전달");
         combinationData = DataManager.instance.GetCombinationData(particleKinds.ToList());
         if(combinationData != null)
         {
@@ -61,13 +65,17 @@ public class MakingSlot : MonoBehaviour
             {
                 return;
             }
-            itemImage = Instantiate(itemImagePref, takeSlot.transform);
-            itemImage.transform.localPosition = Vector3.zero;
-            itemImageCs = itemImage.GetComponent<ItemImage>();
-            itemImageCs.particleKind = combinationData.result;
-            itemImageCs.itemImage.sprite = DataManager.instance.GetObjectParticlePrefab(combinationData.result).icon;
-            itemImageCs.ChangeItemCnt(combinationData.count);
-            itemImageCs.wasInTakeSlot = true;
+            else if(takeSlot.transform.childCount == 0)
+            {
+                itemImage = Instantiate(itemImagePref, takeSlot.transform);
+                itemImage.transform.localPosition = Vector3.zero;
+                itemImageCs = itemImage.GetComponent<ItemImage>();
+                itemImageCs.particleKind = combinationData.result;
+                itemImageCs.itemImage.sprite = DataManager.instance.GetObjectParticlePrefab(combinationData.result).icon;
+                itemImageCs.ChangeItemCnt(combinationData.count);
+                itemImageCs.wasInTakeSlot = true;
+            }
+            
         }
         else
         {
