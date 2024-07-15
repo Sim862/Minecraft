@@ -12,14 +12,13 @@ public class PlayerMove : MonoBehaviour
     public float jumpPower = 10f; // 점프력 변수
     public bool isJumping = false; // 점프 상태 변수
     public float hp = 20; // 플레이어 체력 변수
-    float maxHp = 20; // 최대 체력 변수
+    public float maxHp = 20; // 최대 체력 변수
     public Slider hpSlider; // hp 슬라이더 변수
     float orgSpeed;
     PlayerDamaged damagedCs;
     Animator anim;
-    bool isDead;
     Camera cam;
-    float runFOV = 50f;
+    float runFOV = 55f;
     float walkFOV = 60f;
     bool isRun;
 
@@ -39,9 +38,14 @@ public class PlayerMove : MonoBehaviour
         // 4. 현재 플레이어 hp(%)를 hp 슬라이더의 value에 반영한다.
         hpSlider.value = hp / maxHp;
 
+        if (PlayerManager.instance.playerDead) return;
         PlayerMoveMethod();
 
-        if (isDead) return;
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            UpdateHP(-5);
+        }
+
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             orgSpeed = moveSpeed;
@@ -57,17 +61,17 @@ public class PlayerMove : MonoBehaviour
 
         if (isRun)
         {
-            cam.fieldOfView = Mathf.Lerp(runFOV, walkFOV, 0.05f);
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, runFOV, 0.05f);
         }
         else if (!isRun)
         {
-            cam.fieldOfView = Mathf.Lerp(walkFOV, runFOV, 0.05f);
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, walkFOV, 0.05f);
         }
 
         if (hp <= 0)
         {
-            PlayerManager.instance.PlayerDead();
-            isDead = true;
+            PlayerManager.instance.playerDead = true;
+            if(PlayerManager.instance.playerDead) PlayerManager.instance.PlayerDead();
             return;
         }
         if (!PlayerManager.onInventory) // 인벤토리가 켜져있으면 안되게
@@ -101,7 +105,7 @@ public class PlayerMove : MonoBehaviour
                 if(hp <= 0)
                 {
                     PlayerManager.instance.PlayerDead();
-                    isDead = true;
+                    PlayerManager.instance.playerDead = true;
                     return;
                 }
                 damagedCs.DamagedEff();

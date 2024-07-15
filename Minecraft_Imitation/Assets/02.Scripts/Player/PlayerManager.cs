@@ -14,6 +14,7 @@ public class PlayerManager : MonoBehaviour
     public int remainder = 0;
     CamRotate camRotate;
     PlayerRotate playerRotate;
+    PlayerMove playerMove;
     float orgCamRotSpeed;
     float orgPlayerRotSpeed;
     bool cursorLock = true;
@@ -30,6 +31,7 @@ public class PlayerManager : MonoBehaviour
     private void Awake()
     {
         player = GameObject.FindWithTag("Player");
+        playerMove = player.GetComponent<PlayerMove>();
         if (instance == null)
         {
             instance = this;
@@ -43,12 +45,19 @@ public class PlayerManager : MonoBehaviour
     
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            PlayerRespawn();
+        }
+        CursurLockMethod();
+
+
+        if (PlayerManager.instance.playerDead) return;
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             InventoryPopup.instance.useMaker = false;
             OnOffInventory();
         }
-        CursurLockMethod();
         if (!onInventory)
         {
             NowUsingSlotNumber();
@@ -146,6 +155,44 @@ public class PlayerManager : MonoBehaviour
     public void PlayerDead()
     {
         respawnUI.SetActive(true);
+        playerDead = true;
+        cursorLock = false;
+        
+        foreach(GameObject go in InventoryPopup.instance.quickSlot)
+        {
+            if(go.transform.childCount != 0)
+            {
+                Destroy(go.transform.GetChild(0).gameObject);
+            }
+        }
+        foreach(GameObject go in InventoryPopup.instance.inven)
+        {
+            if (go.transform.childCount != 0)
+            {
+                Destroy(go.transform.GetChild(0).gameObject);
+            }
+        }
+        foreach(GameObject go in InventoryStatic.instance.slots)
+        {
+            if(go.transform.childCount > 4)
+            {
+                Destroy(go.transform.GetChild(4).gameObject);
+            }
+        }
+
+
+        InventoryPopup.instance.gameObject.SetActive(false);
+    }
+
+    public void PlayerRespawn()
+    {
+        print("됨?");
+        playerMove.hp = playerMove.maxHp;
+        playerDead = false;
+        respawnUI.SetActive(false);
+        cursorLock = true;
+        print("됨????");
+
     }
 
 }

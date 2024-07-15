@@ -19,7 +19,7 @@ public class PlayerRotate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (PlayerManager.onInventory) return;
+        if (PlayerManager.onInventory || PlayerManager.instance.playerDead) return;
         // 사용자의 마우스 입력을 받아 플레이어를 회전시키고 싶다.
         // 1. 마우스 좌우 입력을 받는다.
         mouse_X = Input.GetAxis("Mouse X");

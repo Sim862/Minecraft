@@ -482,27 +482,6 @@ public class InventoryPopup : MonoBehaviour
     int totalCnt;
     int exceededCnt;
     int maxCnt = 64;
-    void CalculateCnt(ItemImage previous, ItemImage drag)
-    {
-        if (previous.count + drag.count <= maxCnt) // maxCnt == 64
-        {
-            // 우선 숫자 증가시켜.
-            previous.ChangeItemCnt(drag.count); // 옮긴느 개수만큼.
-            if(drag.particleObjectTr != null)
-            {
-                Destroy(drag.particleObjectTr.gameObject);
-                drag.particleObjectTr = null;
-            }
-            Destroy(drag.gameObject); // 옮기던거 파괴.
-        }
-        else // 초과할경우
-        {
-            totalCnt = previous.count + drag.count;
-            exceededCnt = totalCnt - maxCnt; // 초과양.
-            previous.ChangeItemCnt(maxCnt - previous.count);
-            drag.ChangeItemCnt(exceededCnt - drag.count);
-        }
-    }
 
     // 전체를 줄 때는 cnt에 drag.count
     // 하나만 줄 때는 cnt에 1 

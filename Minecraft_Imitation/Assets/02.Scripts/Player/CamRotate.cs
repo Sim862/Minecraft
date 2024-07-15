@@ -25,7 +25,7 @@ public class CamRotate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (PlayerManager.onInventory) return;
+        if (PlayerManager.onInventory || PlayerManager.instance.playerDead) return;
 
         // 사용자의 마우스 입력을 받음
         mouse_X = Input.GetAxisRaw("Mouse X");
