@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -101,7 +102,7 @@ public class PlayerMove : MonoBehaviour
         {
             if(yVelocity < -10)
             {
-                hp -= (int)((Mathf.Abs(yVelocity) - 5));
+                UpdateHP(-(int)((Mathf.Abs(yVelocity) - 5)));
                 if(hp <= 0)
                 {
                     PlayerManager.instance.PlayerDead();
@@ -156,7 +157,12 @@ public class PlayerMove : MonoBehaviour
 
     public void UpdateHP(float dmg)
     {
+        if (PlayerManager.instance.playerDead) return;
         hp += dmg;
+        if(dmg < 0)
+        {
+            SoundManager.instance.ActiveOnShotSFXSound(Sound.AudioClipName.Player_Hurt, transform, transform.position);
+        }
     }
 
 }

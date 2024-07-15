@@ -46,14 +46,14 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.583
   m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 1
+  DopplerLevel: 0
   MinDistance: 1
   MaxDistance: 500
   Pan2D: 0
@@ -191,4 +191,13 @@ MonoBehaviour:
   - audioClipName: 9
     audioClips:
     - {fileID: 8300000, guid: 96ade1c0675aa6a47bc614f78a33e3d9, type: 3}
+  - audioClipName: 10
+    audioClips:
+    - {fileID: 8300000, guid: 85c967d56f1c06d4cb4a5d27d72f6cb7, type: 3}
+    - {fileID: 8300000, guid: 4b649e064acf5624e99b3bfc58d74d2f, type: 3}
+    - {fileID: 8300000, guid: 485ab93eba7d4004980175d45d832c4e, type: 3}
+    - {fileID: 8300000, guid: 510d03d2d6392ad46b9d2809f13538d0, type: 3}
+    - {fileID: 8300000, guid: a2fe7bb1098fbd945a9fb692515abf08, type: 3}
+    - {fileID: 8300000, guid: 0eacf1995ccc70a4a8f8d1054631004a, type: 3}
+    - {fileID: 8300000, guid: 6e3050bf70432814f883b9151505c3e5, type: 3}
   sfxVolume: 0.5

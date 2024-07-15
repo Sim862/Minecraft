@@ -10,6 +10,8 @@ public class Spider : Mob
     private float idleSoundTimer = 0;
     private float attackCoolTime = 0;
 
+    public float damage = -5;
+
     void Update()
     {
         if (init_test)
@@ -40,6 +42,7 @@ public class Spider : Mob
             attackCoolTime += Time.deltaTime;
             if (mobState == MobState.Idle)
             {
+                nextMovementTime -= Time.deltaTime;
                 if (idleSoundTimer > 3)
                 {
                     if (Random.value < 0.3)
@@ -60,6 +63,16 @@ public class Spider : Mob
                     {
                         AStar(MapManager.instance.PositionToBlockData(targetTransform.position), targetTransform);
                         SetWayPosition();
+                    }
+                    if (Vector3.Distance(transform.position, targetTransform.position) < 1)
+                    {
+                        if (attackCoolTime > 2 && !PlayerManager.instance.playerDead)
+                        {
+                            attackCoolTime = 0;
+                            targetTransform.GetComponent<PlayerMove>().UpdateHP(-1);
+                            wayPoints.Clear();
+                            SetWayPosition();
+                        }
                     }
                     else
                     {
@@ -103,10 +116,13 @@ public class Spider : Mob
                 {
                     if (Vector3.Distance(transform.position, targetTransform.position) < 1 && attackCoolTime > 2)
                     {
-                        attackCoolTime = 0;
-                        targetTransform.GetComponent<PlayerMove>().UpdateHP(-1);
-                        wayPoints.Clear();
-                        SetWayPosition();
+                        if (!PlayerManager.instance.playerDead)
+                        {
+                            attackCoolTime = 0;
+                            targetTransform.GetComponent<PlayerMove>().UpdateHP(damage);
+                            wayPoints.Clear();
+                            SetWayPosition();
+                        }
                     }
                 }
             }
