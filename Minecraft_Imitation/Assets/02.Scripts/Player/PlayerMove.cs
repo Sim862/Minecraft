@@ -18,6 +18,10 @@ public class PlayerMove : MonoBehaviour
     PlayerDamaged damagedCs;
     Animator anim;
     bool isDead;
+    Camera cam;
+    float runFOV = 50f;
+    float walkFOV = 60f;
+    bool isRun;
 
     void Start()
     {
@@ -26,6 +30,7 @@ public class PlayerMove : MonoBehaviour
         damagedCs = gameObject.GetComponent<PlayerDamaged>();
         anim = GetComponent<Animator>();
         PlayerManager.instance.respawnUI.SetActive(false);
+        cam = Camera.main;
     }
 
 
@@ -40,11 +45,23 @@ public class PlayerMove : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             orgSpeed = moveSpeed;
-            moveSpeed *= 1.3f;
+            moveSpeed *= 1.6f;
+            isRun = true;
         }
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {
             moveSpeed = orgSpeed;
+            isRun = false;
+            
+        }
+
+        if (isRun)
+        {
+            cam.fieldOfView = Mathf.Lerp(runFOV, walkFOV, 0.05f);
+        }
+        else if (!isRun)
+        {
+            cam.fieldOfView = Mathf.Lerp(walkFOV, runFOV, 0.05f);
         }
 
         if (hp <= 0)
