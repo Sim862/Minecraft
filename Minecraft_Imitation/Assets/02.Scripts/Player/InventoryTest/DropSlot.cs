@@ -15,7 +15,7 @@ public class DropSlot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        TransferData();
     }
 
     public void TransferData()

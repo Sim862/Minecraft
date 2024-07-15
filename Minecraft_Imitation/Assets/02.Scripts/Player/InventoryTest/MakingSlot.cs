@@ -12,6 +12,7 @@ public class MakingSlot : MonoBehaviour
     public GameObject itemImagePref;
     GameObject itemImage;
     ItemImage itemImageCs;
+    GameObject inTakeSlotGo;
 
     // Start is called before the first frame update
     void Awake()
