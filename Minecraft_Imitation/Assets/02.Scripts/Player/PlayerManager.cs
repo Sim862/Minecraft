@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -186,13 +187,15 @@ public class PlayerManager : MonoBehaviour
 
     public void PlayerRespawn()
     {
-        print("됨?");
         playerMove.hp = playerMove.maxHp;
         playerDead = false;
         respawnUI.SetActive(false);
         cursorLock = true;
-        print("됨????");
+    }
 
+    public void GoToTitle()
+    {
+        SceneManager.LoadScene("TitleScene");
     }
 
 }
