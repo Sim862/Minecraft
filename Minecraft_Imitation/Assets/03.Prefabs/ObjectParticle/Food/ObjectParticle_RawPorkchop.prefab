@@ -222,7 +222,7 @@ MonoBehaviour:
   particleKind: 16
   particleType: 0
   count: 1
-  icon: {fileID: 21300000, guid: b04cb40d512f7874399b01b6b5c1acaa, type: 3}
+  icon: {fileID: 21300000, guid: 33b0c6c14c46ef142b797cf95de242de, type: 3}
   canSetup: 0
   power: 25
 --- !u!1 &8802861948238348777
