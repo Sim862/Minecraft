@@ -6,7 +6,7 @@ using UnityEngine;
 public class MakingSlot : MonoBehaviour
 {
     public GameObject[] dropSlot = new GameObject[9];
-    public ObjectParticleData.ParticleKind[] particleKinds = new ObjectParticleData.ParticleKind[9];
+    public ObjectParticleData.ParticleName[] particleKinds = new ObjectParticleData.ParticleName[9];
     public GameObject takeSlot;
     CombinationData combinationData;
     public GameObject itemImagePref;
@@ -47,7 +47,7 @@ public class MakingSlot : MonoBehaviour
             }
             else if(item == null)
             {
-                particleKinds[i] = ObjectParticleData.ParticleKind.None;
+                particleKinds[i] = ObjectParticleData.ParticleName.None;
             }
             //print("내 " +i+ "번째 슬롯 자식수는 :  "+dropSlot[i].transform.childCount);
         }

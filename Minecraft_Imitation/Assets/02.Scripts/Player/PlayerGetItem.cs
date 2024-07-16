@@ -6,7 +6,7 @@ using UnityEngine;
 public class PlayerGetItem : MonoBehaviour
 {
 
-    ObjectParticleData.ParticleKind particleKind; // 필드에 있는 오브젝트의 종류,개수,아이콘 가져옴.
+    ObjectParticleData.ParticleName particleKind; // 필드에 있는 오브젝트의 종류,개수,아이콘 가져옴.
     int count;
     Sprite icon;
 
@@ -19,7 +19,7 @@ public class PlayerGetItem : MonoBehaviour
         {
             GameObject objectParticle = other.transform.parent.gameObject;
             ObjectParticle objectParticleCs = objectParticle.GetComponent<ObjectParticle>();
-            particleKind = objectParticleCs.particleKind;
+            particleKind = objectParticleCs.particleName;
             count = objectParticleCs.count;
             icon = objectParticleCs.icon;
 

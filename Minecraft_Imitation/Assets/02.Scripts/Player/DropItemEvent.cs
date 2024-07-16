@@ -5,7 +5,7 @@ using UnityEngine;
 public class DropItemEvent : MonoBehaviour
 {
     public GameObject objectParticleFac;
-    ObjectParticleData.ParticleKind particleKind; // 필드에 있는 오브젝트의 종류,개수,아이콘 가져옴.
+    ObjectParticleData.ParticleName particleKind; // 필드에 있는 오브젝트의 종류,개수,아이콘 가져옴.
     int count;
     Sprite icon;
     public Transform cameraPos;
@@ -60,7 +60,7 @@ public class DropItemEvent : MonoBehaviour
 
     void TransferDataWithoutCnt(ObjectParticle objectParticleCs, ItemImage nowItemImage)
     {
-        objectParticleCs.particleKind = nowItemImage.particleKind;
+        objectParticleCs.particleName = nowItemImage.particleKind;
         objectParticleCs.icon = nowItemImage.itemImage.sprite;
     }
 

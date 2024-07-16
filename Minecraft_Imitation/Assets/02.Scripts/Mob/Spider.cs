@@ -40,9 +40,9 @@ public class Spider : Mob
             //print(mobSpawnData.positionData.chunk_X + " , " + mobSpawnData.positionData.chunk_Z);
             idleSoundTimer += Time.deltaTime;
             attackCoolTime += Time.deltaTime;
+            nextMovementTime -= Time.deltaTime;
             if (mobState == MobState.Idle)
             {
-                nextMovementTime -= Time.deltaTime;
                 if (idleSoundTimer > 3)
                 {
                     if (Random.value < 0.3)
@@ -61,16 +61,21 @@ public class Spider : Mob
                 {
                     if (Vector3.Distance(transform.position, targetTransform.position) < 10)
                     {
-                        AStar(MapManager.instance.PositionToBlockData(targetTransform.position), targetTransform);
-                        SetWayPosition();
-                    }
-                    if (Vector3.Distance(transform.position, targetTransform.position) < 1)
-                    {
-                        if (attackCoolTime > 2 && !PlayerManager.instance.playerDead)
+
+                        if (Vector3.Distance(transform.position, targetTransform.position) < 1)
                         {
-                            attackCoolTime = 0;
-                            targetTransform.GetComponent<PlayerMove>().UpdateHP(-1);
-                            wayPoints.Clear();
+                            if (attackCoolTime > 2 && !PlayerManager.instance.playerDead)
+                            {
+                                mobState = MobState.Attack;
+                                attackCoolTime = 0;
+                                targetTransform.GetComponent<PlayerMove>().UpdateHP(-1);
+                                wayPoints.Clear();
+                                SetWayPosition();
+                            }
+                        }
+                        else
+                        {
+                            AStar(MapManager.instance.PositionToBlockData(targetTransform.position), targetTransform);
                             SetWayPosition();
                         }
                     }
@@ -90,7 +95,6 @@ public class Spider : Mob
             else if (mobState == MobState.Hit)
             {
 
-                nextMovementTime -= Time.deltaTime;
                 if (nextMovementTime <= 0)
                 {
                     nextMovementTime = 5;
@@ -104,7 +108,6 @@ public class Spider : Mob
             }
             else if (mobState == MobState.Move)
             {
-                nextMovementTime -= Time.deltaTime;
                 if (nextMovementTime <= 0)
                 {
                     nextMovementTime = 5;
@@ -118,9 +121,42 @@ public class Spider : Mob
                     {
                         if (!PlayerManager.instance.playerDead)
                         {
+                            mobState = MobState.Attack;
                             attackCoolTime = 0;
                             targetTransform.GetComponent<PlayerMove>().UpdateHP(damage);
                             wayPoints.Clear();
+                            SetWayPosition();
+                        }
+                    }
+                }
+            }
+            else if(mobState == MobState.Attack)
+            {
+                if (Vector3.Distance(transform.position, targetTransform.position) < 1 && attackCoolTime > 2)
+                {
+                    if (!PlayerManager.instance.playerDead)
+                    {
+                        attackCoolTime = 0;
+                        targetTransform.GetComponent<PlayerMove>().UpdateHP(damage);
+                        wayPoints.Clear();
+                        SetWayPosition();
+                    }
+                }
+                else
+                {
+
+                    if (target != null)
+                    {
+                        targetTransform = target;
+                        AStar(MapManager.instance.PositionToBlockData(target.position), target);
+                        SetWayPosition();
+                    }
+                    else
+                    {
+                        if (nextMovementTime <= 0)
+                        {
+                            nextMovementTime = 5;
+                            AStar_Random();
                             SetWayPosition();
                         }
                     }

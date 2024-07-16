@@ -44,7 +44,7 @@ public class Mob : MonoBehaviour
     public MobData mobData { get; private set; }
     public MobData.MobKind mobKind;
 
-    public ObjectParticleData.ParticleKind[] dropItems;
+    public ObjectParticleData.ParticleName[] dropItems;
 
     public ParticleSystem deathParticle;
 

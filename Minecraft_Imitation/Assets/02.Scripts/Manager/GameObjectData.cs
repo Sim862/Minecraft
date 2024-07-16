@@ -35,9 +35,9 @@ public class GameObjectData
 [System.Serializable]
 public class BlockData : GameObjectData
 {
-    public BlockData(BlockKind blockKind, BlockType blockType, float strength, Sound.AudioClipName brockBreakSound, Sound.AudioClipName brockBrokenSound, ObjectParticleData.ParticleKind objectParticle) : base(ObjectKind.Block)
+    public BlockData(BlockName blockKind, BlockType blockType, float strength, Sound.AudioClipName brockBreakSound, Sound.AudioClipName brockBrokenSound, ObjectParticleData.ParticleName objectParticle) : base(ObjectKind.Block)
     {
-        this.blockKind = blockKind;
+        this.blockName = blockKind;
         this.blockType = blockType;
         this.strength = strength;
         this.brockBreakSound = brockBreakSound;
@@ -46,14 +46,14 @@ public class BlockData : GameObjectData
     }
     public BlockData(BlockData blockData) : base(ObjectKind.Block)
     {
-        this.blockKind = blockData.blockKind;
+        this.blockName = blockData.blockName;
         this.blockType = blockData.blockType;
         this.strength = blockData.strength;
         this.brockBreakSound = blockData.brockBreakSound;
         this.brockBrokenSound = blockData.brockBrokenSound;
         this.objectParticle = blockData.objectParticle;
     }
-    public enum BlockKind
+    public enum BlockName
     {
         None,
         Dirt,
@@ -62,6 +62,7 @@ public class BlockData : GameObjectData
         Stone,
         WoodenPlank,
         Leaves,
+        CraftingTable,
     }
     public enum BlockType
     {
@@ -74,13 +75,13 @@ public class BlockData : GameObjectData
         Bucket
     }
 
-    public BlockKind blockKind;
+    public BlockName blockName;
     public BlockType blockType;
     public float strength;
     public Sound.AudioClipName brockBreakSound;
     public Sound.AudioClipName brockBrokenSound;
     public Material material;
-    public ObjectParticleData.ParticleKind objectParticle; // 블럭 파괴시 나오는 아이템
+    public ObjectParticleData.ParticleName objectParticle; // 블럭 파괴시 나오는 아이템
 }
 
 [System.Serializable]
@@ -117,12 +118,12 @@ public class MobData : GameObjectData
 
 public class ObjectParticleData : GameObjectData
 {
-    public ObjectParticleData(ParticleKind particleKind, BlockData.BlockType particleType) : base(ObjectKind.ObjectParticle)
+    public ObjectParticleData(ParticleName particleName, ParticleType particleType) : base(ObjectKind.ObjectParticle)
     {
-        this.particleKind = particleKind;
+        this.particleName = particleName;
         this.particleType = particleType;
     }
-    public enum ParticleKind // 플레이어가 먹거나 뱉을 수 있는 오브젝트 목록
+    public enum ParticleName // 플레이어가 먹거나 뱉을 수 있는 오브젝트 목록
     {
         None,
     //  Block ------------------------------------------------------------------------
@@ -132,6 +133,8 @@ public class ObjectParticleData : GameObjectData
         Stone,
         WoodenPlank,
         Leaves,
+        CraftingTable,
+
 
     //  Item  ----------------------------------------------------------------------- 
         Stick,
@@ -146,27 +149,36 @@ public class ObjectParticleData : GameObjectData
         RawPorkchop,
 
     }
-    public ParticleKind particleKind;
-    public BlockData.BlockType particleType;
+
+    public enum ParticleType
+    {
+        None,
+        Block,
+        Tool,
+        Food,
+    }
+
+    public ParticleName particleName;
+    public ParticleType particleType;
 }
 
 [System.Serializable]
 public class BlockMaterial
 {
-    public BlockData.BlockKind blockKind;
+    public BlockData.BlockName blockKind;
     public Material material;
 }
 
 [System.Serializable]
 public class UIItem
 {
-    public ObjectParticleData.ParticleKind particleKind;
+    public ObjectParticleData.ParticleName particleKind;
     public Sprite icon;
 }
 
 public class CombinationData
 {
-    public CombinationData(ParticleKind result, int count, List<ParticleKind> particleKinds)
+    public CombinationData(ParticleName result, int count, List<ParticleName> particleKinds)
     {
         this.result = result;
         this.count = count;
@@ -175,7 +187,7 @@ public class CombinationData
         for (int i = 0; i < particleKinds.Count; i++)
         {
             check++;
-            if (particleKinds[i] != ParticleKind.None)
+            if (particleKinds[i] != ParticleName.None)
             {
                 this.y = y;
                 if (check > x)
@@ -189,11 +201,10 @@ public class CombinationData
                 y++;
             }
         }
-
         // None아닌 데이터 제일 앞으로 오게 정렬
         for (int i = 0; i < particleKinds.Count; i++)
         {
-            if (particleKinds[i] != ObjectParticleData.ParticleKind.None)
+            if (particleKinds[i] != ObjectParticleData.ParticleName.None)
             {
                 break;
             }
@@ -206,15 +217,15 @@ public class CombinationData
         // Count가 9가 될때 까지 None 넣어줌
         while (particleKinds.Count < 9)
         {
-            particleKinds.Add(ObjectParticleData.ParticleKind.None);
+            particleKinds.Add(ObjectParticleData.ParticleName.None);
         }
 
 
         this.particleKinds = particleKinds.ToArray();
     }
 
-    public ParticleKind result { get; private set; }
-    public ParticleKind[] particleKinds { get; private set; }= new ParticleKind[9];
+    public ParticleName result { get; private set; }
+    public ParticleName[] particleKinds { get; private set; }= new ParticleName[9];
     public int count { get; private set; }
     public int x { get; private set; } = 0;
     public int y { get; private set; } = 0;

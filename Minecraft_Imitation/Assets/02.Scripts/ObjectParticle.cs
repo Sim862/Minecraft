@@ -19,11 +19,11 @@ public class ObjectParticle : MonoBehaviour
 
     private List<Transform> particleObjects = new List<Transform>();
     
-    public ObjectParticleData.ParticleKind particleKind; // 오브젝트 파티클 종류
-    public BlockData.BlockType particleType; // 오브젝트 파티클 종류
-    public int count = 1;
+    public ObjectParticleData.ParticleName particleName; // 오브젝트 파티클 종류
+    public ObjectParticleData.ParticleType particleType; //
     public Sprite icon;
-    public bool canSetup;
+
+    public int count = 1;
     private Transform target;
     private bool onTarget = false;
     public float power = 1;
@@ -142,7 +142,7 @@ public class ObjectParticle : MonoBehaviour
 
     private void CollisionParticle(ObjectParticle other)
     {
-        if (particleKind != other.particleKind) // 같은 종류의 아이템이 아니면 리턴
+        if (particleName != other.particleName) // 같은 종류의 아이템이 아니면 리턴
             return;
 
         if (other.count < count)

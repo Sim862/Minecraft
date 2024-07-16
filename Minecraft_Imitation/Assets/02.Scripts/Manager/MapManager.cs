@@ -161,11 +161,11 @@ public class MapManager : MonoBehaviour
     public int[,,] blocks = new int[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
     public ChunkData chunkData;
     private BlockData blockData;
-    private BlockData.BlockKind blockKind;
+    private BlockData.BlockName blockKind;
     private Block block;
     private Vector3 blockPosition = new Vector3();
     private Vector3 position2 = new Vector3();
-    Array enumValues = System.Enum.GetValues(enumType: typeof(BlockData.BlockKind));
+    Array enumValues = System.Enum.GetValues(enumType: typeof(BlockData.BlockName));
     private int value;
 
 
@@ -198,7 +198,7 @@ public class MapManager : MonoBehaviour
 
     public bool createBlock = false;
     public int chunkIndex;
-    public BlockData.BlockKind blockKind1;
+    public BlockData.BlockName blockKind1;
     public Vector3 chunkBlockIndex;
 
     
@@ -809,9 +809,9 @@ public class MapManager : MonoBehaviour
                 for (int y = 0; y < Chunk.y; y++)
                 {
                     if (y < 5)
-                        value = (int)BlockData.BlockKind.Dirt;
+                        value = (int)BlockData.BlockName.Dirt;
                     else
-                        value = (int)BlockData.BlockKind.None;
+                        value = (int)BlockData.BlockName.None;
 
                     for (int z = 0; z < Chunk.z; z++)
                     {
@@ -859,9 +859,9 @@ public class MapManager : MonoBehaviour
             for (int y = 0; y < Chunk.y; y++)
             {
                 if (y < 3)
-                    value = (int)BlockData.BlockKind.Dirt;
+                    value = (int)BlockData.BlockName.Dirt;
                 else
-                    value = (int)BlockData.BlockKind.None;
+                    value = (int)BlockData.BlockName.None;
 
                 for (int z = 0; z < Chunk.z; z++)
                 {
@@ -911,7 +911,7 @@ public class MapManager : MonoBehaviour
             {
                 for (int z = 0; z < Chunk.z; z++)
                 {
-                    blockKind = (BlockData.BlockKind)chunk.chunkData.blocksEnum[x, y, z]; // 블럭 enum 가져오기
+                    blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x, y, z]; // 블럭 enum 가져오기
                     CreateBlock(chunk, blockKind, x, y, z);
                 }
             }
@@ -919,7 +919,7 @@ public class MapManager : MonoBehaviour
     }
 
     // 특정 블럭 생성
-    public void CreateBlock(Chunk chunk, BlockData.BlockKind blockKind, int x, int y, int z)
+    public void CreateBlock(Chunk chunk, BlockData.BlockName blockKind, int x, int y, int z)
     {
         if (blockKind != 0)
         {

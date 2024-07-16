@@ -16,7 +16,7 @@ public class DataManager : MonoBehaviour
     #region Block Data Variable
     public BlockMaterial[] blockMaterials;  // 블럭 머테리얼 리스트
     public List<BlockData> blockDatas;  // 블럭 데이터 리스트
-    public Dictionary<BlockData.BlockKind, BlockData> blockDictionary = new Dictionary<BlockData.BlockKind, BlockData>(); // 블럭 데이터를 건내줄 Dictionary
+    public Dictionary<BlockData.BlockName, BlockData> blockDictionary = new Dictionary<BlockData.BlockName, BlockData>(); // 블럭 데이터를 건내줄 Dictionary
     #endregion
 
     #region Combination Data Variable
@@ -24,8 +24,8 @@ public class DataManager : MonoBehaviour
     private List<CombinationData> currectDataList = new List<CombinationData>();
     int inven_Y = 0;
     int inven_Check_Y = 1;
-    int inven_x = 0;
-    int inven_Check = 0;
+    int inven_X = 0;
+    int inven_Check_X = 0;
     #endregion
 
     public Mob[] mobList;
@@ -34,10 +34,10 @@ public class DataManager : MonoBehaviour
     public ObjectParticle[] objectParticles_Block;
     public ObjectParticle[] objectParticles_Tool;
     public ObjectParticle[] objectParticles_Food;
-    public Dictionary<ObjectParticleData.ParticleKind, ObjectParticle> objectParticleDictionary = new Dictionary<ObjectParticleData.ParticleKind, ObjectParticle>();
+    public Dictionary<ObjectParticleData.ParticleName, ObjectParticle> objectParticleDictionary = new Dictionary<ObjectParticleData.ParticleName, ObjectParticle>();
 
     private string particleKind_String;
-    private BlockData.BlockKind blockKind;
+    private BlockData.BlockName blockKind;
     
     private void Awake()
     {
@@ -90,12 +90,12 @@ public class DataManager : MonoBehaviour
         {
             data_Tap = data_Lines[i].Split("\t");
             blockDatas.Add(new BlockData(
-                (BlockData.BlockKind)Enum.Parse(typeof(BlockData.BlockKind), data_Tap[0]),
+                (BlockData.BlockName)Enum.Parse(typeof(BlockData.BlockName), data_Tap[0]),
                 (BlockData.BlockType)Enum.Parse(typeof(BlockData.BlockType), data_Tap[1]),
                 float.Parse(data_Tap[2]),
                 (Sound.AudioClipName)Enum.Parse(typeof(Sound.AudioClipName), data_Tap[3]),
                 (Sound.AudioClipName)Enum.Parse(typeof(Sound.AudioClipName), data_Tap[4]),
-                (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[5]))
+                (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[5]))
                 );
         }
     }
@@ -106,7 +106,7 @@ public class DataManager : MonoBehaviour
     {
         for (int i = 0; i < blockDatas.Count; i++)
         {
-            blockDictionary.Add(blockDatas[i].blockKind, blockDatas[i]);
+            blockDictionary.Add(blockDatas[i].blockName, blockDatas[i]);
         }
         for (int i = 0; i < blockMaterials.Length; i++)
         {
@@ -132,49 +132,50 @@ public class DataManager : MonoBehaviour
             data_Tap = data_Lines[i].Split("\t");
             combinationDatas.Add(
                 new CombinationData(
-                    (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[0]),
+                    (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[0]),
                     int.Parse(data_Tap[1]),
-                    new List<ObjectParticleData.ParticleKind>()
+                    new List<ObjectParticleData.ParticleName>()
                     {
-                        (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[2]),
-                        (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[3]),
-                        (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[4]),
-                        (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[5]),
-                        (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[6]),
-                        (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[7]),
-                        (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[8]),
-                        (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[9]),
-                        (ObjectParticleData.ParticleKind)Enum.Parse(typeof(ObjectParticleData.ParticleKind), data_Tap[10])
+                        (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[2]),
+                        (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[3]),
+                        (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[4]),
+                        (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[5]),
+                        (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[6]),
+                        (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[7]),
+                        (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[8]),
+                        (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[9]),
+                        (ObjectParticleData.ParticleName)Enum.Parse(typeof(ObjectParticleData.ParticleName), data_Tap[10])
                     }
                 )
             );
+
         }
     }
 
-    public CombinationData GetCombinationData(List<ObjectParticleData.ParticleKind> inven)
+    public CombinationData GetCombinationData(List<ObjectParticleData.ParticleName> inven)
     {
         currectDataList.Clear();
 
         // x, y 축 검사
         inven_Y = 0;
         inven_Check_Y = 1;
-        inven_x = 0;
-        inven_Check = 0;
+        inven_X = 0;
+        inven_Check_X = 0;
         for (int i = 0; i < inven.Count; i++)
         {
-            if (inven[i] != ParticleKind.None)
+            if (inven[i] != ParticleName.None)
             {
-                inven_x = inven_Check_Y;
-                inven_Check++;
-                if (inven_Check > inven_Y)
+                inven_Y = inven_Check_Y;
+                inven_Check_X++;
+                if (inven_Check_X > inven_X)
                 {
-                    inven_Y = inven_Check;
+                    inven_X = inven_Check_X;
                 }
             }
-            if (inven_Check >= 3)
+            if (inven_Check_Y > 3)
             {
-                inven_Check = 0;
-                if(inven_x != 0)
+                inven_Check_Y = 0;
+                if(inven_X != 0)
                 {
                     inven_Check_Y++;
                 }
@@ -184,7 +185,7 @@ public class DataManager : MonoBehaviour
         // x, y 비교
         for (int i = 0; i < combinationDatas.Count; i++)
         {
-            if (combinationDatas[i].x == inven_x)
+            if (combinationDatas[i].x == inven_X)
             {
                 if (combinationDatas[i].y == inven_Y)
                 {
@@ -201,7 +202,7 @@ public class DataManager : MonoBehaviour
         // None아닌 데이터 제일 앞으로 오게 정렬
         for (int i = 0; i < inven.Count; i++)
         {
-            if (inven[i] != ObjectParticleData.ParticleKind.None)
+            if (inven[i] != ObjectParticleData.ParticleName.None)
             {
                 break;
             }
@@ -214,7 +215,7 @@ public class DataManager : MonoBehaviour
         // Count가 9가 될때 까지 None 넣어줌
         while (inven.Count < 9)
         {
-            inven.Add(ObjectParticleData.ParticleKind.None);
+            inven.Add(ObjectParticleData.ParticleName.None);
         }
 
         // x, y 축이 맞는 데이터랑 enum 비교
@@ -250,24 +251,24 @@ public class DataManager : MonoBehaviour
     {
         for (int i = 0; i < objectParticles_Block.Length; i++)
         {
-            objectParticleDictionary.Add(objectParticles_Block[i].particleKind, objectParticles_Block[i]);
+            print(objectParticles_Block[i].particleName);
+            objectParticleDictionary.Add(objectParticles_Block[i].particleName, objectParticles_Block[i]);
         }
 
         for (int i = 0; i < objectParticles_Tool.Length; i++)
         {
-            print(objectParticles_Tool[i].particleKind);
-            objectParticleDictionary.Add(objectParticles_Tool[i].particleKind, objectParticles_Tool[i]);
+            objectParticleDictionary.Add(objectParticles_Tool[i].particleName, objectParticles_Tool[i]);
         }
 
         for (int i = 0; i < objectParticles_Food.Length; i++)
         {
-            objectParticleDictionary.Add(objectParticles_Food[i].particleKind, objectParticles_Food[i]);
+            objectParticleDictionary.Add(objectParticles_Food[i].particleName, objectParticles_Food[i]);
         }
         
     }
     
     // 오브젝트 파티클 가져오기
-    public ObjectParticle GetObjectParticlePrefab(ObjectParticleData.ParticleKind particleKind)
+    public ObjectParticle GetObjectParticlePrefab(ObjectParticleData.ParticleName particleKind)
     {
         if (objectParticleDictionary.ContainsKey(particleKind))
         {
@@ -278,16 +279,16 @@ public class DataManager : MonoBehaviour
 
 
     // 파티클로 블럭 데이터 가져오기
-    public BlockData.BlockKind ParticleToBlockKind(ObjectParticleData.ParticleKind particleKind)
+    public BlockData.BlockName ParticleToBlockKind(ObjectParticleData.ParticleName particleKind)
     {
         particleKind_String = particleKind.ToString();
         try
         {
-            blockKind = (BlockData.BlockKind)Enum.Parse(typeof(BlockData.BlockKind), particleKind_String);
+            blockKind = (BlockData.BlockName)Enum.Parse(typeof(BlockData.BlockName), particleKind_String);
         }
         catch (ArgumentException error)
         {
-            blockKind = BlockData.BlockKind.None;
+            blockKind = BlockData.BlockName.None;
         }
         return blockKind;
     }

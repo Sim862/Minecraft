@@ -37,6 +37,7 @@ public class Pig : Mob
 
             //print(mobSpawnData.positionData.chunk_X + " , " + mobSpawnData.positionData.chunk_Z);
             idleSoundTimer += Time.deltaTime;
+            nextMovementTime -= Time.deltaTime;
             if (mobState == MobState.Idle)
             {
                 if (idleSoundTimer > 3)
@@ -47,7 +48,6 @@ public class Pig : Mob
                     }
                     idleSoundTimer = 0;
                 }
-                nextMovementTime -= Time.deltaTime;
                 if (nextMovementTime <= 0)
                 {
                     nextMovementTime = 5;
@@ -76,8 +76,6 @@ public class Pig : Mob
             }
             else if (mobState == MobState.Hit)
             {
-
-                nextMovementTime -= Time.deltaTime;
                 if (nextMovementTime <= 0)
                 {
                     nextMovementTime = 5;
@@ -86,7 +84,6 @@ public class Pig : Mob
             }
             else if(mobState == MobState.Move)
             {
-                nextMovementTime -= Time.deltaTime;
                 if (nextMovementTime <= 0)
                 {
                     nextMovementTime = 5;

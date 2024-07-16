@@ -50,6 +50,15 @@ public class Block : MonoBehaviour
 
         broken = false;
         canBreak = true;
+
+        if(blockData.blockName == BlockData.BlockName.CraftingTable)
+        {
+            tag = "CraftingTable";
+        }
+        else
+        {
+            tag = "Block";
+        }
     }
 
     public void Break(BlockData.BlockType blockType, float Power) // 한번만 호출하면 블럭 체력 까이기 시작. 피 까이는 상태.

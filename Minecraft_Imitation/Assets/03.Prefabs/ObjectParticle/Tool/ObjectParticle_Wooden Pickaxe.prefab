@@ -134,11 +134,10 @@ MonoBehaviour:
   rotateSpeed: 1
   rotateLength: 0.15
   moveSpeed: 5
-  particleKind: 9
-  particleType: 4
-  count: 1
+  particleName: 12
+  particleType: 2
   icon: {fileID: 21300000, guid: 9555195106d3ba543942fcc576ce5f6a, type: 3}
-  canSetup: 0
+  count: 1
   power: 10
 --- !u!1 &7555025162302761774
 GameObject:

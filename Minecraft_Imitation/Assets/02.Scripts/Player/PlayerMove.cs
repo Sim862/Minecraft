@@ -123,7 +123,6 @@ public class PlayerMove : MonoBehaviour
         else
         {
             yVelocity += gravity * Time.deltaTime;
-            print(yVelocity);
         }
 
         // 2-2. 만약 키보드 spacebar 키를 눌렀다면, 그리고 점프상태가 아니라면
