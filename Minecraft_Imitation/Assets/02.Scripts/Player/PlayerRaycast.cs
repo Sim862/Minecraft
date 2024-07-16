@@ -9,6 +9,7 @@ public class PlayerRaycast : MonoBehaviour
     public float breakPower = 5;
     Vector3 newBlockPos;
     bool isBlock;
+    ItemImage itemImage;
 
     Transform hitNowBlock; // 클릭할때
     Transform hitBlockTr;
@@ -19,6 +20,11 @@ public class PlayerRaycast : MonoBehaviour
 
     void Update()
     {
+        if(InventoryStatic.instance.slots[PlayerManager.instance.usingSlot].GetComponentInChildren<ItemImage>() != null)
+        {
+            itemImage = InventoryStatic.instance.slots[PlayerManager.instance.usingSlot].GetComponentInChildren<ItemImage>();
+        }
+
         // 레이를 생성한 후 발사될 위치와 진행방향을 설정한다.
         Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
 
@@ -119,15 +125,20 @@ public class PlayerRaycast : MonoBehaviour
         if (Input.GetMouseButtonDown(1)) // 마우스 우클릭시 설치 및 사용
         {
             int slotnumber = PlayerManager.instance.usingSlot; // 현재 사용중인 슬롯넘버 저장.
-            if (isBlock)
+            if (isBlock && itemImage.particleType == ObjectParticleData.ParticleType.Block)
             {
                 InstallBlock(slotnumber);
             }
-            if(hitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Maker"))
+            /*if(itemImage.particleType == ObjectParticleData.ParticleType.Food && PlayerManager.instance.canEat)
+            {
+                EatFood();
+            }*/
+            if(hitInfo.transform.gameObject.tag == "CraftingTable")
             {
                 InventoryPopup.instance.useMaker = true;
                 PlayerManager.instance.OnOffInventory();
             }
+            
         }
     }
     void InstallBlock(int slotNumber)
@@ -150,6 +161,15 @@ public class PlayerRaycast : MonoBehaviour
 
             }
         }
+    }
+
+
+    public void EatFood() // 음식 먹음.
+    {
+
+         itemImage.ChangeItemCnt(-1);
+         GetComponent<PlayerMove>().UpdateHunger(4); // 우선 허기 4 증가로 설정.
+
     }
 
     void UseMaker()

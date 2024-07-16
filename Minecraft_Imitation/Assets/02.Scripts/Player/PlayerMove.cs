@@ -15,6 +15,9 @@ public class PlayerMove : MonoBehaviour
     public float hp = 20; // 플레이어 체력 변수
     public float maxHp = 20; // 최대 체력 변수
     public Slider hpSlider; // hp 슬라이더 변수
+    public Slider hungerSlider; // 허기 슬라이더 변수
+    public float maxHunger = 20;
+    public float currHunger;
     float orgSpeed;
     PlayerDamaged damagedCs;
     Animator anim;
@@ -22,6 +25,15 @@ public class PlayerMove : MonoBehaviour
     float runFOV = 55f;
     float walkFOV = 60f;
     bool isRun;
+    float hungerTime;
+    public float hungerCoolTime = 60f;
+    Vector3 dir;
+    float orgX;
+    float orgY;
+    public float healTime = 90f;
+    float currHealTime;
+    int usingSlot;
+    ItemImage itemImage;
 
     void Start()
     {
@@ -31,6 +43,7 @@ public class PlayerMove : MonoBehaviour
         anim = GetComponent<Animator>();
         PlayerManager.instance.respawnUI.SetActive(false);
         cam = Camera.main;
+        currHunger = maxHunger;
     }
 
 
@@ -38,9 +51,31 @@ public class PlayerMove : MonoBehaviour
     {
         // 4. 현재 플레이어 hp(%)를 hp 슬라이더의 value에 반영한다.
         hpSlider.value = hp / maxHp;
+        hungerSlider.value = currHunger / maxHunger;
+        usingSlot = PlayerManager.instance.usingSlot;
 
         if (PlayerManager.instance.playerDead) return;
         PlayerMoveMethod();
+
+        
+        if(hungerTime > hungerCoolTime)
+        {
+            hungerTime = 0;
+            UpdateHunger(-1);
+        }
+        else if(hungerTime <= hungerCoolTime)
+        {
+            hungerTime += Time.deltaTime;
+        }
+
+        currHealTime += Time.deltaTime;
+        if(hp<maxHp && currHunger >= 3 && currHealTime>healTime)
+        {
+            UpdateHP(1);
+            UpdateHunger(-2);
+            currHealTime = 0;
+        }
+
 
         if (Input.GetKeyDown(KeyCode.M))
         {
@@ -49,20 +84,17 @@ public class PlayerMove : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
-            orgSpeed = moveSpeed;
-            moveSpeed *= 1.6f;
             isRun = true;
         }
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {
-            moveSpeed = orgSpeed;
             isRun = false;
-            
         }
 
         if (isRun)
         {
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, runFOV, 0.05f);
+            hungerTime += Time.deltaTime;
         }
         else if (!isRun)
         {
@@ -91,8 +123,8 @@ public class PlayerMove : MonoBehaviour
         float v = Input.GetAxisRaw("Vertical");
 
         // 2. 이동 방향을 설정한다.
-        Vector3 dir = new Vector3(h, 0, v);
-        dir = dir.normalized;
+        dir = new Vector3(h, 0, v);
+        dir.Normalize();
 
         // 2-1. 메인 카메라를 기준으로 방향을 변환한다. -> 캐릭터 기준으로 변경
         dir = transform.TransformDirection(dir);
@@ -100,9 +132,9 @@ public class PlayerMove : MonoBehaviour
         // 만약 바닥에 다시 착지했다면 == 땅에 닿고있다면
         if (cc.collisionFlags == CollisionFlags.Below || cc.isGrounded)
         {
-            if(yVelocity < -3)
+            if(yVelocity < -4)
             {
-                UpdateHP(-(int)((Mathf.Abs(yVelocity) - 2)));
+                UpdateHP(-(int)((Mathf.Abs(yVelocity) - 3)));
                 if(hp <= 0)
                 {
                     PlayerManager.instance.PlayerDead();
@@ -137,6 +169,11 @@ public class PlayerMove : MonoBehaviour
         // 2-3. 캐릭터 수직 속도에 중력 값을 적용한다.
         dir.y = yVelocity;
 
+        if (isRun)
+        {
+            dir.x *= 1.6f;
+            dir.y *= 1.6f;
+        }
 
         // 3. 이동 속도에 맞춰 이동한다.
         cc.Move(dir * moveSpeed * Time.deltaTime);
@@ -144,9 +181,25 @@ public class PlayerMove : MonoBehaviour
 
     void AnimatorControll()
     {
-        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        if (InventoryStatic.instance.slots[usingSlot].transform.childCount == 5)
+            itemImage = InventoryStatic.instance.slots[usingSlot].GetComponentInChildren<ItemImage>();
+        else if (InventoryStatic.instance.slots[usingSlot].transform.childCount == 4)
+            itemImage = null;
+        if (Input.GetMouseButtonDown(0))
         {
             anim.SetBool("isAction", true);
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            print(itemImage.particleType);
+            if(itemImage != null && itemImage.particleType == ObjectParticleData.ParticleType.Food && PlayerManager.instance.canEat)
+            {
+                anim.SetTrigger("Eat");
+            }
+            else
+            {
+                anim.SetBool("isAction", true);
+            }
         }
         else if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
         {
@@ -159,10 +212,26 @@ public class PlayerMove : MonoBehaviour
     {
         if (PlayerManager.instance.playerDead) return;
         hp += dmg;
+        if (hp > 20) hp = 20;
         if(dmg < 0)
         {
             SoundManager.instance.ActiveOnShotSFXSound(Sound.AudioClipName.Player_Hurt, transform, transform.position);
             damagedCs.DamagedEff();
+        }
+    }
+
+    public void UpdateHunger(float add)
+    {
+        currHunger += add;
+        if(currHunger > 20)
+        {
+            UpdateHP((currHunger - maxHunger)*0.5f);
+            currHunger = maxHunger;
+        }
+        if(currHunger < 0)
+        {
+            UpdateHP(-1);
+            currHunger = 0;
         }
     }
 

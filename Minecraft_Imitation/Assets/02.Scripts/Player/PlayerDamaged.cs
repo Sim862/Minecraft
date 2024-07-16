@@ -6,6 +6,10 @@ using UnityEngine;
 public class PlayerDamaged : MonoBehaviour
 {
     public GameObject damagedEffect;
+    private void Start()
+    {
+        damagedEffect.SetActive(false);
+    }
 
     public void DamagedEff()
     {

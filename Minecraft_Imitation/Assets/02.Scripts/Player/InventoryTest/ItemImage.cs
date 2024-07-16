@@ -10,6 +10,7 @@ public class ItemImage : MonoBehaviour
     public Image itemImage;
     public TextMeshProUGUI itemCount;
     public ObjectParticleData.ParticleName particleKind;
+    public ObjectParticleData.ParticleType particleType;
     public Transform particleObjectTr;
     public bool wasInTakeSlot;
     public bool isPopup = false;
