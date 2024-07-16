@@ -388,7 +388,7 @@ public class Mob : MonoBehaviour
     protected void Movement()
     {
 
-        if(wayPosition != Vector3.zero)
+        if(wayPosition != Vector3.zero && mobState != MobState.Attack)
         {
             wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
             if (wayPositionDistance > 2) // 이동할 위치가 한블럭 보다 크다 = 내 위치가 변했다 -> 이동 취소
@@ -608,10 +608,13 @@ public class Mob : MonoBehaviour
         wayPoints.Reverse();
     }
 
-    protected void AStar_Random()
+    protected void AStar_Random(int runawayDistanceCount = 0)
     {
         // 도망갈 블럭 수
-        int runawayDistanceCount = Random.Range(2,7);
+        if (runawayDistanceCount == 0)
+        {
+            runawayDistanceCount = Random.Range(2, 7);
+        }
 
         openNodes = new List<Node>();
         closedNode = new List<Node>();

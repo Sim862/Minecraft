@@ -161,21 +161,29 @@ public class DataManager : MonoBehaviour
         inven_Check_Y = 1;
         inven_X = 0;
         inven_Check_X = 0;
+        bool inven_Bool = false;
+        bool inven_Bool_X = false;
         for (int i = 0; i < inven.Count; i++)
         {
-            if (inven[i] != ParticleName.None)
-            {
+            inven_Bool_X = false;
+            if (inven[i] != ParticleName.None) // 첫번째 조합식 감지
+            { 
+                inven_Bool = true; // 축 체크 시작
+                inven_Bool_X = true; // x 축 체크
                 inven_Y = inven_Check_Y;
+            }
+            if(inven_Bool) // x 축 체크를 시작했다면
+            {
                 inven_Check_X++;
-                if (inven_Check_X > inven_X)
+                if (inven_Check_X > inven_X && inven_Bool_X) // 갱신된 x축이 기존 x축보다 크다면 갱신  
                 {
                     inven_X = inven_Check_X;
                 }
             }
-            if (inven_Check_Y > 3)
+            if ((i+1)%3 == 0)
             {
-                inven_Check_Y = 0;
-                if(inven_X != 0)
+                inven_Check_X = 0;
+                if(inven_Bool)
                 {
                     inven_Check_Y++;
                 }
@@ -251,7 +259,6 @@ public class DataManager : MonoBehaviour
     {
         for (int i = 0; i < objectParticles_Block.Length; i++)
         {
-            print(objectParticles_Block[i].particleName);
             objectParticleDictionary.Add(objectParticles_Block[i].particleName, objectParticles_Block[i]);
         }
 
