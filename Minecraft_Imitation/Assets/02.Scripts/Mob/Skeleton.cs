@@ -13,6 +13,9 @@ public class Skeleton : Mob
 
     public float attackDistance = 5;
 
+    public Arrow prefab_Arrow;
+    public Transform firePosition;
+
     void Update()
     {
         if (init_test)
@@ -60,37 +63,31 @@ public class Skeleton : Mob
 
                 if (targetTransform != null)
                 {
-                    if (Vector3.Distance(transform.position, targetTransform.position) < 10)
+                    if (Vector3.Distance(transform.position, targetTransform.position) < attackDistance)
                     {
-
-                        if (Vector3.Distance(transform.position, targetTransform.position) < attackDistance)
+                        if (attackCoolTime > 2 && !PlayerManager.instance.playerDead)
                         {
-                            if (attackCoolTime > 2 && !PlayerManager.instance.playerDead)
-                            {
-                                mobState = MobState.Attack;
-                                attackCoolTime = 0;
-                                wayPoints.Clear();
-                                SetWayPosition();
-                            }
-                        }
-                        else
-                        {
-                            AStar(MapManager.instance.PositionToBlockData(targetTransform.position), targetTransform);
+                            mobState = MobState.Attack;
+                            wayPoints.Clear();
                             SetWayPosition();
                         }
                     }
                     else
                     {
-                        targetTransform = null;
+                        AStar(MapManager.instance.PositionToBlockData(targetTransform.position), targetTransform);
+                        SetWayPosition();
+                    }
+                }
+                else
+                {
+                    if (nextMovementTime <= 0 && targetTransform == null)
+                    {
+                        nextMovementTime = 5;
+                        AStar_Random();
+                        SetWayPosition();
                     }
                 }
 
-                if (nextMovementTime <= 0 && targetTransform == null)
-                {
-                    nextMovementTime = 5;
-                    AStar_Random();
-                    SetWayPosition();
-                }
             }
             else if (mobState == MobState.Hit)
             {
@@ -117,12 +114,11 @@ public class Skeleton : Mob
 
                 if (targetTransform != null)
                 {
-                    if (Vector3.Distance(transform.position, targetTransform.position) < attackDistance && attackCoolTime > 2)
+                    if (Vector3.Distance(transform.position, targetTransform.position) < attackDistance)
                     {
-                        if (!PlayerManager.instance.playerDead)
+                        if (!PlayerManager.instance.playerDead && attackCoolTime > 2)
                         {
                             mobState = MobState.Attack;
-                            attackCoolTime = 0;
                             wayPoints.Clear();
                             SetWayPosition();
                         }
@@ -135,58 +131,45 @@ public class Skeleton : Mob
             }
             else if(mobState == MobState.Attack)
             {
-                if (Vector3.Distance(transform.position, targetTransform.position) < attackDistance)
+                if (targetTransform != null && !PlayerManager.instance.playerDead)
                 {
-                    if (!PlayerManager.instance.playerDead)
+                    if (Vector3.Distance(transform.position, targetTransform.position) < attackDistance)
                     {
-                        animator.SetBool("Attack", true);
-                        if (attackCoolTime > 2)
+                        if (!PlayerManager.instance.playerDead)
                         {
-                            attackCoolTime = 0;
-                            wayPoints.Clear();
-                            SetWayPosition();
-                        }
-                        else
-                        {
-                            nextMovementTime = 5;
-                            AStar_Random(1);
-                            SetWayPosition();
+                            animator.SetBool("Attack", true);
+                            if (attackCoolTime > 2)
+                            {
+                                Arrow arrow = Instantiate(prefab_Arrow, firePosition.position, transform.rotation, SpawnManager.instance.transform);
+                                arrow.Fire(targetTransform.position - transform.position, 0.5f);
+                                attackCoolTime = 0;
+                                wayPoints.Clear();
+                                SetWayPosition();
+                            }
+                            else
+                            {
+                                nextMovementTime = 5;
+                                AStar_Random(1);
+                                SetWayPosition();
+                            }
                         }
                     }
                     else
                     {
                         animator.SetBool("Attack", false);
-                        if (nextMovementTime <= 0)
-                        {
-                            nextMovementTime = 5;
-                            AStar_Random();
-                            SetWayPosition();
-                        }
+                        AStar(MapManager.instance.PositionToBlockData(targetTransform.position), targetTransform);
+                        SetWayPosition();
                     }
                 }
                 else
                 {
-
-                    if (target != null)
-                    {
-                        animator.SetBool("Attack", false);
-                        targetTransform = target;
-                        AStar(MapManager.instance.PositionToBlockData(target.position), target);
-                        SetWayPosition();
-                    }
-                    else
-                    {
-                        animator.SetBool("Attack", false);
-                        if (nextMovementTime <= 0)
-                        {
-                            nextMovementTime = 5;
-                            AStar_Random();
-                            SetWayPosition();
-                        }
-                    }
+                    animator.SetBool("Attack", false);
+                    nextMovementTime = 5;
+                    AStar_Random();
+                    SetWayPosition();
                 }
             }
-
+            Rotation();
             Movement();
         }
     }

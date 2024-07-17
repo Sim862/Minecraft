@@ -76,5 +76,7 @@ MonoBehaviour:
   - {fileID: 2438041807876694213, guid: 1760758caf7ceb7468bb348c4822ff11, type: 3}
   - {fileID: 1759838183476344396, guid: de7382815cea7e743bc6ec5798d44e47, type: 3}
   - {fileID: 8875312644296572183, guid: f0afa58076f49b247aed47429743d6a2, type: 3}
+  - {fileID: 104527621449029585, guid: 9bcaaf72e9c8b2f4287433683cc2f93b, type: 3}
+  - {fileID: 104527621449029585, guid: c65d7275a1d1da14bafef51038b1f685, type: 3}
   objectParticles_Food:
   - {fileID: 1013622548973319038, guid: 6e584172c781a704b8fcbe7b4abc7c35, type: 3}

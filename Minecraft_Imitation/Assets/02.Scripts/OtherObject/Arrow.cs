@@ -2,19 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThrowObject : MonoBehaviour
+public class Arrow : MonoBehaviour
 {
     public ObjectParticleData.ParticleName particleName;
-    public float speed = 100;
     public bool canPickUp = false;
     public Rigidbody rigidbody;
-    static int player_Layer = int.MaxValue;
-    static int block_Layer = int.MaxValue;
-
-    private Vector3 startPosition;
+    private static float speed = 200;
+    private static int player_Layer = int.MaxValue;
+    private static int block_Layer = int.MaxValue;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
 
         if(player_Layer == int.MaxValue)
@@ -34,7 +32,7 @@ public class ThrowObject : MonoBehaviour
             transform.position = new Vector3(transform.position.x, Random.Range(1, 20), transform.position.z);
             transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 90), 0, 0));
             test = false;
-            Fire(transform.forward);
+            Fire(transform.forward, 1);
         }
     }
     private void OnDestroy()
@@ -42,11 +40,12 @@ public class ThrowObject : MonoBehaviour
         StopAllCoroutines();
     }
 
-    public void Fire(Vector3 direction)
+    public void Fire(Vector3 direction, float loadTime)
     {
-        startPosition = transform.position;
-        rigidbody.AddForce(direction * speed);
+        transform.LookAt(transform.position + direction);
+        rigidbody.AddForce(direction * speed * loadTime);
         rigidbody.useGravity = true;
+        print(rigidbody.useGravity);
         StartCoroutine(Cor_Distory());
     }
 
@@ -60,15 +59,24 @@ public class ThrowObject : MonoBehaviour
             }
             else
             {
-                //other.GetComponent<PlayerMove>().UpdateHP(-5);
-                transform.position -= (transform.position + rigidbody.velocity - other.transform.position).normalized * 0.3f;
-                startPosition = transform.position; ;
+                canPickUp = true;
+                other.GetComponent<PlayerMove>().UpdateHP(-5);
+                transform.position -= (transform.position - (transform.position - rigidbody.velocity * 10)).normalized * 0.2f;
                 rigidbody.velocity = Vector3.zero;
+                rigidbody.useGravity = true;
             }
         }
         else if (other.gameObject.layer == block_Layer)
         {
-            transform.position -= (transform.position + rigidbody.velocity - other.transform.position).normalized * 0.3f;
+            float distance = Vector3.Distance(transform.position, other.transform.position);
+            if (distance < 0.5)
+            {
+                transform.position -= (transform.position - (transform.position - rigidbody.velocity * 10)).normalized * 0.2f;
+            }
+            else
+            {
+                transform.position += (transform.position - (transform.position - rigidbody.velocity * 10)).normalized * 0.2f;
+            }
             transform.LookAt(transform.position + rigidbody.velocity);
             rigidbody.velocity = Vector3.zero;
             rigidbody.useGravity = false;

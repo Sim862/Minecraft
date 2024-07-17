@@ -10,6 +10,7 @@ TagManager:
   - ObjectParticle
   - ItemImage
   - CraftingTable
+  - Arrow
   layers:
   - Default
   - TransparentFX
