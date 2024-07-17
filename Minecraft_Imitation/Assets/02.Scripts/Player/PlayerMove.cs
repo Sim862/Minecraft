@@ -8,7 +8,7 @@ public class PlayerMove : MonoBehaviour
 {
     CharacterController cc; // 캐릭터 컨트롤러 변수
     public float moveSpeed = 7f;// 이동 속도 변수
-    float gravity = -6.673f; // 중력 변수
+    private float gravity = -6.673f; // 중력 변수
     public float yVelocity = 0f; // 수직 속력 변수
     public float jumpPower = 1.8f; // 점프력 변수
     public bool isJumping = false; // 점프 상태 변수

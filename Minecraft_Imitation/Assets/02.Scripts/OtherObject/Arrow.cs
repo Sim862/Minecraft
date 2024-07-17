@@ -55,12 +55,13 @@ public class Arrow : MonoBehaviour
         {
             if (canPickUp)
             {
-
+                
+                Destroy(gameObject);
             }
             else
             {
                 canPickUp = true;
-                other.GetComponent<PlayerMove>().UpdateHP(-5);
+                other.GetComponent<PlayerMove>().UpdateHP(-1);
                 transform.position -= (transform.position - (transform.position - rigidbody.velocity * 10)).normalized * 0.2f;
                 rigidbody.velocity = Vector3.zero;
                 rigidbody.useGravity = true;
