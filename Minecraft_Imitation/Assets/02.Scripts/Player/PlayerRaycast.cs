@@ -125,7 +125,7 @@ public class PlayerRaycast : MonoBehaviour
         if (Input.GetMouseButtonDown(1)) // 마우스 우클릭시 설치 및 사용
         {
             int slotnumber = PlayerManager.instance.usingSlot; // 현재 사용중인 슬롯넘버 저장.
-            if (isBlock && itemImage.particleType == ObjectParticleData.ParticleType.Block)
+            if (isBlock && itemImage!=null &&itemImage.particleType == ObjectParticleData.ParticleType.Block)
             {
                 InstallBlock(slotnumber);
             }

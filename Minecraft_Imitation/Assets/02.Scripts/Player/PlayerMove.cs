@@ -191,7 +191,6 @@ public class PlayerMove : MonoBehaviour
         }
         else if (Input.GetMouseButtonDown(1))
         {
-            print(itemImage.particleType);
             if(itemImage != null && itemImage.particleType == ObjectParticleData.ParticleType.Food && PlayerManager.instance.canEat)
             {
                 anim.SetTrigger("Eat");
