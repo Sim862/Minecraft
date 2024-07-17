@@ -61,6 +61,7 @@ MonoBehaviour:
   mobList:
   - {fileID: 5661128434706038575, guid: c214d54f150d46949821a4b84e0f330e, type: 3}
   - {fileID: 7328560473382563480, guid: 57522d48dd8641940bf687807ece0963, type: 3}
+  - {fileID: 9009885227327245310, guid: e83f79a568a6f10449e4d588041e29f1, type: 3}
   objectParticles_Block:
   - {fileID: 5420936105177163834, guid: fd266814a05777f4093341b88542f57a, type: 3}
   - {fileID: 5420936105177163834, guid: 88257273ff512694cb17792e69f6e226, type: 3}
@@ -75,5 +76,7 @@ MonoBehaviour:
   - {fileID: 2438041807876694213, guid: 1760758caf7ceb7468bb348c4822ff11, type: 3}
   - {fileID: 1759838183476344396, guid: de7382815cea7e743bc6ec5798d44e47, type: 3}
   - {fileID: 8875312644296572183, guid: f0afa58076f49b247aed47429743d6a2, type: 3}
+  - {fileID: 104527621449029585, guid: 9bcaaf72e9c8b2f4287433683cc2f93b, type: 3}
+  - {fileID: 104527621449029585, guid: c65d7275a1d1da14bafef51038b1f685, type: 3}
   objectParticles_Food:
   - {fileID: 1013622548973319038, guid: 6e584172c781a704b8fcbe7b4abc7c35, type: 3}

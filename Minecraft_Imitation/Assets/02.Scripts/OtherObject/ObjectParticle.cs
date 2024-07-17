@@ -19,11 +19,12 @@ public class ObjectParticle : MonoBehaviour
 
     private List<Transform> particleObjects = new List<Transform>();
     
-    public ObjectParticleData.ParticleName particleName; // 오브젝트 파티클 종류
-    public ObjectParticleData.ParticleType particleType; //
+    public ObjectParticleData.ParticleName particleName; // 오브젝트 파티클 이름
+    public ObjectParticleData.ParticleType particleType; // 오브젝트 파티클 타입
     public Sprite icon;
 
     public int count = 1;
+    public int durability = 100;
     private Transform target;
     private bool onTarget = false;
     public float power = 1;

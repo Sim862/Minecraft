@@ -242,6 +242,6 @@ MonoBehaviour:
   moveSpeed: 5
   particleName: 7
   particleType: 1
-  icon: {fileID: 21300000, guid: 4e4130a1abaffd9439982b699fb8d10f, type: 3}
+  icon: {fileID: 21300000, guid: 869e7684cd79d5e41adfe98277769ff0, type: 3}
   count: 0
   power: 1

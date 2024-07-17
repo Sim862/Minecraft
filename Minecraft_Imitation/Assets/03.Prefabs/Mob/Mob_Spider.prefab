@@ -152,7 +152,7 @@ MonoBehaviour:
   rigidbody: {fileID: 6639335273085856539}
   animator: {fileID: 0}
   mobKind: 3
-  dropItems: 
+  dropItems: []
   deathParticle: {fileID: 6650199810314842004, guid: c004ba8c0b51ed14db6d4c64f4bc6019, type: 3}
   detectionDistance: 8
   alive: 0

@@ -110,6 +110,7 @@ public class MobData : GameObjectData
         chicken,
         Creeper,
         Spider,
+        Skeleton_Arrow,
     }
 
     public MobKind mobKind;
@@ -144,8 +145,10 @@ public class ObjectParticleData : GameObjectData
         WoodenPickaxe, StonePickaxe, IronPickaxe, GoldenPickaxe, DiamondPickaxe,
         Pick,
         Hoe,
+        Bow,
+        Arrow,
 
-    //  Food  -----------------------------------------------------------------------
+        //  Food  -----------------------------------------------------------------------
         RawPorkchop,
 
     }

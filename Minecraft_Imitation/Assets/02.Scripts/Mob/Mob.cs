@@ -28,6 +28,13 @@ public class Node
     public int f { get { return g + h; } }
 }
 
+[System.Serializable]
+public class DropItem
+{
+    public ObjectParticleData.ParticleName dropItem;
+    public float probability;
+}
+
 public class Mob : MonoBehaviour
 {
     protected enum MobState
@@ -44,7 +51,7 @@ public class Mob : MonoBehaviour
     public MobData mobData { get; private set; }
     public MobData.MobKind mobKind;
 
-    public ObjectParticleData.ParticleName[] dropItems;
+    public DropItem[] dropItems;
 
     public ParticleSystem deathParticle;
 
@@ -190,18 +197,19 @@ public class Mob : MonoBehaviour
 
     protected void Rotation()
     {
+
         if (targetTransform != null)
         {
             dir = (targetTransform.position - transform.position).normalized;
 
             Vector3 cross = Vector3.Cross(transform.forward, new Vector3(targetTransform.position.x - transform.position.x, 0, targetTransform.position.z - transform.position.z).normalized);
-            if (cross.y > 0.7)
-            {
-                transform.Rotate(new Vector3(0, -100 * Time.deltaTime, 0));
-            }
-            else if (cross.y < -0.7)
+            if (cross.y > 0.35)
             {
                 transform.Rotate(new Vector3(0, 100 * Time.deltaTime, 0));
+            }
+            else if (cross.y < -0.35)
+            {
+                transform.Rotate(new Vector3(0, -100 * Time.deltaTime, 0));
             }
             else
             {
@@ -292,10 +300,13 @@ public class Mob : MonoBehaviour
 
         for (int i = 0; i < dropItems.Length; i++)
         {
-            Rigidbody temp = Instantiate(DataManager.instance.GetObjectParticlePrefab(dropItems[i]), 
-                new Vector3(transform.position.x + i - 0.5f, transform.position.y, transform.position.z + i - 0.5f), 
-                Quaternion.identity, SpawnManager.instance.transform).GetComponent<Rigidbody>();
-            temp.AddForce(Vector3.up * 100);
+            if (Random.value < dropItems[i].probability)
+            {
+                Rigidbody temp = Instantiate(DataManager.instance.GetObjectParticlePrefab(dropItems[i].dropItem),
+                    new Vector3(transform.position.x + Random.Range(-0.2f,0.2f), transform.position.y, transform.position.z + Random.Range(-0.2f, 0.2f)),
+                    Quaternion.identity, SpawnManager.instance.transform).GetComponent<Rigidbody>();
+                temp.AddForce(Vector3.up * 100);
+            }
         }
 
         mobSpawnData.positionData.chunk.RemoveMobSpawnData(mobSpawnData, this);
@@ -388,7 +399,7 @@ public class Mob : MonoBehaviour
     protected void Movement()
     {
 
-        if(wayPosition != Vector3.zero)
+        if(wayPosition != Vector3.zero && mobState != MobState.Attack)
         {
             wayPositionDistance = Vector3.Distance(transform.position, wayPosition);
             if (wayPositionDistance > 2) // 이동할 위치가 한블럭 보다 크다 = 내 위치가 변했다 -> 이동 취소
@@ -608,10 +619,13 @@ public class Mob : MonoBehaviour
         wayPoints.Reverse();
     }
 
-    protected void AStar_Random()
+    protected void AStar_Random(int runawayDistanceCount = 0)
     {
         // 도망갈 블럭 수
-        int runawayDistanceCount = Random.Range(2,7);
+        if (runawayDistanceCount == 0)
+        {
+            runawayDistanceCount = Random.Range(2, 7);
+        }
 
         openNodes = new List<Node>();
         closedNode = new List<Node>();
