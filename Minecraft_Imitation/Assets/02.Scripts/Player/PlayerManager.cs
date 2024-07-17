@@ -26,6 +26,7 @@ public class PlayerManager : MonoBehaviour
     public GameObject hand;
     public GameObject pickPos;
 
+    public bool isBow;
     int previous;
     int now;
 
@@ -57,6 +58,8 @@ public class PlayerManager : MonoBehaviour
         if (playerMove.currHunger < playerMove.maxHunger) canEat = true;
         else if (playerMove.currHunger >= playerMove.maxHunger) canEat = false;
 
+        
+
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             InventoryPopup.instance.useMaker = false;
@@ -75,6 +78,18 @@ public class PlayerManager : MonoBehaviour
         {
             hand.SetActive(false);
             pickPos.SetActive(true);
+            if(InventoryStatic.instance.slots[usingSlot].transform.GetChild(4).GetComponent<ObjectParticle>() != null)
+            {
+                if (InventoryStatic.instance.slots[usingSlot].transform.GetChild(4).GetComponent<ObjectParticle>().particleName == ObjectParticleData.ParticleName.Bow)
+                {
+                    isBow = true;
+                }
+                else
+                {
+                    isBow = false;
+                }
+            }
+            
         }
 
     }

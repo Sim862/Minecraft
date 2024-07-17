@@ -102,11 +102,6 @@ public class InventoryPopup : MonoBehaviour
                 }
             }
             CheckQuickSlot();
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                print("isDraging은 " + isDraging);
-                print("dragingItem은 " + dragingItem.name);
-            }
         } 
         // 클릭했을 때 현재 마우스가 가리키고 있는게 뭔지 체크.
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
@@ -115,7 +110,6 @@ public class InventoryPopup : MonoBehaviour
             
             if (rayObject.layer != LayerMask.NameToLayer("ItemImage") && rayObject.layer != LayerMask.NameToLayer("Slot"))
             {
-                print("ItemImage, Slot 둘 다 아님");
                 return;
             }
             if(rayObject.layer == LayerMask.NameToLayer("ItemImage"))
@@ -143,7 +137,7 @@ public class InventoryPopup : MonoBehaviour
                 else if (rayObject.layer == LayerMask.NameToLayer("ItemImage")) // 슬롯이 아니라 이미지가 있으면
                 {
                     previousItemImage = rayObject.GetComponent<ItemImage>();
-                    if (dragItemImage.particleKind != previousItemImage.particleKind)// 이미지가 다르면
+                    if (dragItemImage.particleName != previousItemImage.particleName)// 이미지가 다르면
                     {
                         // 그 자리 들어가고
                         dragingItem.transform.SetParent(rayObject.transform.parent);
@@ -155,7 +149,7 @@ public class InventoryPopup : MonoBehaviour
                         dragingItem.transform.SetParent(transform);
                         dragingItem.GetComponent<Image>().raycastTarget = false;
                     }
-                    else if (dragItemImage.particleKind == previousItemImage.particleKind)// 이미지 검사후
+                    else if (dragItemImage.particleName == previousItemImage.particleName)// 이미지 검사후
                     {
                         
                         if (previousItemImage.wasInTakeSlot)
@@ -207,7 +201,7 @@ public class InventoryPopup : MonoBehaviour
                 else if (rayObject.layer == LayerMask.NameToLayer("ItemImage")) // 슬롯에 이미지가 있을 때
                 {
                     previousItemImage = rayObject.GetComponent<ItemImage>();
-                    if (previousItemImage.particleKind == dragItemImage.particleKind)// 이미지가 같으면
+                    if (previousItemImage.particleName == dragItemImage.particleName)// 이미지가 같으면
                     {
                         if (previousItemImage.wasInTakeSlot)
                         {
@@ -221,7 +215,7 @@ public class InventoryPopup : MonoBehaviour
                             TransferCnt(previousItemImage, dragItemImage, false);
                         }
                     }
-                    else if (previousItemImage.particleKind != dragItemImage.particleKind)// 이미지가 다르면
+                    else if (previousItemImage.particleName != dragItemImage.particleName)// 이미지가 다르면
                     {
                         // 이미지가 다르면 전체 바꿈.
                         // 그 자리 들어가고
@@ -453,14 +447,14 @@ public class InventoryPopup : MonoBehaviour
                 {
                     ItemImage quick = quickGo.GetComponent<ItemImage>();
                     ItemImage staticCs = staticGo.GetComponent<ItemImage>();
-                    if(quick.particleKind == staticCs.particleKind) // 종류가 같으면
+                    if(quick.particleName == staticCs.particleName) // 종류가 같으면
                     {
                         staticCs.ChangeItemCnt(quick.count-staticCs.count); // quick.count값으로 교체
                     }
                     else // 종류가 다르면
                     {
                         staticCs.particleObjectTr = quick.particleObjectTr;
-                        staticCs.particleKind = quick.particleKind;
+                        staticCs.particleName = quick.particleName;
                         staticCs.itemImage.sprite = quick.itemImage.sprite;
                         staticCs.ChangeItemCnt(quick.count - staticCs.count);
                     }

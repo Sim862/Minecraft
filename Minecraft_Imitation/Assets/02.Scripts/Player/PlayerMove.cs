@@ -26,14 +26,20 @@ public class PlayerMove : MonoBehaviour
     float walkFOV = 60f;
     bool isRun;
     float hungerTime;
-    public float hungerCoolTime = 60f;
+    public float hungerCoolTime = 10f;
     Vector3 dir;
     float orgX;
     float orgY;
-    public float healTime = 90f;
+    public float healTime = 10f;
     float currHealTime;
     int usingSlot;
     ItemImage itemImage;
+    bool invincibility;
+    bool isFiring;
+    public GameObject arrowFac;
+    GameObject arrowGo;
+    Arrow arrowCs;
+    float loadTime = 0;
 
     void Start()
     {
@@ -44,6 +50,7 @@ public class PlayerMove : MonoBehaviour
         PlayerManager.instance.respawnUI.SetActive(false);
         cam = Camera.main;
         currHunger = maxHunger;
+        invincibility = false;
     }
 
 
@@ -54,10 +61,18 @@ public class PlayerMove : MonoBehaviour
         hungerSlider.value = currHunger / maxHunger;
         usingSlot = PlayerManager.instance.usingSlot;
 
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            invincibility = !invincibility;
+        }
+
+
         if (PlayerManager.instance.playerDead) return;
         PlayerMoveMethod();
 
         
+
+
         if(hungerTime > hungerCoolTime)
         {
             hungerTime = 0;
@@ -187,7 +202,14 @@ public class PlayerMove : MonoBehaviour
             itemImage = null;
         if (Input.GetMouseButtonDown(0))
         {
-            anim.SetBool("isAction", true);
+            if(itemImage != null && itemImage.particleName == ObjectParticleData.ParticleName.Bow)
+            {
+
+            }
+            else
+            {
+                anim.SetBool("isAction", true);
+            }
         }
         else if (Input.GetMouseButtonDown(1))
         {
@@ -206,10 +228,33 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
+    public void FireArrow()
+    {
+        
+        if (PlayerManager.instance.isBow)
+        {
+            
+            if (Input.GetMouseButtonDown(0))
+            {
+                loadTime += Time.deltaTime;
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                arrowGo = Instantiate(arrowFac);
+                arrowGo.transform.position = Camera.main.transform.position;
+                arrowGo.GetComponent<Arrow>().Fire(Camera.main.transform.forward, loadTime);
+                loadTime = 0;
+
+                print("Fire!!");
+            }
+        }
+    }
+
 
     public void UpdateHP(float dmg)
     {
         if (PlayerManager.instance.playerDead) return;
+        if (invincibility) return;
         hp += dmg;
         if (hp > 20) hp = 20;
         if(dmg < 0)

@@ -4203,6 +4203,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1522013321488541445, guid: a72b1a872f503ac46b8492bececb0977, type: 3}
+      propertyPath: arrowFac
+      value: 
+      objectReference: {fileID: 2414573245414557368, guid: c6e15febcc833034dbc7ea9934132b10, type: 3}
+    - target: {fileID: 1522013321488541445, guid: a72b1a872f503ac46b8492bececb0977, type: 3}
+      propertyPath: healTime
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1522013321488541445, guid: a72b1a872f503ac46b8492bececb0977, type: 3}
       propertyPath: hpSlider
       value: 
       objectReference: {fileID: 1622739492}
@@ -4210,6 +4218,10 @@ PrefabInstance:
       propertyPath: hungerSlider
       value: 
       objectReference: {fileID: 2102653691}
+    - target: {fileID: 1522013321488541445, guid: a72b1a872f503ac46b8492bececb0977, type: 3}
+      propertyPath: hungerCoolTime
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 2812038238595298997, guid: a72b1a872f503ac46b8492bececb0977, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

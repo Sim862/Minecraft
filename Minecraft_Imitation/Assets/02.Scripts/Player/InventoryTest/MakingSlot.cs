@@ -6,7 +6,7 @@ using UnityEngine;
 public class MakingSlot : MonoBehaviour
 {
     public GameObject[] dropSlot = new GameObject[9];
-    public ObjectParticleData.ParticleName[] particleKinds = new ObjectParticleData.ParticleName[9];
+    public ObjectParticleData.ParticleName[] particleNames = new ObjectParticleData.ParticleName[9];
     public GameObject takeSlot;
     CombinationData combinationData;
     public GameObject itemImagePref;
@@ -43,11 +43,11 @@ public class MakingSlot : MonoBehaviour
             }
             if(item != null)
             {
-                particleKinds[i] = item.particleKind;
+                particleNames[i] = item.particleName;
             }
             else if(item == null)
             {
-                particleKinds[i] = ObjectParticleData.ParticleName.None;
+                particleNames[i] = ObjectParticleData.ParticleName.None;
             }
             //print("내 " +i+ "번째 슬롯 자식수는 :  "+dropSlot[i].transform.childCount);
         }
@@ -56,7 +56,7 @@ public class MakingSlot : MonoBehaviour
 
     void TransferData()
     {
-        combinationData = DataManager.instance.GetCombinationData(particleKinds.ToList());
+        combinationData = DataManager.instance.GetCombinationData(particleNames.ToList());
         if(combinationData != null)
         {
             if (takeSlot.transform.childCount != 0)
@@ -68,9 +68,17 @@ public class MakingSlot : MonoBehaviour
                 itemImage = Instantiate(itemImagePref, takeSlot.transform);
                 itemImage.transform.localPosition = Vector3.zero;
                 itemImageCs = itemImage.GetComponent<ItemImage>();
-                itemImageCs.particleKind = combinationData.result;
+                itemImageCs.particleName = combinationData.result;
+                itemImageCs.particleType = DataManager.instance.GetObjectParticlePrefab(itemImageCs.particleName).particleType;
                 itemImageCs.itemImage.sprite = DataManager.instance.GetObjectParticlePrefab(combinationData.result).icon;
-                itemImageCs.ChangeItemCnt(combinationData.count);
+                if(itemImageCs.particleType == ObjectParticleData.ParticleType.Tool && itemImageCs.particleName != ObjectParticleData.ParticleName.Arrow)
+                {
+                    Destroy(itemImageCs.itemCount.gameObject);
+                }
+                else
+                {
+                    itemImageCs.ChangeItemCnt(combinationData.count);
+                }
                 itemImageCs.wasInTakeSlot = true;
             }
             

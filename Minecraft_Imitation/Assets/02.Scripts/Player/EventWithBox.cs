@@ -63,10 +63,7 @@ public class EventWithBox : MonoBehaviour
                 OnClickBlockCs.StopBroke(); // 그 블럭의 stop을 호출하고
             }
             OnClickBlock = null; // 그 블럭 값을 null로 바꿈.
-            if (OnClickBlock == null)
-            {
-                
-            }
+
         }
 
         // 좌클릭 중에 대상이 바뀌면

@@ -129,10 +129,6 @@ public class PlayerRaycast : MonoBehaviour
             {
                 InstallBlock(slotnumber);
             }
-            /*if(itemImage.particleType == ObjectParticleData.ParticleType.Food && PlayerManager.instance.canEat)
-            {
-                EatFood();
-            }*/
             if(hitInfo.transform.gameObject.tag == "CraftingTable")
             {
                 InventoryPopup.instance.useMaker = true;
@@ -156,7 +152,7 @@ public class PlayerRaycast : MonoBehaviour
                 nowItemImageInQuick.ChangeItemCnt(-1);
                 PositionData positionData = MapManager.instance.PositionToBlockData(newBlockPos);
                 print(positionData.blockIndex_x + " , " + positionData.blockIndex_y + " . " + positionData.blockIndex_z) ;
-                BlockData.BlockName blockKind = DataManager.instance.ParticleToBlockKind(nowItemImage.particleKind);
+                BlockData.BlockName blockKind = DataManager.instance.ParticleToBlockKind(nowItemImage.particleName);
                 MapManager.instance.CreateBlock(positionData.chunk, blockKind, positionData.blockIndex_x,positionData.blockIndex_y,positionData.blockIndex_z);
 
             }

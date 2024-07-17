@@ -49,7 +49,7 @@ public class InventoryStatic : MonoBehaviour
                 
                 if (itemInSlot.count == 64) continue;
                 ItemImage itemImage = item.GetComponentInChildren<ItemImage>();
-                if(itemImage.particleKind == itemInSlot.particleKind)
+                if(itemImage.particleName == itemInSlot.particleName)
                 {
                     if(itemInSlot.count + itemImage.count <= maxCnt) // maxCnt == 64
                     {

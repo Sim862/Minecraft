@@ -9,7 +9,7 @@ public class ItemImage : MonoBehaviour
     public int count;
     public Image itemImage;
     public TextMeshProUGUI itemCount;
-    public ObjectParticleData.ParticleName particleKind;
+    public ObjectParticleData.ParticleName particleName;
     public ObjectParticleData.ParticleType particleType;
     public Transform particleObjectTr;
     public bool wasInTakeSlot;
@@ -44,7 +44,7 @@ public class ItemImage : MonoBehaviour
         itemImage.itemImage = this.itemImage;
         itemImage.itemCount = itemCount;
         itemImage.isPopup = isPopup;
-        itemImage.particleKind = particleKind;
+        itemImage.particleName = particleName;
         itemImage.particleObjectTr = particleObjectTr; 
         itemImage.wasInTakeSlot = wasInTakeSlot;
     }

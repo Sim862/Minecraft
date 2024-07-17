@@ -5,7 +5,7 @@ using UnityEngine;
 public class DropItemEvent : MonoBehaviour
 {
     public GameObject objectParticleFac;
-    ObjectParticleData.ParticleName particleKind; // 필드에 있는 오브젝트의 종류,개수,아이콘 가져옴.
+    ObjectParticleData.ParticleName particleName; // 필드에 있는 오브젝트의 종류,개수,아이콘 가져옴.
     int count;
     Sprite icon;
     public Transform cameraPos;
@@ -60,7 +60,7 @@ public class DropItemEvent : MonoBehaviour
 
     void TransferDataWithoutCnt(ObjectParticle objectParticleCs, ItemImage nowItemImage)
     {
-        objectParticleCs.particleName = nowItemImage.particleKind;
+        objectParticleCs.particleName = nowItemImage.particleName;
         objectParticleCs.icon = nowItemImage.itemImage.sprite;
     }
 
@@ -78,7 +78,7 @@ public class DropItemEvent : MonoBehaviour
                 return;
             }
             // ObjectParticle의 Prefab 받아오기
-            ObjectParticle objectParticle = DataManager.instance.GetObjectParticlePrefab(nowItemImage.particleKind);
+            ObjectParticle objectParticle = DataManager.instance.GetObjectParticlePrefab(nowItemImage.particleName);
             // Prefab 생성
             objectParticle = Instantiate(objectParticle);
 
