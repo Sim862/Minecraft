@@ -10,7 +10,8 @@ public class Arrow : MonoBehaviour
     private static float speed = 200;
     private static int player_Layer = int.MaxValue;
     private static int block_Layer = int.MaxValue;
-
+    private static int mob_Layer = int.MaxValue;
+    private bool isPlayer = false;
     // Start is called before the first frame update
     void Awake()
     {
@@ -19,33 +20,24 @@ public class Arrow : MonoBehaviour
             player_Layer = LayerMask.NameToLayer("Player");
         if(block_Layer == int.MaxValue)
             block_Layer = LayerMask.NameToLayer("Block");
+        if (mob_Layer == int.MaxValue)
+            mob_Layer = LayerMask.NameToLayer("Mob");
 
         rigidbody = GetComponent<Rigidbody>();
         rigidbody.useGravity = false;
     }
 
-    public bool test = false;
-    private void Update()
-    {
-        if (test)
-        {
-            transform.position = new Vector3(transform.position.x, Random.Range(1, 20), transform.position.z);
-            transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 90), 0, 0));
-            test = false;
-            Fire(transform.forward, 1);
-        }
-    }
     private void OnDestroy()
     {
         StopAllCoroutines();
     }
 
-    public void Fire(Vector3 direction, float loadTime)
+    public void Fire(Vector3 direction, float loadTime, bool isPlayer = false)
     {
+        this.isPlayer = isPlayer;
         transform.LookAt(transform.position + direction);
         rigidbody.AddForce(direction * speed * loadTime);
         rigidbody.useGravity = true;
-        print(rigidbody.useGravity);
         StartCoroutine(Cor_Distory());
     }
 
@@ -53,18 +45,22 @@ public class Arrow : MonoBehaviour
     {
         if (other.gameObject.layer == player_Layer)
         {
-            if (canPickUp)
-            {
-                
-                Destroy(gameObject);
-            }
-            else
+            if(!canPickUp && !isPlayer)
             {
                 canPickUp = true;
                 other.GetComponent<PlayerMove>().UpdateHP(-1);
                 transform.position -= (transform.position - (transform.position - rigidbody.velocity * 10)).normalized * 0.2f;
                 rigidbody.velocity = Vector3.zero;
-                rigidbody.useGravity = true;
+            }
+        }
+        else if(other.gameObject.layer == mob_Layer)
+        {
+            if (!canPickUp && isPlayer)
+            {
+                canPickUp = true;
+                other.GetComponent<Mob>().UpdateHP(PlayerManager.instance.player.transform, -10, 1f);
+                transform.position -= (transform.position - (transform.position - rigidbody.velocity * 10)).normalized * 0.2f;
+                rigidbody.velocity = Vector3.zero;
             }
         }
         else if (other.gameObject.layer == block_Layer)

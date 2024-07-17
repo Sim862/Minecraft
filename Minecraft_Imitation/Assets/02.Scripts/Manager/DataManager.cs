@@ -38,7 +38,14 @@ public class DataManager : MonoBehaviour
 
     private string particleKind_String;
     private BlockData.BlockName blockKind;
-    
+
+    int start_X = int.MaxValue;
+    int end_X = int.MinValue;
+    int startY = int.MaxValue;
+    int endY = int.MinValue;
+    bool check_Y = false;
+    int count_Y = 1;
+
     private void Awake()
     {
         if(instance != null)
@@ -83,7 +90,7 @@ public class DataManager : MonoBehaviour
     // 블럭 데이터 파싱
     private void ReadBlockData()
     {
-        string blcokData_txt = ReadTxt(Application.dataPath + "/11.Data/BlockData.txt");
+        string blcokData_txt = ReadTxt(Application.streamingAssetsPath + "/Data/BlockData.txt");
         string[] data_Lines = blcokData_txt.Split("\n");
         string[] data_Tap;
         for (int i = 1; i < data_Lines.Length-1; i++)
@@ -124,7 +131,7 @@ public class DataManager : MonoBehaviour
     // 조합식 데이터 파싱
     private void ReadCombinationData()
     {
-        string blcokData_txt = ReadTxt(Application.dataPath + "/11.Data/CombinationData.txt");
+        string blcokData_txt = ReadTxt(Application.streamingAssetsPath + "/Data/CombinationData.txt");
         string[] data_Lines = blcokData_txt.Split("\n");
         string[] data_Tap;
         for (int i = 1; i < data_Lines.Length - 1; i++)
@@ -152,42 +159,49 @@ public class DataManager : MonoBehaviour
         }
     }
 
+
     public CombinationData GetCombinationData(List<ObjectParticleData.ParticleName> inven)
     {
         currectDataList.Clear();
 
         // x, y 축 검사
-        inven_Y = 0;
-        inven_Check_Y = 1;
+        start_X = int.MaxValue;
+        end_X = int.MinValue;
+        startY = int.MaxValue;
+        endY = int.MinValue;
+        check_Y = false;
+        count_Y = 1;
+
         inven_X = 0;
-        inven_Check_X = 0;
-        bool inven_Bool = false;
-        bool inven_Bool_X = false;
+        inven_Y = 0;
         for (int i = 0; i < inven.Count; i++)
         {
-            inven_Bool_X = false;
-            if (inven[i] != ParticleName.None) // 첫번째 조합식 감지
-            { 
-                inven_Bool = true; // 축 체크 시작
-                inven_Bool_X = true; // x 축 체크
-                inven_Y = inven_Check_Y;
-            }
-            if(inven_Bool) // x 축 체크를 시작했다면
+            if (inven[i] != ParticleName.None)
             {
-                inven_Check_X++;
-                if (inven_Check_X > inven_X && inven_Bool_X) // 갱신된 x축이 기존 x축보다 크다면 갱신  
+                check_Y = true;
+                inven_Y = count_Y;
+                if ((i % 3) + 1 < start_X)
                 {
-                    inven_X = inven_Check_X;
+                    start_X = i % 3 + 1;
+                }
+                if((i % 3) +1 > end_X)
+                {
+                    end_X = i % 3 + 1;
                 }
             }
-            if ((i+1)%3 == 0)
+
+            if((i+1)%3 == 0)
             {
-                inven_Check_X = 0;
-                if(inven_Bool)
+                if (check_Y)
                 {
-                    inven_Check_Y++;
+                    count_Y++;
                 }
             }
+        }
+        print(start_X + ", " + end_X);
+        if (start_X != int.MaxValue)
+        {
+            inven_X = end_X - start_X + 1;    
         }
 
         // x, y 비교
@@ -201,7 +215,10 @@ public class DataManager : MonoBehaviour
                 }
             }
         }
-
+        for (int i = 0; i < currectDataList.Count; i++)
+        {
+            print(currectDataList[i].result + " : " + currectDataList[i].x + " , " + currectDataList[i].y);
+        }
         if (currectDataList.Count == 0)
         {
             return null;

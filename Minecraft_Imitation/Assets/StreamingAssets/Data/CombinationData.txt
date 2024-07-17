@@ -1,0 +1,5 @@
+Result	Count	ParticleKind(index 0)	ParticleKind(index 1)	ParticleKind(index 2)	ParticleKind(index 3)	ParticleKind(index 4)	ParticleKind(index 5)	ParticleKind(index 6)	ParticleKind(index 7)	ParticleKind(index 8)
+WoodenPlank	4	Wood	None	None	None	None	None	None	None	None
+Stick	4	WoodenPlank	None	None	WoodenPlank	None	None	None	None	None
+WoodenPickaxe	1	Wood	Wood	Wood	None	Stick	None	None	Stick	None
+CraftingTable	1	WoodenPlank	WoodenPlank	None	WoodenPlank	WoodenPlank	None	None	None	None
