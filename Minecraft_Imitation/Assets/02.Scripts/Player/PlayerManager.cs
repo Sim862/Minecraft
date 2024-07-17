@@ -19,6 +19,7 @@ public class PlayerManager : MonoBehaviour
     float orgPlayerRotSpeed;
     bool cursorLock = true;
     bool canGetItem;
+    public bool canEat;
     public bool playerDead;
     public GameObject player;
 
@@ -53,6 +54,9 @@ public class PlayerManager : MonoBehaviour
 
 
         if (PlayerManager.instance.playerDead) return;
+        if (playerMove.currHunger < playerMove.maxHunger) canEat = true;
+        else if (playerMove.currHunger >= playerMove.maxHunger) canEat = false;
+
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             InventoryPopup.instance.useMaker = false;

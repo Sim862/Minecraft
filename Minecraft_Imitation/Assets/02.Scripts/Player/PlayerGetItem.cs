@@ -32,6 +32,7 @@ public class PlayerGetItem : MonoBehaviour
             itemImageCs.count = count;
             itemImageCs.itemCount.text = $"{count}";
             itemImageCs.particleKind = particleKind;
+            itemImageCs.particleType = objectParticleCs.particleType;
             itemImageCs.particleObjectTr = objectParticleCs.particleObject;
             //itemImageCs.particleObjectTr.SetParent(gripPos.transform);
             //itemImageCs.particleObjectTr.localPosition = Vector3.zero;
