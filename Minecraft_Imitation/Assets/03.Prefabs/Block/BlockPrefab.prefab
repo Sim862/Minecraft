@@ -18,7 +18,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 109
   m_IsActive: 1
 --- !u!4 &3312480687982696064
 Transform:
@@ -121,8 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blockData:
-    objectKind: 0
-    blockKind: 0
+    blockName: 0
     blockType: 0
     strength: 0
     brockBreakSound: 0
@@ -131,3 +130,9 @@ MonoBehaviour:
     objectParticle: 0
   meshRenderer: {fileID: 0}
   canBreak: 1
+  positionData:
+    chunk_X: 0
+    chunk_Z: 0
+    blockIndex_x: 0
+    blockIndex_y: 0
+    blockIndex_z: 0

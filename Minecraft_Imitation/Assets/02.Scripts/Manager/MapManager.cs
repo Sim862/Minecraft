@@ -237,7 +237,7 @@ public class MapManager : MonoBehaviour
         {
             for (int i = chunks.Count-1; i >= 0; i--)
             {
-                if (Vector3.Distance(GetObjectPosition(chunks[i],6,playerPositionData.blockIndex_y,6), PlayerManager.instance.player.transform.position) > 36)
+                if (Vector3.Distance(GetObjectPosition(chunks[i],6,playerPositionData.blockIndex_y,6), PlayerManager.instance.player.transform.position) > 50)
                 {
                     Remove_Chunk(chunks[i]);
                     chunks.RemoveAt(i);
@@ -252,27 +252,28 @@ public class MapManager : MonoBehaviour
             if (playerPositionData.chunk_X < playerChunk.chunk_X)
             {
                 // 청크 데이터 로드
-                InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z);
+                InitChunk(playerChunk.chunk_X - 3, playerChunk.chunk_Z + 1);
+                InitChunk(playerChunk.chunk_X - 3, playerChunk.chunk_Z);
+                InitChunk(playerChunk.chunk_X - 3, playerChunk.chunk_Z - 1);
 
                 #region 왼쪽 아래 (대각선) 이동
                 if (playerPositionData.chunk_Z < playerChunk.chunk_Z)
                 {
-                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z - 1);
-
-                    // --------------------------------------------------------
-
                     // 왼쪽 대각선 아래
-                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X - 3, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X - 3, playerChunk.chunk_Z - 3);
+                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z - 3);
 
                     // -------------------------------------------------------------
 
                     // 아래
-                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z - 3);
+                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z - 3);
 
                     //// -----------------------------------------------------------
 
                     // 오른쪽 아래
-                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z - 3);
 
                 }
                 #endregion
@@ -280,12 +281,12 @@ public class MapManager : MonoBehaviour
                 else if (playerPositionData.chunk_Z == playerChunk.chunk_Z)
                 {
                     // 왼쪽 아래
-                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z - 1);
+                    InitChunk(playerChunk.chunk_X - 3, playerChunk.chunk_Z + 2);
 
                     // --------------------------------------------------------------------------------------
 
                     // 왼쪽 위
-                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z + 1);
+                    InitChunk(playerChunk.chunk_X - 3, playerChunk.chunk_Z - 2);
 
                 }
                 #endregion
@@ -293,21 +294,20 @@ public class MapManager : MonoBehaviour
                 else
                 {
                     // 왼쪽
-                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z + 1);
-
-                    // --------------------------------------------------------
-
-                    // 왼쪽 대각선 위
-                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z + 2);
+                    InitChunk(playerChunk.chunk_X - 3, playerChunk.chunk_Z + 2);
+                    InitChunk(playerChunk.chunk_X - 3, playerChunk.chunk_Z + 3);
+                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z + 3);
 
                     // -------------------------------------------------------------
 
-                    // 위
-                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z + 2);
+                    // 아래
+                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z -+3);
+                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z + 3);
+
                     //// -----------------------------------------------------------
 
-                    // 오른쪽 위
-                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z + 2);
+                    // 오른쪽 아래
+                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z + 3);
                 }
                 #endregion
 
@@ -320,34 +320,39 @@ public class MapManager : MonoBehaviour
                 #region 아래로 이동
                 if (playerPositionData.chunk_Z < playerChunk.chunk_Z)
                 {
-                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z - 3);
+                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z - 3);
 
                     // --------------------------------------------------------------------------------------
 
                     // 아래
-                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z - 3);
 
                     // --------------------------------------------------------------------------------------
 
                     // 왼쪽 아래
-                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z - 3);
+                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z - 3);
+
                 }
                 #endregion
                 #region 위로 이동
                 else if (playerPositionData.chunk_Z > playerChunk.chunk_Z)
                 {
                     // 오른쪽 위
-                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z + 2);
+                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z + 3);
+                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z + 3);
 
                     // --------------------------------------------------------------------------------------
 
                     // 위
-                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z + 2);
+                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z + 3);
 
                     // --------------------------------------------------------------------------------------
 
                     // 왼쪽 위
-                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z + 2);
+                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z + 3);
+                    InitChunk(playerChunk.chunk_X - 2, playerChunk.chunk_Z + 3);
                 }
                 #endregion
             }
@@ -356,62 +361,60 @@ public class MapManager : MonoBehaviour
             else
             {
                 // 청크 데이터 로드
-                InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z);
+                InitChunk(playerChunk.chunk_X + 3, playerChunk.chunk_Z + 1);
+                InitChunk(playerChunk.chunk_X + 3, playerChunk.chunk_Z);
+                InitChunk(playerChunk.chunk_X + 3, playerChunk.chunk_Z - 1);
 
                 #region 오른쪽 아래 (대각선) 이동
                 if (playerPositionData.chunk_Z < playerChunk.chunk_Z)
                 {
-                    // 오른쪽 아래
-                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z - 1);
-
-                    // --------------------------------------------------------
-
                     // 오른쪽 대각선 아래
-                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X + 3, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X + 3, playerChunk.chunk_Z - 3);
+                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z - 3);
 
                     // -------------------------------------------------------------
 
                     // 아래
-                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z - 3);
+                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z - 3);
 
                     //// -----------------------------------------------------------
 
                     // 왼쪽 아래
-                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z - 2);
+                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z - 3);
                 }
                 #endregion
                 #region 오른쪽으로 만 이동
                 else if (playerPositionData.chunk_Z == playerChunk.chunk_Z)
                 {
                     // 오른쪽 아래
-                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z - 1);
+                    InitChunk(playerChunk.chunk_X + 3, playerChunk.chunk_Z + 2);
 
                     // --------------------------------------------------------------------------------------
 
                     // 오른쪽 위
-                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z + 1);
+                    InitChunk(playerChunk.chunk_X + 3, playerChunk.chunk_Z - 2);
                 }
                 #endregion
                 #region 오른쪽으로 위 (대각선) 이동
                 else
                 {
                     // 오른쪽
-                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z + 1);
-
-                    // --------------------------------------------------------
-
-                    // 오른쪽 대각선 위
-                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z + 2);
+                    InitChunk(playerChunk.chunk_X + 3, playerChunk.chunk_Z + 2);
+                    InitChunk(playerChunk.chunk_X + 3, playerChunk.chunk_Z + 3);
+                    InitChunk(playerChunk.chunk_X + 2, playerChunk.chunk_Z + 3);
 
                     // -------------------------------------------------------------
 
-                    // 위
-                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z + 2);
+                    // 아래
+                    InitChunk(playerChunk.chunk_X + 1, playerChunk.chunk_Z - +3);
+                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z + 3);
 
-                    // -----------------------------------------------------------
+                    //// -----------------------------------------------------------
 
-                    // 왼쪽 위
-                    InitChunk(playerChunk.chunk_X, playerChunk.chunk_Z + 2);
+                    // 왼쪽 아래
+                    InitChunk(playerChunk.chunk_X - 1, playerChunk.chunk_Z + 3);
 
                 }
                 #endregion
@@ -429,9 +432,9 @@ public class MapManager : MonoBehaviour
     {
         //SetPlayerChunk();
         int index = 0;
-        for (int z = -1; z < 2; z++)
+        for (int z = -2; z < 3; z++)
         {
-            for (int x = -1; x < 2; x++)
+            for (int x = -2; x < 3; x++)
             {
                 LoadChunk(x+ playerPositionData.chunk_X, z + playerPositionData.chunk_Z); // 청크파일 로드 후 blocks에서 블럭 데이터 셋팅
                 temp_Chunk = new Chunk((int)(x), (int)(z), chunkData);

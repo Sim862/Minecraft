@@ -158,13 +158,6 @@ public class Mob : MonoBehaviour
     {
         StopAllCoroutines();
     }
-    public bool init_test = false;
-    public bool start_test = false;
-    public int c_x, c_z;
-    public int b_x, b_y, b_z;
-    //public int tc_x, tc_z;
-    //public int tb_x, tb_y, tb_z;
-
 
     public Node[] finalNodeList;
 

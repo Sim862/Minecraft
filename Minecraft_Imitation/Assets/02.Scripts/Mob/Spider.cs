@@ -14,18 +14,6 @@ public class Spider : Mob
 
     void Update()
     {
-        if (init_test)
-        {
-            init_test = false;
-            initEntitiy(c_x, c_z, b_x, b_y, b_z);
-        }
-
-        if (start_test)
-        {
-            start_test = false;
-            UpdateHP(temp, -1, 3);
-        }
-
         LifeCycle();
     }
 
