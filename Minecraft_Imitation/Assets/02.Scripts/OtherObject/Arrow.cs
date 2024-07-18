@@ -5,6 +5,7 @@ using UnityEngine;
 public class Arrow : MonoBehaviour
 {
     public ObjectParticleData.ParticleName particleName;
+    public bool hit = false;
     public bool canPickUp = false;
     public Rigidbody rigidbody;
     private static float speed = 200;
@@ -34,6 +35,10 @@ public class Arrow : MonoBehaviour
 
     public void Fire(Vector3 direction, float loadTime, bool isPlayer = false)
     {
+        if(loadTime > 1)
+        {
+            loadTime = 1;
+        }
         this.isPlayer = isPlayer;
         transform.LookAt(transform.position + direction);
         rigidbody.AddForce(direction * speed * loadTime);
@@ -45,19 +50,19 @@ public class Arrow : MonoBehaviour
     {
         if (other.gameObject.layer == player_Layer)
         {
-            if(!canPickUp && !isPlayer)
+            if(!hit && !isPlayer)
             {
-                canPickUp = true;
-                //other.GetComponent<PlayerMove>().UpdateHP(-1);
+                hit = true;
+                other.GetComponent<PlayerMove>().UpdateHP(-1);
                 transform.position -= (transform.position - (transform.position - rigidbody.velocity * 10)).normalized * 0.2f;
                 rigidbody.velocity = Vector3.zero;
             }
         }
         else if(other.gameObject.layer == mob_Layer)
         {
-            if (!canPickUp && isPlayer)
+            if (!hit && isPlayer)
             {
-                canPickUp = true;
+                hit = true;
                 other.GetComponent<Mob>().UpdateHP(PlayerManager.instance.player.transform, -10, 1f);
                 transform.position -= (transform.position - (transform.position - rigidbody.velocity * 10)).normalized * 0.2f;
                 rigidbody.velocity = Vector3.zero;
@@ -65,6 +70,8 @@ public class Arrow : MonoBehaviour
         }
         else if (other.gameObject.layer == block_Layer)
         {
+            canPickUp = true;
+            hit = true;
             float distance = Vector3.Distance(transform.position, other.transform.position);
             if (distance < 0.5)
             {

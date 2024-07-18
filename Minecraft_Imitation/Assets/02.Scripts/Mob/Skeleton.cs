@@ -67,6 +67,7 @@ public class Skeleton : Mob
                     {
                         if (attackCoolTime > 2 && !PlayerManager.instance.playerDead)
                         {
+                            attackCoolTime = 2;
                             mobState = MobState.Attack;
                             wayPoints.Clear();
                             SetWayPosition();
@@ -118,6 +119,7 @@ public class Skeleton : Mob
                     {
                         if (!PlayerManager.instance.playerDead && attackCoolTime > 2)
                         {
+                            attackCoolTime = 2;
                             mobState = MobState.Attack;
                             wayPoints.Clear();
                             SetWayPosition();
@@ -138,7 +140,7 @@ public class Skeleton : Mob
                         if (!PlayerManager.instance.playerDead)
                         {
                             animator.SetBool("Attack", true);
-                            if (attackCoolTime > 2)
+                            if (attackCoolTime > 3)
                             {
                                 Arrow arrow = Instantiate(prefab_Arrow, firePosition.position, transform.rotation, SpawnManager.instance.transform);
                                 arrow.Fire(targetTransform.position - transform.position, 0.5f);
@@ -146,7 +148,7 @@ public class Skeleton : Mob
                                 wayPoints.Clear();
                                 SetWayPosition();
                             }
-                            else
+                            else if(attackCoolTime < 2)
                             {
                                 nextMovementTime = 5;
                                 AStar_Random(1);

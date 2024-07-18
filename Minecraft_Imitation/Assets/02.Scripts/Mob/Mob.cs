@@ -154,6 +154,10 @@ public class Mob : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
     public bool init_test = false;
     public bool start_test = false;
     public int c_x, c_z;
@@ -164,27 +168,6 @@ public class Mob : MonoBehaviour
 
     public Node[] finalNodeList;
 
-    //private void Update()
-    //{
-    //    if (init_test)
-    //    {
-    //        init_test = false;
-    //        initEntitiy(c_x, c_z, b_x, b_y, b_z);
-    //    }
-
-    //    if (start_test)
-    //    {
-    //        start_test = false;
-    //        PositionData nextPosition = new PositionData(tc_x, tc_z, tb_x, tb_y, tb_z);
-    //        wayPoints = AStar_Runaway(target);
-    //        finalNodeList = wayPoints.ToArray();
-    //        SetWayPosition();
-    //    }
-
-
-    //    Movement();
-    //}
-
     public void initEntitiy(int chunk_x, int chunk_z, int blockIndex_x, int blockIndex_y, int blockIndex_z)
     {
         mobSpawnData = new MobSpawnData(mobData, new PositionData(chunk_x, chunk_z, blockIndex_x, blockIndex_y, blockIndex_z));
@@ -193,6 +176,8 @@ public class Mob : MonoBehaviour
         mobState = MobState.Idle;
         rigidbody.useGravity = true;
         alive = true;
+
+        StartCoroutine(CheckInMap());
     }
 
     protected void Rotation()
@@ -515,7 +500,8 @@ public class Mob : MonoBehaviour
                     SoundManager.instance.ActiveOnShotSFXSound(Sound.AudioClipName.Player_Attack, null, target.position);
                     mobState = MobState.Hit;
                     this.target = target;
-                    rigidbody.AddForce((transform.position - target.position + Vector3.up * 3).normalized  * KnockBackPower * force);
+                    rigidbody.AddForce(Vector3.up * 100);
+                    rigidbody.AddForce((transform.position - target.position).normalized  * KnockBackPower * force);
                     nextMovementTime = 1f;
                 }
                 else
@@ -913,5 +899,17 @@ public class Mob : MonoBehaviour
         }
     }
 
+    protected IEnumerator CheckInMap()
+    {
+        while (alive)
+        {
+            yield return new WaitForSeconds(5);
+            if(transform.position.y < -70)
+            {
+                mobSpawnData.positionData.chunk?.RemoveMobSpawnData(mobSpawnData, this);
+                SpawnManager.instance.RemoveMob(this);
+            }
+        }
+    }
     #endregion
 }

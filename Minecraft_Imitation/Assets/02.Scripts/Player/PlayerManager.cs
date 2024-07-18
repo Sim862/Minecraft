@@ -256,7 +256,6 @@ public class PlayerManager : MonoBehaviour
     void CheckCanFire()
     {
         if (arrow != null)
-            print("발사체크" + arrow.gameObject.name);
         for (int i = 0; i < InventoryStatic.instance.slots.Length; i++)
         {
             if (InventoryStatic.instance.slots[i].transform.childCount == 4) continue;

@@ -47,7 +47,8 @@ public class SpawnManager : MonoBehaviour
         }
 
         passiveMobCount--;
-        Destroy(mob.gameObject);
+        if(mob != null)
+            Destroy(mob.gameObject);
     }
 
     
