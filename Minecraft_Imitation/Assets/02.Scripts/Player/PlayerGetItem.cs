@@ -45,6 +45,7 @@ public class PlayerGetItem : MonoBehaviour
 
         if(other.gameObject.tag == "Arrow")
         {
+            if (other.GetComponent<Arrow>().canPickUp == false) return;
             itemImage = Instantiate(itemImagePref); // 아이템UI
             itemImageCs = itemImage.GetComponent<ItemImage>();
 

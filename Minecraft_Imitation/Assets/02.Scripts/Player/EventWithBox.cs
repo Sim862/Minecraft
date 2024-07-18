@@ -27,7 +27,7 @@ public class EventWithBox : MonoBehaviour
         bool anyHit = Physics.Raycast(camRay, out camHitInfo, PlayerManager.instance.aimRange);
 
         if (anyHit) OnHitRayBlock = camHitInfo.transform.gameObject;// 무언가 맞았다면
-        if (anyHit && Input.GetMouseButtonDown(0) && !PlayerManager.onInventory) // 좌클릭을 하면
+        if (anyHit && Input.GetMouseButtonDown(0) && !PlayerManager.onInventory &&!PlayerManager.instance.isBow) // 좌클릭을 하면
         {
             isClicking = true;
             OnClickBlock = OnHitRayBlock; // 블럭을 저장하고
@@ -82,7 +82,7 @@ public class EventWithBox : MonoBehaviour
                 OnClickBlockCs.Break(test, breakPower);
         }
 
-        if (anyHit && isClicking && camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Block"))
+        if (anyHit && isClicking && camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Block") && !PlayerManager.instance.isBow)
         {
             if (PlayerManager.onInventory)
             {

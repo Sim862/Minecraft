@@ -40,6 +40,7 @@ public class PlayerMove : MonoBehaviour
     GameObject arrowGo;
     Arrow arrowCs;
     float loadTime = 0;
+    bool onLoad;
 
     void Start()
     {
@@ -68,6 +69,7 @@ public class PlayerMove : MonoBehaviour
 
 
         if (PlayerManager.instance.playerDead) return;
+        if (PlayerManager.instance.onPauseUI) return;
         PlayerMoveMethod();
         FireArrow();
         
@@ -230,23 +232,27 @@ public class PlayerMove : MonoBehaviour
 
     public void FireArrow()
     {
-        print("BOW : " + PlayerManager.instance.isBow);
-        if (PlayerManager.instance.isBow)
+        if (PlayerManager.instance.isBow && PlayerManager.instance.canFire)
         {
-            
             if (Input.GetMouseButtonDown(0))
             {
-                loadTime += Time.deltaTime;
+                onLoad = true;
             }
             else if (Input.GetMouseButtonUp(0))
             {
+                onLoad = false;
                 arrowGo = Instantiate(arrowFac);
-                arrowGo.transform.position = Camera.main.transform.position;
-                arrowGo.GetComponent<Arrow>().Fire(Camera.main.transform.forward, loadTime);
+                arrowGo.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
+                arrowGo.GetComponent<Arrow>().Fire(Camera.main.transform.forward, loadTime, true);
+                if(PlayerManager.instance.arrow != null)
+                PlayerManager.instance.arrow.ChangeItemCnt(-1);
+                InventoryPopup.instance.CheckQuickSlot();
                 loadTime = 0;
-
-                print("Fire!!");
             }
+        }
+        if (onLoad)
+        {
+            loadTime += 5*Time.deltaTime;
         }
     }
 
@@ -254,6 +260,7 @@ public class PlayerMove : MonoBehaviour
     public void UpdateHP(float dmg)
     {
         if (PlayerManager.instance.playerDead) return;
+        if (PlayerManager.instance.onPauseUI) return;
         if (invincibility) return;
         hp += dmg;
         if (hp > 20) hp = 20;

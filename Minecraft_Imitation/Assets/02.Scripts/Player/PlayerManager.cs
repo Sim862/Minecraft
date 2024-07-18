@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class PlayerManager : MonoBehaviour
     public static PlayerManager instance;
     public GameObject respawnUI;
     public GameObject inventory;
+    public GameObject pauseUI;
+    public bool onPauseUI;
     public float aimRange;
     public int usingSlot = 0; // 사용중인 퀵슬롯넘버
     public int remainder = 0;
@@ -26,7 +29,9 @@ public class PlayerManager : MonoBehaviour
     public GameObject hand;
     public GameObject pickPos;
 
+    public ItemImage arrow;
     public bool isBow;
+    public bool canFire;
     int previous;
     int now;
 
@@ -43,6 +48,7 @@ public class PlayerManager : MonoBehaviour
             Destroy(gameObject);
         }
         now = usingSlot;
+        onPauseUI = false;
     }
     
     void Update()
@@ -51,10 +57,11 @@ public class PlayerManager : MonoBehaviour
         {
             PlayerRespawn();
         }
-        CursurLockMethod();
-
 
         if (PlayerManager.instance.playerDead) return;
+        OnOffPauseUI();
+        CursurLockMethod();
+        CheckCanFire();
         if (playerMove.currHunger < playerMove.maxHunger) canEat = true;
         else if (playerMove.currHunger >= playerMove.maxHunger) canEat = false;
 
@@ -73,6 +80,7 @@ public class PlayerManager : MonoBehaviour
         {
             hand.SetActive(true);
             pickPos.SetActive(false);
+            isBow = false;
         }
         else
         {
@@ -92,10 +100,44 @@ public class PlayerManager : MonoBehaviour
             
         }
 
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (inventory.activeSelf)
+            {
+                OnOffInventory();
+            }
+            else
+            {
+                ChangeBoolPause();
+            }
+        }
+
+    }
+
+    public void ChangeBoolPause()
+    {
+        onPauseUI = !onPauseUI;
+    }
+
+    public void OnOffPauseUI()
+    {
+        if (onPauseUI)
+        {
+            pauseUI.SetActive(true);
+            onInventory = true;
+            cursorLock = false;
+        }
+        else if (!onPauseUI)
+        {
+            pauseUI.SetActive(false);
+            onInventory = false;
+            cursorLock = true;
+        }
     }
 
     public void OnOffInventory()
     {
+        if (onPauseUI) return;
         if (inventory.activeSelf)
         {
             inventory.SetActive(false);
@@ -104,7 +146,6 @@ public class PlayerManager : MonoBehaviour
         }
         else if (!inventory.activeSelf)
         {
-
             inventory.SetActive(true);
             onInventory = true;
             cursorLock = false;
@@ -212,4 +253,43 @@ public class PlayerManager : MonoBehaviour
 
     }
 
+    void CheckCanFire()
+    {
+        if (arrow != null)
+            print("발사체크" + arrow.gameObject.name);
+        for (int i = 0; i < InventoryStatic.instance.slots.Length; i++)
+        {
+            if (InventoryStatic.instance.slots[i].transform.childCount == 4) continue;
+            else
+            {
+                if(InventoryStatic.instance.slots[i].transform.GetChild(4).GetComponent<ItemImage>().particleName == ObjectParticleData.ParticleName.Arrow)
+                {
+                    arrow = InventoryStatic.instance.slots[i].transform.GetChild(4).GetComponent<ItemImage>();
+                    canFire = true;
+                    return;
+                }
+            }
+        }
+        for(int i = 0; i < InventoryPopup.instance.inven.Length; i++)
+        {
+            if (InventoryPopup.instance.inven[i].transform.childCount == 0) continue;
+            else
+            {
+                if (InventoryPopup.instance.inven[i].transform.GetChild(0).GetComponent<ItemImage>().particleName == ObjectParticleData.ParticleName.Arrow)
+                {
+                    arrow = InventoryPopup.instance.inven[i].transform.GetChild(0).GetComponent<ItemImage>();
+                    canFire = true;
+                    return;
+                }
+            }
+        }
+        
+        canFire = false;
+    }
+
+
+    public void GoToTitle()
+    {
+        SceneManager.LoadScene("TitleScene");
+    }
 }

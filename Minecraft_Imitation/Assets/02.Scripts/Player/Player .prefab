@@ -421,8 +421,9 @@ MonoBehaviour:
   hungerSlider: {fileID: 0}
   maxHunger: 20
   currHunger: 0
-  hungerCoolTime: 60
-  healTime: 90
+  hungerCoolTime: 10
+  healTime: 10
+  arrowFac: {fileID: 2414573245414557368, guid: c6e15febcc833034dbc7ea9934132b10, type: 3}
 --- !u!114 &4835342582885868384
 MonoBehaviour:
   m_ObjectHideFlags: 0

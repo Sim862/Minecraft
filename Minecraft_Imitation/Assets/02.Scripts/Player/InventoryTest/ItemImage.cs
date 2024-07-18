@@ -34,6 +34,7 @@ public class ItemImage : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        if(itemCount != null)
         itemCount.text = $"{count}";
     }
 
