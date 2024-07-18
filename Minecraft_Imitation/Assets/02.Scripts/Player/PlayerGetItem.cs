@@ -60,7 +60,6 @@ public class PlayerGetItem : MonoBehaviour
             InventoryStatic.instance.SetItemPosition(itemImage);
 
             Destroy(other.gameObject);
-            print("2222" +itemImageCs.particleObjectTr.gameObject);
         }
 
     }

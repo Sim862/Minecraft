@@ -6946,6 +6946,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 935994534152989261, guid: 6190a45a6959eef488a6fd6dd074a6f8, type: 3}
+      propertyPath: woodenAxeFac
+      value: 
+      objectReference: {fileID: 5954517850681404847, guid: f0afa58076f49b247aed47429743d6a2, type: 3}
     - target: {fileID: 937173103466586953, guid: 6190a45a6959eef488a6fd6dd074a6f8, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

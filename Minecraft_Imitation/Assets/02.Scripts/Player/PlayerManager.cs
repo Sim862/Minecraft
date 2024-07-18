@@ -112,6 +112,16 @@ public class PlayerManager : MonoBehaviour
             }
         }
 
+        if (pauseUI.activeSelf || inventory.activeSelf)
+        {
+            cursorLock = false;
+            onInventory = true;
+        }
+        else if (!pauseUI.activeSelf || !inventory.activeSelf)
+        {
+            cursorLock = true;
+            onInventory = false;
+        }
     }
 
     public void ChangeBoolPause()
@@ -124,14 +134,10 @@ public class PlayerManager : MonoBehaviour
         if (onPauseUI)
         {
             pauseUI.SetActive(true);
-            onInventory = true;
-            cursorLock = false;
         }
         else if (!onPauseUI)
         {
             pauseUI.SetActive(false);
-            onInventory = false;
-            cursorLock = true;
         }
     }
 
@@ -141,14 +147,10 @@ public class PlayerManager : MonoBehaviour
         if (inventory.activeSelf)
         {
             inventory.SetActive(false);
-            onInventory = false;
-            cursorLock = true;
         }
         else if (!inventory.activeSelf)
         {
             inventory.SetActive(true);
-            onInventory = true;
-            cursorLock = false;
         }
     }
 
@@ -255,8 +257,6 @@ public class PlayerManager : MonoBehaviour
 
     void CheckCanFire()
     {
-        if (arrow != null)
-            print("발사체크" + arrow.gameObject.name);
         for (int i = 0; i < InventoryStatic.instance.slots.Length; i++)
         {
             if (InventoryStatic.instance.slots[i].transform.childCount == 4) continue;
