@@ -17,6 +17,7 @@ public class ItemImage : MonoBehaviour
 
     private void Start()
     {
+        if(GetComponentInChildren<TextMeshProUGUI>() != null)
         GetComponentInChildren<TextMeshProUGUI>().raycastTarget = false;
     }
 

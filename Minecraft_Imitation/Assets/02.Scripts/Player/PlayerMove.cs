@@ -69,7 +69,7 @@ public class PlayerMove : MonoBehaviour
 
         if (PlayerManager.instance.playerDead) return;
         PlayerMoveMethod();
-
+        FireArrow();
         
 
 
@@ -230,7 +230,7 @@ public class PlayerMove : MonoBehaviour
 
     public void FireArrow()
     {
-        
+        print("BOW : " + PlayerManager.instance.isBow);
         if (PlayerManager.instance.isBow)
         {
             

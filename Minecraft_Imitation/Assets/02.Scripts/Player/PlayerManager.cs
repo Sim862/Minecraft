@@ -78,9 +78,9 @@ public class PlayerManager : MonoBehaviour
         {
             hand.SetActive(false);
             pickPos.SetActive(true);
-            if(InventoryStatic.instance.slots[usingSlot].transform.GetChild(4).GetComponent<ObjectParticle>() != null)
+            if(InventoryStatic.instance.slots[usingSlot].transform.GetChild(4).GetComponent<ItemImage>() != null)
             {
-                if (InventoryStatic.instance.slots[usingSlot].transform.GetChild(4).GetComponent<ObjectParticle>().particleName == ObjectParticleData.ParticleName.Bow)
+                if (InventoryStatic.instance.slots[usingSlot].transform.GetChild(4).GetComponent<ItemImage>().particleName == ObjectParticleData.ParticleName.Bow)
                 {
                     isBow = true;
                 }
