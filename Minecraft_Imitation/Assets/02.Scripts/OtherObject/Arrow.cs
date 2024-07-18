@@ -48,7 +48,7 @@ public class Arrow : MonoBehaviour
             if(!canPickUp && !isPlayer)
             {
                 canPickUp = true;
-                other.GetComponent<PlayerMove>().UpdateHP(-1);
+                //other.GetComponent<PlayerMove>().UpdateHP(-1);
                 transform.position -= (transform.position - (transform.position - rigidbody.velocity * 10)).normalized * 0.2f;
                 rigidbody.velocity = Vector3.zero;
             }
