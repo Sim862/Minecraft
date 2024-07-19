@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     private List<Transform> clouds = new List<Transform>();
     private Transform playerTransform;
 
+    float cheat = 1f;
     public int day = 0;
     public float time = 0;
 
@@ -46,6 +47,14 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            cheat = 100f;
+        }
+        else if (Input.GetKeyDown(KeyCode.J))
+        {
+            cheat = 1f;
+        }
         DayCycle();
     }
 
@@ -80,8 +89,8 @@ public class GameManager : MonoBehaviour
    
     private void DayCycle()
     {
-        DirectionalLight.Rotate(Vector3.right * Time.deltaTime);
-        time += Time.deltaTime;
+        DirectionalLight.Rotate(Vector3.right * Time.deltaTime * cheat);
+        time += Time.deltaTime*cheat;
         if (time > 360)
         {
             time -= 360;

@@ -21,6 +21,7 @@ public class ObjectParticle : MonoBehaviour
     
     public ObjectParticleData.ParticleName particleName; // 오브젝트 파티클 이름
     public ObjectParticleData.ParticleType particleType; // 오브젝트 파티클 타입
+    public BlockData.BlockType blockType;
     public Sprite icon;
 
     public int count = 1;

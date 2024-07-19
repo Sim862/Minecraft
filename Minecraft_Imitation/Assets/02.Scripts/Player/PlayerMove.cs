@@ -34,7 +34,7 @@ public class PlayerMove : MonoBehaviour
     float currHealTime;
     int usingSlot;
     ItemImage itemImage;
-    bool invincibility;
+    public bool invincibility;
     bool isFiring;
     public GameObject arrowFac;
     GameObject arrowGo;

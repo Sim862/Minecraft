@@ -14,6 +14,7 @@ public class MakingSlot : MonoBehaviour
     ItemImage itemImageCs;
     GameObject inTakeSlotGo;
     public GameObject woodenAxeFac;
+    public GameObject craftTable;
 
     // Start is called before the first frame update
     void Awake()
@@ -72,6 +73,8 @@ public class MakingSlot : MonoBehaviour
                 itemImageCs.particleName = combinationData.result;
                 itemImageCs.particleType = DataManager.instance.GetObjectParticlePrefab(itemImageCs.particleName).particleType;
                 itemImageCs.itemImage.sprite = DataManager.instance.GetObjectParticlePrefab(combinationData.result).icon;
+                itemImageCs.blockType = DataManager.instance.GetObjectParticlePrefab(itemImageCs.particleName).blockType;
+                itemImageCs.power = DataManager.instance.GetObjectParticlePrefab(itemImageCs.particleName).power;
                 if(itemImageCs.particleType == ObjectParticleData.ParticleType.Tool && itemImageCs.particleName != ObjectParticleData.ParticleName.Arrow)
                 {
                     itemImageCs.count = 1;
@@ -79,15 +82,28 @@ public class MakingSlot : MonoBehaviour
                     if(itemImageCs.particleName == ObjectParticleData.ParticleName.WoodenPickaxe)
                     {
                         GameObject go = Instantiate(woodenAxeFac.transform.GetChild(0).gameObject, PlayerManager.instance.pickPos.transform);
-                        go.transform.localPosition = Vector3.zero + new Vector3(0, -0.1f, 0);
-                        go.transform.localEulerAngles = new Vector3(16, 160, 5); 
+                        go.transform.localPosition = Vector3.zero + new Vector3(0, -0.1f, -0.15f);
+                        go.transform.localEulerAngles = new Vector3(16, 160, 5);
+                        go.transform.localScale = Vector3.one * 1.5f;
                         itemImageCs.particleObjectTr = go.transform;
                         itemImageCs.particleObjectTr.gameObject.SetActive(false);
                     }
+                    
+                }
+                else if (itemImageCs.particleName == ObjectParticleData.ParticleName.CraftingTable)
+                {
+                    GameObject go = Instantiate(craftTable.transform.GetChild(0).gameObject, PlayerManager.instance.pickPos.transform);
+                    go.transform.localPosition = Vector3.zero;
+                    print(go.name);
+                    print(craftTable.transform.GetChild(0).gameObject.name);
+                    itemImageCs.ChangeItemCnt(1);
+                    itemImageCs.particleObjectTr = go.transform;
+                    itemImageCs.particleObjectTr.gameObject.SetActive(false);
                 }
                 else
                 {
                     itemImageCs.ChangeItemCnt(combinationData.count);
+                    
                 }
                 itemImageCs.wasInTakeSlot = true;
             }

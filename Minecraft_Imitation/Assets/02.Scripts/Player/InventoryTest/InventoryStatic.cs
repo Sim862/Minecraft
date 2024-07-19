@@ -11,7 +11,7 @@ public class InventoryStatic : MonoBehaviour
     int totalCnt;
     public int exceededCnt;
     int maxCnt = 64;
-
+    public ItemImage nowItem;
     
 
     ItemImage previous;
@@ -35,6 +35,8 @@ public class InventoryStatic : MonoBehaviour
     void Update()
     {
         Highlight();
+        if (slots[PlayerManager.instance.usingSlot].transform.childCount == 5)
+        nowItem = slots[PlayerManager.instance.usingSlot].GetComponentInChildren<ItemImage>();
     }
 
 
