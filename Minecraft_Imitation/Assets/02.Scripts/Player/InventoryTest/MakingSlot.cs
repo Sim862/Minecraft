@@ -13,6 +13,7 @@ public class MakingSlot : MonoBehaviour
     GameObject itemImage;
     ItemImage itemImageCs;
     GameObject inTakeSlotGo;
+    public GameObject woodenAxeFac;
 
     // Start is called before the first frame update
     void Awake()
@@ -73,7 +74,16 @@ public class MakingSlot : MonoBehaviour
                 itemImageCs.itemImage.sprite = DataManager.instance.GetObjectParticlePrefab(combinationData.result).icon;
                 if(itemImageCs.particleType == ObjectParticleData.ParticleType.Tool && itemImageCs.particleName != ObjectParticleData.ParticleName.Arrow)
                 {
+                    itemImageCs.count = 1;
                     Destroy(itemImageCs.itemCount.gameObject);
+                    if(itemImageCs.particleName == ObjectParticleData.ParticleName.WoodenPickaxe)
+                    {
+                        GameObject go = Instantiate(woodenAxeFac.transform.GetChild(0).gameObject, PlayerManager.instance.pickPos.transform);
+                        go.transform.localPosition = Vector3.zero + new Vector3(0, -0.1f, 0);
+                        go.transform.localEulerAngles = new Vector3(16, 160, 5); 
+                        itemImageCs.particleObjectTr = go.transform;
+                        itemImageCs.particleObjectTr.gameObject.SetActive(false);
+                    }
                 }
                 else
                 {

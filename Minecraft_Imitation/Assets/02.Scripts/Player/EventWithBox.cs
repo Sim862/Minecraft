@@ -24,7 +24,7 @@ public class EventWithBox : MonoBehaviour
 
         Ray camRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         RaycastHit camHitInfo = new RaycastHit();
-        bool anyHit = Physics.Raycast(camRay, out camHitInfo, PlayerManager.instance.aimRange);
+        bool anyHit = Physics.Raycast(camRay, out camHitInfo, PlayerManager.instance.aimRange, (-1) - (1 << LayerMask.NameToLayer("ObjectParticle")));
 
         if (anyHit) OnHitRayBlock = camHitInfo.transform.gameObject;// 무언가 맞았다면
         if (anyHit && Input.GetMouseButtonDown(0) && !PlayerManager.onInventory &&!PlayerManager.instance.isBow) // 좌클릭을 하면

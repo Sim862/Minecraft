@@ -124,12 +124,9 @@ public class PlayerMove : MonoBehaviour
             if(PlayerManager.instance.playerDead) PlayerManager.instance.PlayerDead();
             return;
         }
-        if (!PlayerManager.onInventory) // 인벤토리가 켜져있으면 안되게
-        {
-            AnimatorControll();
-        }
+        AnimatorControll();
 
-        
+
         MapManager.instance.playerPositionData = MapManager.instance.PositionToBlockData(transform.position);
     }
 
@@ -202,7 +199,7 @@ public class PlayerMove : MonoBehaviour
             itemImage = InventoryStatic.instance.slots[usingSlot].GetComponentInChildren<ItemImage>();
         else if (InventoryStatic.instance.slots[usingSlot].transform.childCount == 4)
             itemImage = null;
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !PlayerManager.onInventory) // 인벤토리가 켜져있으면 안되게
         {
             if(itemImage != null && itemImage.particleName == ObjectParticleData.ParticleName.Bow)
             {
@@ -213,7 +210,7 @@ public class PlayerMove : MonoBehaviour
                 anim.SetBool("isAction", true);
             }
         }
-        else if (Input.GetMouseButtonDown(1))
+        else if (Input.GetMouseButtonDown(1) && !PlayerManager.onInventory) // 인벤토리가 켜져있으면 안되게
         {
             if(itemImage != null && itemImage.particleType == ObjectParticleData.ParticleType.Food && PlayerManager.instance.canEat)
             {

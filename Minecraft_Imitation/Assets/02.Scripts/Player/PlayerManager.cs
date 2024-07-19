@@ -58,9 +58,22 @@ public class PlayerManager : MonoBehaviour
             PlayerRespawn();
         }
 
-        if (PlayerManager.instance.playerDead) return;
-        OnOffPauseUI();
+        if (pauseUI.activeSelf || inventory.activeSelf || playerDead)
+        {
+            cursorLock = false;
+            onInventory = true;
+        }
+        else if (!pauseUI.activeSelf || !inventory.activeSelf || !playerDead)
+        {
+            cursorLock = true;
+            onInventory = false;
+        }
         CursurLockMethod();
+        if (PlayerManager.instance.playerDead)
+        {
+            return;
+        }
+        OnOffPauseUI();
         CheckCanFire();
         if (playerMove.currHunger < playerMove.maxHunger) canEat = true;
         else if (playerMove.currHunger >= playerMove.maxHunger) canEat = false;
@@ -111,6 +124,8 @@ public class PlayerManager : MonoBehaviour
                 ChangeBoolPause();
             }
         }
+        
+
 
     }
 
@@ -124,14 +139,10 @@ public class PlayerManager : MonoBehaviour
         if (onPauseUI)
         {
             pauseUI.SetActive(true);
-            onInventory = true;
-            cursorLock = false;
         }
         else if (!onPauseUI)
         {
             pauseUI.SetActive(false);
-            onInventory = false;
-            cursorLock = true;
         }
     }
 
@@ -141,14 +152,10 @@ public class PlayerManager : MonoBehaviour
         if (inventory.activeSelf)
         {
             inventory.SetActive(false);
-            onInventory = false;
-            cursorLock = true;
         }
         else if (!inventory.activeSelf)
         {
             inventory.SetActive(true);
-            onInventory = true;
-            cursorLock = false;
         }
     }
 
@@ -216,7 +223,7 @@ public class PlayerManager : MonoBehaviour
     {
         respawnUI.SetActive(true);
         playerDead = true;
-        cursorLock = false;
+
         
         foreach(GameObject go in InventoryPopup.instance.quickSlot)
         {
@@ -249,13 +256,11 @@ public class PlayerManager : MonoBehaviour
         playerMove.hp = playerMove.maxHp;
         playerDead = false;
         respawnUI.SetActive(false);
-        cursorLock = true;
 
     }
 
     void CheckCanFire()
     {
-        if (arrow != null)
         for (int i = 0; i < InventoryStatic.instance.slots.Length; i++)
         {
             if (InventoryStatic.instance.slots[i].transform.childCount == 4) continue;

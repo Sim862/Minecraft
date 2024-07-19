@@ -32,6 +32,7 @@ public class PlayerGetItem : MonoBehaviour
             itemImageCs.particleObjectTr = objectParticleCs.particleObject;
             if(itemImageCs.particleName == ObjectParticleData.ParticleName.Bow)
             {
+                itemImageCs.count = 1;
                 Destroy(itemImageCs.itemCount.gameObject);
             }
             else
@@ -60,7 +61,6 @@ public class PlayerGetItem : MonoBehaviour
             InventoryStatic.instance.SetItemPosition(itemImage);
 
             Destroy(other.gameObject);
-            print("2222" +itemImageCs.particleObjectTr.gameObject);
         }
 
     }
