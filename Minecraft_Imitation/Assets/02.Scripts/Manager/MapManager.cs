@@ -189,11 +189,13 @@ public class MapManager : MonoBehaviour
 
     void Start()
     {
-        for (int i = 0; i < 1000; i++)
-        {
-            blockPool.Enqueue(Instantiate(blockPrefab, Vector3.one * -99, Quaternion.identity, transform));
-        }
         Load_StartChunks();
+        Transform temp = new GameObject("StartPool").transform;
+        for (int i = 0; i < 25000; i++)
+        {
+            block = Instantiate(blockPrefab, Vector3.one * -999, Quaternion.identity, temp);
+            blockPool.Enqueue(block);
+        }
     }
 
     public bool createBlock = false;
@@ -477,8 +479,6 @@ public class MapManager : MonoBehaviour
         {
             chunk_Z = chunk_Z % Chunk.MAX_ChunkIndex;
         }
-        //print(chunk_X + " - " + chunk_Z);
-        //print("===============================================");
         BinaryFormatter bf = new BinaryFormatter();
         try
         {
@@ -606,7 +606,6 @@ public class MapManager : MonoBehaviour
             }
         }
     }
-
     // 특정 블럭 생성
     public void CreateBlock(Chunk chunk, BlockData.BlockName blockKind, int x, int y, int z)
     {
@@ -624,14 +623,12 @@ public class MapManager : MonoBehaviour
                 block = blockPool.Dequeue();
                 block.transform.position = blockPosition;
                 block.transform.SetParent(chunk.blockParent);
-                block.gameObject.SetActive(true);
             }
             else
             {
                 block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // 블럭 오브젝트 생성
             }
             block.InitBlock(blockData, new PositionData(chunk.chunk_X,chunk.chunk_Z,x,y,z)); // 블럭 데이터의 설정값으로 블럭 오브젝트 설정
-            block.name = x + "." + y + "," + z;
             chunk.blockObjects[x, y, z] = block; // 블럭 3차원 배열에 블럭 오브젝트 저장
             chunk.needSave = true;
         }
@@ -664,6 +661,7 @@ public class MapManager : MonoBehaviour
         StopCoroutine(chunk.saveRoutine); // 오른쪽 끝 청크 저장 타이머 종류 후 저장
         SaveChunk(chunk.chunk_X, chunk.chunk_Z, chunk);
 
+        chunk.blockParent.gameObject.SetActive(false);
 
         // 풀에 블럭 리턴
         for (int x = 0; x < Chunk.x; x++)
@@ -675,7 +673,6 @@ public class MapManager : MonoBehaviour
                     block = chunk.blockObjects[x, y, z];
                     if(block != null)
                     {
-                        block.gameObject.SetActive(false);
                         blockPool.Enqueue(block);
                     }
                 }
@@ -701,7 +698,7 @@ public class MapManager : MonoBehaviour
                 {
                     for (int j = 0; j < chunks[i].chunkData.mobSpawnDatas.Count; j++)
                     {
-                        if(SpawnManager.instance.passiveMobCount + SpawnManager.instance.passiveMobCount >= SpawnManager.instance.monsterMaxCount)
+                        if(SpawnManager.instance.passiveMonsterCount + SpawnManager.instance.hostileeMonsterCount >= SpawnManager.instance.monsterMaxCount)
                         {
                             break;
                         }
@@ -746,7 +743,7 @@ public class MapManager : MonoBehaviour
             return new Vector3(chunk.chunk_X * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_Z * Chunk.z + z);
         }
         catch(Exception e){
-            UnityEngine.Debug.Log(chunk == null);
+
         }
         return Vector3.zero;  // index 값을 사용해 위치 설정
     }

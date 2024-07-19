@@ -187,15 +187,10 @@ MonoBehaviour:
     m_Bits: 8192
   visibleTargets: []
   head: {fileID: 0}
+  material_Default: {fileID: 2100000, guid: fcec7a60c81ca7d428e1bee0d2fce1bc, type: 2}
+  material_Hit: {fileID: 2100000, guid: 08ce4c24e8e004f4d8730f99098ab8b7, type: 2}
   idleSound: 8
   deathSound: 9
-  init_test: 0
-  start_test: 0
-  c_x: 0
-  c_z: 0
-  b_x: 0
-  b_y: 0
-  b_z: 0
   finalNodeList: []
   blockEnum: 0
   jumpforce: 10

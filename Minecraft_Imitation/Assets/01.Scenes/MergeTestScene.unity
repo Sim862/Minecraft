@@ -3885,7 +3885,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   passiveMonsterList: 00000000
   hostileeMonsterList: 0300000004000000
-  passiveMobCount: 0
 --- !u!4 &1926518084
 Transform:
   m_ObjectHideFlags: 0

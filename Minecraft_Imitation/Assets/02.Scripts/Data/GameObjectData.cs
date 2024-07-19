@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using static BlockData;
 using static GameObjectData;
 using static ObjectParticleData;
 using static ToolData;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 [System.Serializable]
 public class GameObjectData
@@ -63,6 +65,9 @@ public class BlockData : GameObjectData
         WoodenPlank,
         Leaves,
         CraftingTable,
+        IronOre,
+        GoldOre,
+        DiamondOre,
     }
     public enum BlockType
     {
@@ -127,7 +132,6 @@ public class ObjectParticleData : GameObjectData
     public enum ParticleName // 플레이어가 먹거나 뱉을 수 있는 오브젝트 목록
     {
         None,
-    //  Block ------------------------------------------------------------------------
         Dirt,
         Wood,
         Water,
@@ -135,9 +139,6 @@ public class ObjectParticleData : GameObjectData
         WoodenPlank,
         Leaves,
         CraftingTable,
-
-
-    //  Item  ----------------------------------------------------------------------- 
         Stick,
         Knife,
         Ax,
@@ -147,10 +148,12 @@ public class ObjectParticleData : GameObjectData
         Hoe,
         Bow,
         Arrow,
-
-        //  Food  -----------------------------------------------------------------------
         RawPorkchop,
-
+        WoodenSword, StoneSword, IronSword, GoldenSword, DiamondSword,
+        WoodenAxe, StoneAxe, IronAxe, GoldenAxe, DiamondAxe,
+        Iron,
+        Glod,
+        Diamond,
     }
 
     public enum ParticleType
@@ -163,6 +166,7 @@ public class ObjectParticleData : GameObjectData
 
     public ParticleName particleName;
     public ParticleType particleType;
+    public BlockData.BlockType blockType;
 }
 
 [System.Serializable]
@@ -185,25 +189,45 @@ public class CombinationData
     {
         this.result = result;
         this.count = count;
-        int y = 1;
-        int check = 0;
+
+        int start_X = int.MaxValue;
+        int end_X = int.MinValue;
+        int startY = int.MaxValue;
+        int endY = int.MinValue;
+        bool check_Y = false;
+        int count_Y = 1;
+
         for (int i = 0; i < particleKinds.Count; i++)
         {
-            check++;
             if (particleKinds[i] != ParticleName.None)
             {
-                this.y = y;
-                if (check > x)
+                check_Y = true;
+                y = count_Y;
+                if ((i % 3) + 1 < start_X)
                 {
-                    x = check;
+                    start_X = i % 3 + 1;
+                }
+                if ((i % 3) + 1 > end_X)
+                {
+                    end_X = i % 3 + 1;
                 }
             }
-            if (check >= 3)
+
+            if ((i + 1) % 3 == 0)
             {
-                check = 0;
-                y++;
+                if (check_Y)
+                {
+                    count_Y++;
+                }
             }
         }
+
+        if (start_X != int.MaxValue)
+        {
+            x = end_X - start_X + 1;
+        }
+
+
         // None아닌 데이터 제일 앞으로 오게 정렬
         for (int i = 0; i < particleKinds.Count; i++)
         {

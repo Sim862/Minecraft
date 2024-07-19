@@ -104,9 +104,12 @@ MonoBehaviour:
   moveSpeed: 5
   particleName: 6
   particleType: 1
+  blockType: 0
   icon: {fileID: 21300000, guid: b04cb40d512f7874399b01b6b5c1acaa, type: 3}
   count: 0
+  durability: 100
   power: 1
+  damage: 1
 --- !u!1 &7128940966132975109
 GameObject:
   m_ObjectHideFlags: 0

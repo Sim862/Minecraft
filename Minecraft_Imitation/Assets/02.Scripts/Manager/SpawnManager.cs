@@ -14,7 +14,6 @@ public class SpawnManager : MonoBehaviour
     public int monsterMaxCount { get; private set; } = 12;
     private Dictionary<MobData.MobKind, List<Mob>> mobList = new Dictionary<MobData.MobKind, List<Mob>>();
 
-    public int passiveMobCount = 0;
     private float random_Radian;
     private Vector3 spawnDirection;
     private Vector3 playerPosition;
@@ -49,18 +48,22 @@ public class SpawnManager : MonoBehaviour
         {
             mobList.Add(mob.mobData.mobKind, new List<Mob>() { mob });
         }
+
         for (int i = 0; i < passiveMonsterList.Length; i++)
         {
             if(mob.mobData.mobKind == passiveMonsterList[i])
             {
                 mobKindCheck = true;
-                passiveMobCount++;
+                passiveMonsterCount++;
+                break;
             }
         }
+
         if (!mobKindCheck)
         {
             hostileeMonsterCount++;
         }
+
     }
 
     public void RemoveMob(Mob mob)
@@ -77,7 +80,7 @@ public class SpawnManager : MonoBehaviour
             if (mob.mobData.mobKind == passiveMonsterList[i])
             {
                 mobKindCheck = true;
-                passiveMobCount--;
+                passiveMonsterCount--;
             }
         }
         if (!mobKindCheck)

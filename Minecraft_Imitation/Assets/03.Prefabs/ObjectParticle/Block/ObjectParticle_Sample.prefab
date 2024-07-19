@@ -152,14 +152,17 @@ MonoBehaviour:
   rigidbody: {fileID: 0}
   rigidCollider: {fileID: 0}
   particleObject: {fileID: 3998662556383513029}
-  rotatingSpeed: 10
-  moveLength: 0.15
+  rotateSpeed: 1
+  rotateLength: 0.15
   moveSpeed: 5
-  particleKind: 0
+  particleName: 0
   particleType: 0
-  count: 1
+  blockType: 0
   icon: {fileID: 0}
-  canSetup: 1
+  count: 1
+  durability: 100
+  power: 1
+  damage: 1
 --- !u!1 &7733235666004420616
 GameObject:
   m_ObjectHideFlags: 0

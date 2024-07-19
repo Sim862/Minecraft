@@ -137,6 +137,11 @@ public class Mob : MonoBehaviour
 
     #endregion
 
+    private IEnumerator changeMaterial;
+    protected Renderer[] renderers;
+    public Material material_Default;
+    public Material material_Hit;
+
     #region 사운드
     public Sound.AudioClipName idleSound;
     public Sound.AudioClipName deathSound;
@@ -152,6 +157,7 @@ public class Mob : MonoBehaviour
         {
             headDefaultRotation = head.rotation;
         }
+        Renderer renderer = GetComponentInChildren<Renderer>();
     }
 
     private void OnDestroy()
@@ -479,7 +485,12 @@ public class Mob : MonoBehaviour
 
         if (dmg < 0)
         {
-
+            if(changeMaterial != null)
+            {
+                StopCoroutine(changeMaterial);
+            }
+            changeMaterial = ChangeMaterial();
+            StartCoroutine(changeMaterial);
             if (currHP <= 0)
             {
                 SoundManager.instance.ActiveOnShotSFXSound(deathSound, transform, transform.position);
@@ -513,6 +524,22 @@ public class Mob : MonoBehaviour
         }
     }
 
+    private IEnumerator ChangeMaterial()
+    {
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            renderers[i].material = material_Hit;
+        }
+
+        yield return new WaitForSeconds(0.3f);
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            renderers[i].material = material_Default;
+        }
+
+        changeMaterial = null;
+    }
 
 
     #region A* 알고리즘

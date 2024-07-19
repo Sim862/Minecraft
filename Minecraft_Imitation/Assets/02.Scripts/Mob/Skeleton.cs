@@ -16,6 +16,11 @@ public class Skeleton : Mob
     public Arrow prefab_Arrow;
     public Transform firePosition;
 
+    private void Start()
+    {
+        renderers = GetComponentsInChildren<Renderer>();
+    }
+
     void Update()
     {
         LifeCycle();

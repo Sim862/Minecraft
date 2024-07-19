@@ -11,6 +11,10 @@ public class Spider : Mob
     private float attackCoolTime = 0;
 
     public float damage = -5;
+    private void Start()
+    {
+        renderers = GetComponentsInChildren<Renderer>();
+    }
 
     void Update()
     {

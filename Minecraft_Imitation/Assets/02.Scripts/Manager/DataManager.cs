@@ -34,6 +34,7 @@ public class DataManager : MonoBehaviour
     public ObjectParticle[] objectParticles_Block;
     public ObjectParticle[] objectParticles_Tool;
     public ObjectParticle[] objectParticles_Food;
+    public ObjectParticle[] objectParticles_Other;
     public Dictionary<ObjectParticleData.ParticleName, ObjectParticle> objectParticleDictionary = new Dictionary<ObjectParticleData.ParticleName, ObjectParticle>();
 
     private string particleKind_String;
@@ -198,7 +199,7 @@ public class DataManager : MonoBehaviour
                 }
             }
         }
-        print(start_X + ", " + end_X);
+
         if (start_X != int.MaxValue)
         {
             inven_X = end_X - start_X + 1;    
@@ -214,6 +215,8 @@ public class DataManager : MonoBehaviour
                     currectDataList.Add(combinationDatas[i]);
                 }
             }
+
+            print(combinationDatas[i].result + " : " + combinationDatas[i].x + ", " + combinationDatas[i].y);
         }
         for (int i = 0; i < currectDataList.Count; i++)
         {
@@ -288,7 +291,11 @@ public class DataManager : MonoBehaviour
         {
             objectParticleDictionary.Add(objectParticles_Food[i].particleName, objectParticles_Food[i]);
         }
-        
+
+        for (int i = 0; i < objectParticles_Other.Length; i++)
+        {
+            objectParticleDictionary.Add(objectParticles_Other[i].particleName, objectParticles_Other[i]);
+        }
     }
     
     // 오브젝트 파티클 가져오기

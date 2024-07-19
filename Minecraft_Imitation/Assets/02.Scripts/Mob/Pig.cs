@@ -9,6 +9,10 @@ public class Pig : Mob
     public Transform temp;
 
     private float idleSoundTimer = 0;
+    private void Start()
+    {
+        renderers = GetComponentsInChildren<Renderer>();
+    }
 
     void Update()
     {
