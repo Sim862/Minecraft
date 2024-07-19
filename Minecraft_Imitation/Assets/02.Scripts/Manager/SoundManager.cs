@@ -112,6 +112,11 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    public bool BGMActiveChecK()
+    {
+        return bgmAudioSource.isVirtual;
+    }
+
     // 효과음 audioSource 활성화
     public SFXAudioSource ActiveOnShotSFXSound(Sound.AudioClipName audioClipName, Transform target, Vector3 position)
     {

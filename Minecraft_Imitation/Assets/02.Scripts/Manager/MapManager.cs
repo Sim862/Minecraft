@@ -152,7 +152,7 @@ public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
     
-    public static Queue<Block> blockPool = new Queue<Block>(12*12*125);
+    public static Queue<Block> blockPool = new Queue<Block>(12*12*125 *10);
 
     public Block blockPrefab;
 
@@ -423,7 +423,7 @@ public class MapManager : MonoBehaviour
 
             playerChunk = playerPositionData.chunk;
 
-            SpawnMonster();
+            SpawnChunkMonsterData();
         }
 
     }
@@ -449,7 +449,7 @@ public class MapManager : MonoBehaviour
             }
         }
 
-        SpawnMonster();
+        SpawnChunkMonsterData();
     }
 
     public void LoadChunk(int chunk_X, int chunk_Z)
@@ -685,52 +685,56 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void SpawnMonster()
+    private void SpawnChunkMonsterData()
     {
         for (int i = 0; i < chunks.Count; i++)
         {
             if(chunks[i].initMonster == false)
             {
+                List<MobSpawnData> mobSpawnDatas_Temp = new List<MobSpawnData>();
                 if(chunks[i].chunkData.mobSpawnDatas == null)
                 {
                     chunks[i].chunkData.mobSpawnDatas = new List<MobSpawnData>();
                 }
 
-                if (chunks[i].chunkData.mobSpawnDatas.Count == 0)
-                {
-                    //if (UnityEngine.Random.value > 0.5f)
-                    //{
-
-                    //    for (int j = 0; j < 1; j++)
-                    //    {
-                    //        int x = UnityEngine.Random.Range(0, 11);
-                    //        int z = UnityEngine.Random.Range(0, 11);
-                    //        temp_Mob = DataManager.instance.GetMobPrefab(MobData.MobKind.Skeleton_Arrow);
-                    //        temp_Mob = Instantiate(temp_Mob, GetObjectPosition(chunks[i], 5, 8, 5), Quaternion.Euler(0, UnityEngine.Random.value * 360, 0));
-                    //        temp_Mob.initEntitiy(chunks[i].chunk_X, chunks[i].chunk_Z, 5, 8, 5);
-                    //        SpawnManager.instance.AddMob(temp_Mob);
-                    //    }
-                    //}
-                }
-                else
+                if (chunks[i].chunkData.mobSpawnDatas.Count != 0)
                 {
                     for (int j = 0; j < chunks[i].chunkData.mobSpawnDatas.Count; j++)
                     {
+                        if(SpawnManager.instance.passiveMobCount + SpawnManager.instance.passiveMobCount >= SpawnManager.instance.monsterMaxCount)
+                        {
+                            break;
+                        }
                         temp_MobSpawnData = chunks[i].chunkData.mobSpawnDatas[j];
                         temp_Mob = DataManager.instance.GetMobPrefab(temp_MobSpawnData.mobData.mobKind);
                         temp_Mob = Instantiate(temp_Mob,
                             GetObjectPosition(temp_MobSpawnData.positionData.chunk, temp_MobSpawnData.positionData.blockIndex_x, temp_MobSpawnData.positionData.blockIndex_y, temp_MobSpawnData.positionData.blockIndex_z),
                             Quaternion.Euler(0, UnityEngine.Random.value * 360, 0), SpawnManager.instance.transform);
                         temp_Mob.initEntitiy(chunks[i].chunk_X, chunks[i].chunk_Z, temp_MobSpawnData.positionData.blockIndex_x, temp_MobSpawnData.positionData.blockIndex_y, temp_MobSpawnData.positionData.blockIndex_z);
-                        chunks[i].chunkData.mobSpawnDatas[j] = temp_Mob.mobSpawnData;
+                        mobSpawnDatas_Temp.Add(temp_Mob.mobSpawnData);
                         chunks[i].mobGameObjects.Add(temp_Mob);
                         SpawnManager.instance.AddMob(temp_Mob);
                     }
                 }
-
+                chunks[i].chunkData.mobSpawnDatas = mobSpawnDatas_Temp;
                 chunks[i].initMonster = true;
             }
         }
+    }
+
+    public void SpawnMonster(MobData.MobKind mobKind, PositionData positionData)
+    {
+        if (positionData.chunk == null)
+        {
+            return;
+        }
+        temp_Mob = DataManager.instance.GetMobPrefab(mobKind);
+        temp_Mob = Instantiate(temp_Mob,
+            GetObjectPosition(positionData.chunk, positionData.blockIndex_x, positionData.blockIndex_y, positionData.blockIndex_z),
+            Quaternion.Euler(0, UnityEngine.Random.value * 360, 0), SpawnManager.instance.transform);
+        temp_Mob.initEntitiy(positionData.chunk_X, positionData.chunk_Z, positionData.blockIndex_x, positionData.blockIndex_y, positionData.blockIndex_z);
+        positionData.chunk.AddMobSpawnData(temp_Mob.mobSpawnData, temp_Mob);
+        SpawnManager.instance.AddMob(temp_Mob);
     }
 
     #endregion
@@ -790,7 +794,19 @@ public class MapManager : MonoBehaviour
         return positionData;
     }
 
-
+    public PositionData GetSpawnPositionY(PositionData positionData)
+    {
+        for (int i = Chunk.y-1; i >= 0; i--)
+        {
+            if(positionData.chunk.chunkData.blocksEnum[positionData.blockIndex_x, i, positionData.blockIndex_z] != 0)
+            {
+                positionData.blockIndex_y = i+1;
+                return positionData;
+            }
+        }
+        positionData.blockIndex_y = 0;
+        return positionData;
+    }
 
 
 

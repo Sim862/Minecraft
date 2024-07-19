@@ -472,6 +472,9 @@ public class Mob : MonoBehaviour
     }
     public void UpdateHP (Transform target, float dmg, float force)
     {
+        if (!alive)
+            return;
+
         currHP += dmg;
 
         if (dmg < 0)

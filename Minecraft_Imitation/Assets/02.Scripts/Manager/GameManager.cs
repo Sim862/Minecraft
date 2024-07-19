@@ -1,42 +1,57 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance { get; private set; }
+
     public Transform DirectionalLight;
-    private float bgm = 30;
-    private bool bgmStart = false;
+
+    public bool gameStart { get; private set; }
 
     public Transform sun;
     public Transform moon;
     public Transform[] cloud;
     private List<Transform> clouds = new List<Transform>();
     private Transform playerTransform;
+
+    public int day = 0;
+    public float time = 0;
+
+    private void Awake()
+    {
+        if(instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void Start()
     {
+        gameStart = true;
         SoundManager.instance.ActiveBGM(false);
         playerTransform = PlayerManager.instance.player.transform;
         ActiveCloud();
+        StartCoroutine(BGMCycle());
+        
+        // 몹 스폰 시작
+        SpawnManager.instance.StartSpawnMob();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        DirectionalLight.Rotate(Vector3.right * Time.deltaTime );
-        //DirectionalLight_Moon.Rotate(Vector3.right * Time.deltaTime * 6);
-        bgm -= Time.deltaTime;
-        if (bgm < 0 && !bgmStart)
-        {
-            bgmStart = true;
-            SoundManager.instance.ActiveBGM();
-        }
+        DayCycle();
+    }
 
-        if (playerTransform != null)
-        {
-            MoveSunAndMoon();
-            MoveCloud();
-        }
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
     }
 
     private void ActiveCloud()
@@ -63,6 +78,22 @@ public class GameManager : MonoBehaviour
         }
     }
    
+    private void DayCycle()
+    {
+        DirectionalLight.Rotate(Vector3.right * Time.deltaTime);
+        time += Time.deltaTime;
+        if (time > 360)
+        {
+            time -= 360;
+            day++;
+        }
+        if (playerTransform != null)
+        {
+            MoveSunAndMoon();
+            MoveCloud();
+        }
+    }
+
     private void MoveSunAndMoon()
     {
         sun.position = playerTransform.position + (-DirectionalLight.forward * 1000f);
@@ -71,5 +102,22 @@ public class GameManager : MonoBehaviour
         moon.position = playerTransform.position + (DirectionalLight.forward * 1000f);
         moon.LookAt(playerTransform);
 
+    }
+
+    private void ActiveBGM()
+    {
+        SoundManager.instance.ActiveBGM();
+    }
+
+    IEnumerator BGMCycle()
+    {
+        while (gameStart)
+        {
+            if (SoundManager.instance.BGMActiveChecK())
+            {
+                ActiveBGM();
+            }
+            yield return new WaitForSeconds(Random.Range(30, 60));
+        }
     }
 }
