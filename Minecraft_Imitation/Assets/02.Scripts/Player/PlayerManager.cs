@@ -294,6 +294,8 @@ public class PlayerManager : MonoBehaviour
 
     public void GoToTitle()
     {
+        GameManager.instance.gameStart = false;
+        GameManager.instance.day = 0;
         SceneManager.LoadScene("TitleScene");
     }
 }

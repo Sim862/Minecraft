@@ -11,5 +11,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/01.Scenes/MergeTestScene.unity
     guid: 22547e255d0368e4aa2b698ad9dcc329
+  - enabled: 1
+    path: Assets/01.Scenes/EndScene.unity
+    guid: 3bd2b84e67c33e24f8ce296dda6421a6
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

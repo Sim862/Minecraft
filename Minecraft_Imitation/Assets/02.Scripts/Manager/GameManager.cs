@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class GameManager : MonoBehaviour
 
     public Transform DirectionalLight;
 
-    public bool gameStart { get; private set; }
+    public bool gameStart { get; set; }
 
     public Transform sun;
     public Transform moon;
@@ -26,11 +27,13 @@ public class GameManager : MonoBehaviour
         if(instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+        
     }
 
     void Start()
@@ -47,15 +50,18 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.K))
+        if (gameStart)
         {
-            cheat = 100f;
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                cheat = 100f;
+            }
+            else if (Input.GetKeyDown(KeyCode.J))
+            {
+                cheat = 1f;
+            }
+            DayCycle();
         }
-        else if (Input.GetKeyDown(KeyCode.J))
-        {
-            cheat = 1f;
-        }
-        DayCycle();
     }
 
     private void OnDestroy()
@@ -89,6 +95,7 @@ public class GameManager : MonoBehaviour
    
     private void DayCycle()
     {
+        if (DirectionalLight != null)
         DirectionalLight.Rotate(Vector3.right * Time.deltaTime * cheat);
         time += Time.deltaTime*cheat;
         if (time > 360)
@@ -100,6 +107,11 @@ public class GameManager : MonoBehaviour
         {
             MoveSunAndMoon();
             MoveCloud();
+        }
+        if(day >= 10)
+        {
+            gameStart = false;
+            SceneManager.LoadScene("EndScene");
         }
     }
 
@@ -120,7 +132,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator BGMCycle()
     {
-        while (gameStart)
+        while (true)
         {
             if (SoundManager.instance.BGMActiveChecK())
             {

@@ -5,20 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class TitleSceneManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+  
 
     public void GoToPlayScene()
     {
+        if(GameManager.instance != null)
+        {
+            GameManager.instance.gameStart = true;
+        }
         SceneManager.LoadScene("MergeTestScene");
     }
 
