@@ -80,7 +80,7 @@ public class MakingSlot : MonoBehaviour
                     {
                         GameObject go = Instantiate(woodenAxeFac.transform.GetChild(0).gameObject, PlayerManager.instance.pickPos.transform);
                         go.transform.localPosition = Vector3.zero + new Vector3(0, -0.1f, 0);
-                        go.transform.eulerAngles = new Vector3(16, 160, 5); 
+                        go.transform.localEulerAngles = new Vector3(16, 160, 5); 
                         itemImageCs.particleObjectTr = go.transform;
                         itemImageCs.particleObjectTr.gameObject.SetActive(false);
                     }

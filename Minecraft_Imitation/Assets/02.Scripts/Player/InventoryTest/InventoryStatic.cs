@@ -46,7 +46,7 @@ public class InventoryStatic : MonoBehaviour
             {
                 // slot에 있는 아이템이미지의 정보를 가져와
                 ItemImage itemInSlot = slots[i].GetComponentInChildren<ItemImage>();
-                
+                if (itemInSlot.particleType == ObjectParticleData.ParticleType.Tool && itemInSlot.particleName != ObjectParticleData.ParticleName.Arrow) continue;
                 if (itemInSlot.count == 64) continue;
                 ItemImage itemImage = item.GetComponentInChildren<ItemImage>();
                 if(itemImage.particleName == itemInSlot.particleName)
@@ -80,6 +80,10 @@ public class InventoryStatic : MonoBehaviour
                     itemCs.particleObjectTr.SetParent(PlayerManager.instance.pickPos.transform);
                     itemCs.particleObjectTr.localPosition = Vector3.zero;
                     itemCs.particleObjectTr.eulerAngles = Vector3.zero;
+                    if(itemCs.particleName == ObjectParticleData.ParticleName.Bow)
+                    {
+                        itemCs.particleObjectTr.localEulerAngles = new Vector3(-80, -204, 0);
+                    }
                 }
                 GameObject item2 = Instantiate(item);
                 InventoryPopup.instance.SetItemPositionInQuickSlot(item2, i);

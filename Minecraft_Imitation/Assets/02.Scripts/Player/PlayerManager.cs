@@ -58,9 +58,22 @@ public class PlayerManager : MonoBehaviour
             PlayerRespawn();
         }
 
-        if (PlayerManager.instance.playerDead) return;
-        OnOffPauseUI();
+        if (pauseUI.activeSelf || inventory.activeSelf || playerDead)
+        {
+            cursorLock = false;
+            onInventory = true;
+        }
+        else if (!pauseUI.activeSelf || !inventory.activeSelf || !playerDead)
+        {
+            cursorLock = true;
+            onInventory = false;
+        }
         CursurLockMethod();
+        if (PlayerManager.instance.playerDead)
+        {
+            return;
+        }
+        OnOffPauseUI();
         CheckCanFire();
         if (playerMove.currHunger < playerMove.maxHunger) canEat = true;
         else if (playerMove.currHunger >= playerMove.maxHunger) canEat = false;
@@ -111,17 +124,9 @@ public class PlayerManager : MonoBehaviour
                 ChangeBoolPause();
             }
         }
+        
 
-        if (pauseUI.activeSelf || inventory.activeSelf)
-        {
-            cursorLock = false;
-            onInventory = true;
-        }
-        else if (!pauseUI.activeSelf || !inventory.activeSelf)
-        {
-            cursorLock = true;
-            onInventory = false;
-        }
+
     }
 
     public void ChangeBoolPause()
@@ -218,7 +223,7 @@ public class PlayerManager : MonoBehaviour
     {
         respawnUI.SetActive(true);
         playerDead = true;
-        cursorLock = false;
+
         
         foreach(GameObject go in InventoryPopup.instance.quickSlot)
         {
@@ -251,7 +256,6 @@ public class PlayerManager : MonoBehaviour
         playerMove.hp = playerMove.maxHp;
         playerDead = false;
         respawnUI.SetActive(false);
-        cursorLock = true;
 
     }
 
