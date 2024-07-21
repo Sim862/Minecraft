@@ -37,6 +37,10 @@ public class InventoryStatic : MonoBehaviour
         Highlight();
         if (slots[PlayerManager.instance.usingSlot].transform.childCount == 5)
         nowItem = slots[PlayerManager.instance.usingSlot].GetComponentInChildren<ItemImage>();
+        else if(slots[PlayerManager.instance.usingSlot].transform.childCount == 4)
+        {
+            nowItem = null;
+        }
     }
 
 

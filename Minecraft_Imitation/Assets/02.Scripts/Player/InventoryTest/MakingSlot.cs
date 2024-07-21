@@ -79,11 +79,26 @@ public class MakingSlot : MonoBehaviour
                 {
                     itemImageCs.count = 1;
                     Destroy(itemImageCs.itemCount.gameObject);
-                    if(itemImageCs.particleName == ObjectParticleData.ParticleName.WoodenPickaxe)
+                    //if(itemImageCs.particleName == ObjectParticleData.ParticleName.WoodenPickaxe)
+                    if(itemImageCs.particleName.ToString().Contains("axe"))
                     {
                         GameObject go = Instantiate(woodenAxeFac.transform.GetChild(0).gameObject, PlayerManager.instance.pickPos.transform);
                         go.transform.localPosition = Vector3.zero + new Vector3(0, -0.1f, -0.15f);
                         go.transform.localEulerAngles = new Vector3(16, 160, 5);
+                        go.transform.localScale = Vector3.one * 1.5f;
+                        itemImageCs.particleObjectTr = go.transform;
+                        itemImageCs.particleObjectTr.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        ObjectParticle objectParticle = DataManager.instance.GetObjectParticlePrefab(itemImageCs.particleName);
+                        GameObject go = Instantiate(objectParticle.particleObject.gameObject, PlayerManager.instance.pickPos.transform);
+                        go.transform.localPosition = Vector3.zero;
+                        if (go.transform.GetChild(0).gameObject.name.Contains("Sword"))
+                        {
+                            go.transform.localPosition = new Vector3(0.1f, -0.1f, 0);
+                            go.transform.localEulerAngles = new Vector3(60, 164, 209);
+                        }
                         go.transform.localScale = Vector3.one * 1.5f;
                         itemImageCs.particleObjectTr = go.transform;
                         itemImageCs.particleObjectTr.gameObject.SetActive(false);

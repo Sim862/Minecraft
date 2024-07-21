@@ -23,16 +23,26 @@ public class EventWithBox : MonoBehaviour
     {
         if (InventoryStatic.instance.nowItem != null)
         {
-            if (InventoryStatic.instance.nowItem.particleName == ObjectParticleData.ParticleName.WoodenPickaxe)
+            if (InventoryStatic.instance.nowItem.particleName.ToString().Contains("axe"))
             {
                 attackPower = 10;
             }
-            else attackPower = 5;
+            else if (InventoryStatic.instance.nowItem.particleName.ToString().Contains("Sword"))
+            {
+                attackPower = 20;
+                print("칼든강도");
+            }
+            else 
+            {
+                print("다른거 든 강도");
+                attackPower = 5; 
+            }
             test = InventoryStatic.instance.nowItem.blockType;
             breakPower = InventoryStatic.instance.nowItem.power;
         }
         else
         {
+            print("아이템없는강도");
             test = BlockData.BlockType.None;
             breakPower = 1;
             attackPower = 5;
