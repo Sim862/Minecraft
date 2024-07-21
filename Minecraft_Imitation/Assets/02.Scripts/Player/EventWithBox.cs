@@ -30,11 +30,9 @@ public class EventWithBox : MonoBehaviour
             else if (InventoryStatic.instance.nowItem.particleName.ToString().Contains("Sword"))
             {
                 attackPower = 20;
-                print("칼든강도");
             }
             else 
             {
-                print("다른거 든 강도");
                 attackPower = 5; 
             }
             test = InventoryStatic.instance.nowItem.blockType;
@@ -42,7 +40,6 @@ public class EventWithBox : MonoBehaviour
         }
         else
         {
-            print("아이템없는강도");
             test = BlockData.BlockType.None;
             breakPower = 1;
             attackPower = 5;

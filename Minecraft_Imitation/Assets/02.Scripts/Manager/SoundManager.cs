@@ -71,11 +71,11 @@ public class SoundManager : MonoBehaviour
             Destroy(this.gameObject);
 
         DontDestroyOnLoad(this);
+        bgmAudioSource = GetComponent<AudioSource>();
+        InitSounds();
     }
     private void Start()
     {
-        bgmAudioSource = GetComponent<AudioSource>();
-        InitSounds();
         ActiveBGM();
     }
     
