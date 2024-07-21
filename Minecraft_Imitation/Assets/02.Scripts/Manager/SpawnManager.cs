@@ -11,7 +11,7 @@ public class SpawnManager : MonoBehaviour
     public MobData.MobKind[] hostileeMonsterList = new MobData.MobKind[] { MobData.MobKind.Spider, MobData.MobKind.Skeleton_Arrow};
     public int passiveMonsterCount { get; private set; } = 0;
     public int hostileeMonsterCount { get; private set; } = 0;
-    public int monsterMaxCount { get; private set; } = 12;
+    public int monsterMaxCount { get; set; } = 12;
     private Dictionary<MobData.MobKind, List<Mob>> mobList = new Dictionary<MobData.MobKind, List<Mob>>();
 
     private float random_Radian;

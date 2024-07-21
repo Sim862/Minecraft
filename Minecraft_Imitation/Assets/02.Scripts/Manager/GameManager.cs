@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public int day = 0;
     public float time = 0;
 
+    private bool changeSpawnMaxCount = false;
     private void Awake()
     {
         if(instance == null)
@@ -101,8 +102,16 @@ public class GameManager : MonoBehaviour
         if (time > 360)
         {
             time -= 360;
-            day++;
+            day++; 
+            changeSpawnMaxCount = false;
+            SpawnManager.instance.monsterMaxCount /= 2;
         }
+        else if (time > 180 && !changeSpawnMaxCount)
+        {
+            changeSpawnMaxCount = true;
+            SpawnManager.instance.monsterMaxCount *= 2;
+        }
+
         if (playerTransform != null)
         {
             MoveSunAndMoon();
