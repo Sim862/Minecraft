@@ -17,10 +17,13 @@ public class EventWithBox : MonoBehaviour
     float effCool = 0.5f;
     float currTime = 0;
 
+    float attackCool;
+
     bool isClicking = false;
 
     void Update()
     {
+        attackCool += Time.deltaTime;
         if (InventoryStatic.instance.nowItem != null)
         {
             if (InventoryStatic.instance.nowItem.particleName.ToString().Contains("axe"))
@@ -65,8 +68,12 @@ public class EventWithBox : MonoBehaviour
             {
                 print(camHitInfo.transform.gameObject.name);
                 mob = camHitInfo.transform.GetComponent<Mob>();
-                mob.UpdateHP(transform, -attackPower, pushForce);
-                print(mob.currHP);
+                if(attackCool >= 0.5f)
+                {
+                    mob.UpdateHP(transform, -attackPower, pushForce);
+                    attackCool = 0;
+                    print(mob.currHP);
+                }
             }
 
             // effect 스폰 1회성
