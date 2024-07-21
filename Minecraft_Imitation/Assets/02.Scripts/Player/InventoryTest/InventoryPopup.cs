@@ -116,8 +116,6 @@ public class InventoryPopup : MonoBehaviour
             {
                 previousItemImage = rayObject.GetComponent<ItemImage>();
             }
-            
-
         }
 
         if (Input.GetMouseButtonDown(0))
