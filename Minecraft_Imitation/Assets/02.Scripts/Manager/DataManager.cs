@@ -215,12 +215,6 @@ public class DataManager : MonoBehaviour
                     currectDataList.Add(combinationDatas[i]);
                 }
             }
-
-            print(combinationDatas[i].result + " : " + combinationDatas[i].x + ", " + combinationDatas[i].y);
-        }
-        for (int i = 0; i < currectDataList.Count; i++)
-        {
-            print(currectDataList[i].result + " : " + currectDataList[i].x + " , " + currectDataList[i].y);
         }
         if (currectDataList.Count == 0)
         {
