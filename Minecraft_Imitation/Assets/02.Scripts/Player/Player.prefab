@@ -350,7 +350,7 @@ GameObject:
   - component: {fileID: 476177665854722616}
   - component: {fileID: 1162823075103781604}
   m_Layer: 3
-  m_Name: 'Player '
+  m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -477,7 +477,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27eada1660aaaf641bc4a17674f93926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  breakPower: 5
+  breakPower: 1
   attackPower: 5
   pushForce: 3
   effectFac: {fileID: 6813416509558619124, guid: c004ba8c0b51ed14db6d4c64f4bc6019, type: 3}

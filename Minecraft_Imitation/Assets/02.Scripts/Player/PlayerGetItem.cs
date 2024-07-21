@@ -30,6 +30,8 @@ public class PlayerGetItem : MonoBehaviour
             itemImageCs.particleName = objectParticleCs.particleName;
             itemImageCs.particleType = objectParticleCs.particleType;
             itemImageCs.particleObjectTr = objectParticleCs.particleObject;
+            itemImageCs.power = objectParticleCs.power;
+            itemImageCs.blockType = objectParticleCs.blockType;
             if(itemImageCs.particleName == ObjectParticleData.ParticleName.Bow)
             {
                 itemImageCs.count = 1;

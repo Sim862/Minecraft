@@ -5,7 +5,7 @@ using UnityEngine;
 public class EventWithBox : MonoBehaviour
 {
     BlockData.BlockType test = BlockData.BlockType.Pick;
-    public float breakPower = 5;
+    public float breakPower = 1;
     public float attackPower = 5;
     public float pushForce = 3;
     public GameObject effectFac;
@@ -21,7 +21,23 @@ public class EventWithBox : MonoBehaviour
 
     void Update()
     {
-
+        if (InventoryStatic.instance.nowItem != null)
+        {
+            if (InventoryStatic.instance.nowItem.particleName == ObjectParticleData.ParticleName.WoodenPickaxe)
+            {
+                attackPower = 10;
+            }
+            else attackPower = 5;
+            test = InventoryStatic.instance.nowItem.blockType;
+            breakPower = InventoryStatic.instance.nowItem.power;
+        }
+        else
+        {
+            test = BlockData.BlockType.None;
+            breakPower = 1;
+            attackPower = 5;
+        }
+        
         Ray camRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         RaycastHit camHitInfo = new RaycastHit();
         bool anyHit = Physics.Raycast(camRay, out camHitInfo, PlayerManager.instance.aimRange, (-1) - (1 << LayerMask.NameToLayer("ObjectParticle")));
