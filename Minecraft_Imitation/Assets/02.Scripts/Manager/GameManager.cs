@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.K))
             {
-                cheat = 100f;
+                cheat = 30f;
             }
             else if (Input.GetKeyDown(KeyCode.J))
             {
