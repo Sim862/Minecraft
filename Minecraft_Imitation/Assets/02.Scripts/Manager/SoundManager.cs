@@ -28,7 +28,14 @@ public class Sound
         Spider_Death,
 
         //
-        Background
+        Background,
+
+        // 스켈레톤
+        Skeleton_Idle,
+        Skeleton_Death,
+
+        // 화살
+        Arrow
     }
     public AudioClipName audioClipName;
     public AudioClip audioClip

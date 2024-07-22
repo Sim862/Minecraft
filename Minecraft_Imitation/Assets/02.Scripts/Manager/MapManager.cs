@@ -671,7 +671,7 @@ public class MapManager : MonoBehaviour
                 for (int z = 0; z < Chunk.z; z++)
                 {
                     block = chunk.blockObjects[x, y, z];
-                    if(block != null)
+                    if (block != null)
                     {
                         blockPool.Enqueue(block);
                     }

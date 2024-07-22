@@ -117,7 +117,7 @@ public class GameManager : MonoBehaviour
             MoveSunAndMoon();
             MoveCloud();
         }
-        if(day >= 10)
+        if(day >= 5)
         {
             gameStart = false;
             SceneManager.LoadScene("EndScene");

@@ -200,4 +200,15 @@ MonoBehaviour:
     - {fileID: 8300000, guid: a2fe7bb1098fbd945a9fb692515abf08, type: 3}
     - {fileID: 8300000, guid: 0eacf1995ccc70a4a8f8d1054631004a, type: 3}
     - {fileID: 8300000, guid: 6e3050bf70432814f883b9151505c3e5, type: 3}
+  - audioClipName: 11
+    audioClips:
+    - {fileID: 8300000, guid: 7995bb8cebed3384ca04921030716fa5, type: 3}
+    - {fileID: 8300000, guid: f685086cfa440b54f881d3d35a9e6068, type: 3}
+    - {fileID: 8300000, guid: 680e96385704b1f458bda8affd4d99b0, type: 3}
+  - audioClipName: 12
+    audioClips:
+    - {fileID: 8300000, guid: 0ac4ea64e0f6f5548871a8a627ac0113, type: 3}
+  - audioClipName: 13
+    audioClips:
+    - {fileID: 8300000, guid: 21f5e804339d09e4bbcf6c52ff714731, type: 3}
   sfxVolume: 0.5

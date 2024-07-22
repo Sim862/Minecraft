@@ -40,6 +40,7 @@ public class Arrow : MonoBehaviour
             loadTime = 1;
         }
         this.isPlayer = isPlayer;
+        SoundManager.instance.ActiveOnShotSFXSound(Sound.AudioClipName.Arrow, null, transform.position);
         transform.LookAt(transform.position + direction);
         rigidbody.AddForce(direction * speed * loadTime);
         rigidbody.useGravity = true;

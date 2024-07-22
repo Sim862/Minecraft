@@ -36,6 +36,11 @@ public class Block : MonoBehaviour
         ResetCoroutine();
     }
 
+    private void OnDestroy()
+    {
+        StopAllCoroutines();   
+    }
+
     private void ResetCoroutine()
     {
         checkBreak_Coroutine = null;
@@ -63,7 +68,7 @@ public class Block : MonoBehaviour
 
     public void Break(BlockData.BlockType blockType, float Power) // 한번만 호출하면 블럭 체력 까이기 시작. 피 까이는 상태.
     {
-        if (canBreak)
+        if (canBreak && gameObject.activeSelf)
         {
             StopBroke(); // CheckBreak가 실행 중이라면 실행.
             if (blockData.blockType == blockType)
