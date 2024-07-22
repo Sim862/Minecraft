@@ -112,7 +112,7 @@ public class Chunk
             if (chunk.needSave)
             {
                 chunk.needSave = false;
-                MapManager.instance.SaveChunk(chunk_X, chunk_Z,this);
+                MapManager.instance.SaveChunk(chunk.chunk_X, chunk.chunk_Z, this);
             }
 
             yield return new WaitForSeconds(Chunk.saveTime);
@@ -493,7 +493,6 @@ public class MapManager : MonoBehaviour
         }
         catch (FileNotFoundException error)
         {
-            print("파일 없음");
             for (int x = 0; x < Chunk.x; x++)
             {
                 for (int y = 0; y < Chunk.y; y++)
@@ -515,6 +514,10 @@ public class MapManager : MonoBehaviour
                             else if (Random.value < 0.1)
                             {
                                 value = (int)BlockData.BlockName.IronOre;
+                            }
+                            else
+                            {
+                                value = (int)BlockData.BlockName.Stone;
                             }
                         }
                     }

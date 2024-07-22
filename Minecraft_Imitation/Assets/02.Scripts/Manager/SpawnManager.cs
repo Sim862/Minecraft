@@ -142,7 +142,7 @@ public class SpawnManager : MonoBehaviour
                 }
             }
 
-            yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(8);
         }
         Cor_spawnMob = null;
     }

@@ -79,6 +79,7 @@ public class SoundManager : MonoBehaviour
 
         DontDestroyOnLoad(this);
         bgmAudioSource = GetComponent<AudioSource>();
+        bgmAudioSource.volume = 0.1f;
         InitSounds();
     }
     private void Start()
