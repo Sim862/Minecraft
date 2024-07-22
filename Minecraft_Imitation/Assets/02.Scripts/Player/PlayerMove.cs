@@ -22,7 +22,7 @@ public class PlayerMove : MonoBehaviour
     PlayerDamaged damagedCs;
     Animator anim;
     Camera cam;
-    float runFOV = 55f;
+    float runFOV = 70f;
     float walkFOV = 60f;
     bool isRun;
     float hungerTime;

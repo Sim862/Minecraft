@@ -8,7 +8,6 @@ using static BlockData;
 using static GameObjectData;
 using static ObjectParticleData;
 using static ToolData;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 [System.Serializable]
 public class GameObjectData

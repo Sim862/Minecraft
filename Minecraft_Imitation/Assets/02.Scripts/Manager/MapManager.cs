@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using static BlockData;
+using Random = UnityEngine.Random;
 
 [Serializable]
 public class PositionData
@@ -183,8 +184,6 @@ public class MapManager : MonoBehaviour
         {
             instance = this;
         }
-
-        playerPositionData = new PositionData(0, 0, 0, 0, 0);
     }
 
     void Start()
@@ -196,6 +195,10 @@ public class MapManager : MonoBehaviour
             block = Instantiate(blockPrefab, Vector3.one * -999, Quaternion.identity, temp);
             blockPool.Enqueue(block);
         }
+
+        playerPositionData = new PositionData(0, 0, 0, 0, 0);
+        playerPositionData = GetSpawnPositionY(playerPositionData);
+        PlayerManager.instance.player.transform.position = GetObjectPosition(playerPositionData.chunk, playerPositionData.blockIndex_x, playerPositionData.blockIndex_y, playerPositionData.blockIndex_z);
     }
 
     public bool createBlock = false;
@@ -454,6 +457,8 @@ public class MapManager : MonoBehaviour
         SpawnChunkMonsterData();
     }
 
+    int block_y = 5;
+    bool checkY = false;
     public void LoadChunk(int chunk_X, int chunk_Z)
     {
         if (chunk_X < 0)
@@ -488,14 +493,35 @@ public class MapManager : MonoBehaviour
         }
         catch (FileNotFoundException error)
         {
-            print("파일 없음"); 
-            
+            print("파일 없음");
             for (int x = 0; x < Chunk.x; x++)
             {
                 for (int y = 0; y < Chunk.y; y++)
                 {
-                    if (y < 5)
+                    if (y < block_y)
+                    {
+                        if (y == 0)
+                            value = (int)BlockData.BlockName.Stone;
+                        else
+                        {
+                            if (Random.value < 0.01f)
+                            {
+                                value = (int)BlockData.BlockName.DiamondOre;
+                            }
+                            else if (Random.value < 0.05f)
+                            {
+                                value = (int)BlockData.BlockName.GoldOre;
+                            }
+                            else if (Random.value < 0.1)
+                            {
+                                value = (int)BlockData.BlockName.IronOre;
+                            }
+                        }
+                    }
+                    else if (y < block_y + 3)
+                    {
                         value = (int)BlockData.BlockName.Dirt;
+                    }
                     else
                         value = (int)BlockData.BlockName.None;
 
@@ -503,11 +529,8 @@ public class MapManager : MonoBehaviour
                     {
                         blocks[x, y, z] = value;
                     }
-
                 }
-
             }
-
             chunkData = new ChunkData(blocks);
         }
     }
@@ -544,8 +567,30 @@ public class MapManager : MonoBehaviour
         {
             for (int y = 0; y < Chunk.y; y++)
             {
-                if (y < 3)
+                if (y < block_y)
+                {
+                    if(y == 0)
+                        value = (int)BlockData.BlockName.Stone;
+                    else
+                    {
+                        if(Random.value < 0.1f)
+                        {
+                            value = (int)BlockData.BlockName.DiamondOre;
+                        }
+                        else if(Random.value < 0.5f)
+                        {
+                            value = (int)BlockData.BlockName.GoldOre;
+                        }
+                        else if(Random.value < 1)
+                        {
+                            value = (int)BlockData.BlockName.IronOre;
+                        }
+                    }
+                }
+                else if (y < block_y + 3)
+                {
                     value = (int)BlockData.BlockName.Dirt;
+                }
                 else
                     value = (int)BlockData.BlockName.None;
 
@@ -556,6 +601,23 @@ public class MapManager : MonoBehaviour
 
             }
 
+        }
+        if(block_y > 35)
+        {
+            checkY = true;
+        }
+        else if(block_y < 30)
+        {
+            checkY = false;
+        }
+
+        if (checkY)
+        {
+            block_y--;
+        }
+        else
+        {
+            block_y++;
         }
         ChunkData chunkData = new ChunkData(blocks);
 
