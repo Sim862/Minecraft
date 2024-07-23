@@ -67,7 +67,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 60
+  field of view: 59.999992
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -423,6 +423,7 @@ MonoBehaviour:
   currHunger: 0
   hungerCoolTime: 10
   healTime: 10
+  invincibility: 0
   arrowFac: {fileID: 2414573245414557368, guid: c6e15febcc833034dbc7ea9934132b10, type: 3}
 --- !u!114 &4835342582885868384
 MonoBehaviour:
