@@ -100,13 +100,15 @@ public class Block : MonoBehaviour
         StopBroke();
         SoundManager.instance.ActiveOnShotSFXSound(blockData.brockBrokenSound, null, transform.position);
         objectParticle = DataManager.instance.GetObjectParticlePrefab(blockData.objectParticle);
-        objectParticle.UpdateCount(1);
         if (objectParticle != null)
         {
-            objectParticle = Instantiate(objectParticle, transform.position, objectParticle.transform.rotation, MapManager.instance.transform);
-            objectParticle.GetComponent<Rigidbody>().AddForce(Vector3.up * 50);
+            objectParticle.UpdateCount(1);
+            if (objectParticle != null)
+            {
+                objectParticle = Instantiate(objectParticle, transform.position, objectParticle.transform.rotation, MapManager.instance.transform);
+                objectParticle.GetComponent<Rigidbody>().AddForce(Vector3.up * 50);
+            }
         }
-
         // 쉐이더 초기화 추가
         broken = false;
         canBreak = false;
