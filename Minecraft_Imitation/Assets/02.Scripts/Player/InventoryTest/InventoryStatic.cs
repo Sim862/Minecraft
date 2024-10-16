@@ -17,8 +17,6 @@ public class InventoryStatic : MonoBehaviour
     ItemImage previous;
     ItemImage now;
 
-
-    // Start is called before the first frame update
     void Awake()
     {
         if (instance == null)
@@ -31,7 +29,6 @@ public class InventoryStatic : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         Highlight();

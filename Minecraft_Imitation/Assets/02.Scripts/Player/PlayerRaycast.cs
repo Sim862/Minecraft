@@ -162,10 +162,8 @@ public class PlayerRaycast : MonoBehaviour
 
     public void EatFood() // 음식 먹음.
     {
-
          itemImage.ChangeItemCnt(-1);
          GetComponent<PlayerMove>().UpdateHunger(4); // 우선 허기 4 증가로 설정.
-
     }
 
     void UseMaker()

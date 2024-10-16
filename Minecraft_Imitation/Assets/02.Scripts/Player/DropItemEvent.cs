@@ -52,7 +52,6 @@ public class DropItemEvent : MonoBehaviour
                 }
                 Destroy(nowItemImage.gameObject);
                 Destroy(nowItemImageInQuick.gameObject);
-                
             }
         }
     }

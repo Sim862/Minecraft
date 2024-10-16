@@ -78,8 +78,6 @@ public class PlayerManager : MonoBehaviour
         if (playerMove.currHunger < playerMove.maxHunger) canEat = true;
         else if (playerMove.currHunger >= playerMove.maxHunger) canEat = false;
 
-        
-
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             InventoryPopup.instance.useMaker = false;
@@ -110,7 +108,6 @@ public class PlayerManager : MonoBehaviour
                     isBow = false;
                 }
             }
-            
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -124,9 +121,6 @@ public class PlayerManager : MonoBehaviour
                 ChangeBoolPause();
             }
         }
-        
-
-
     }
 
     public void ChangeBoolPause()
@@ -199,11 +193,13 @@ public class PlayerManager : MonoBehaviour
                 usingSlot = 8;
             }
         }
-        previous = now;
-        now = usingSlot;
-        InventoryStatic.instance.CheckIsUsing(previous, false);
-        InventoryStatic.instance.CheckIsUsing(now, true);
     }
+
+
+        //previous = now;
+        //now = usingSlot;
+        //InventoryStatic.instance.CheckIsUsing(previous, false);
+        //InventoryStatic.instance.CheckIsUsing(now, true);
 
     public bool CheckGetItem() // 용도 : 인벤토리에 들어갈 수 있으면true.
     {
@@ -246,8 +242,6 @@ public class PlayerManager : MonoBehaviour
                 Destroy(go.transform.GetChild(4).gameObject);
             }
         }
-
-
         InventoryPopup.instance.gameObject.SetActive(false);
     }
 
@@ -256,7 +250,6 @@ public class PlayerManager : MonoBehaviour
         playerMove.hp = playerMove.maxHp;
         playerDead = false;
         respawnUI.SetActive(false);
-
     }
 
     void CheckCanFire()

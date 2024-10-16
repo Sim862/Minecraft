@@ -30,7 +30,6 @@ public class MakingSlot : MonoBehaviour
 
     public void SaveAllData()
     {
-        
         for(int i = 0; i < dropSlot.Length; i++)
         {
             ItemImage item = null;
@@ -79,7 +78,6 @@ public class MakingSlot : MonoBehaviour
                 {
                     itemImageCs.count = 1;
                     Destroy(itemImageCs.itemCount.gameObject);
-                    //if(itemImageCs.particleName == ObjectParticleData.ParticleName.WoodenPickaxe)
                     if(itemImageCs.particleName.ToString().Contains("axe"))
                     {
                         GameObject go = Instantiate(woodenAxeFac.transform.GetChild(0).gameObject, PlayerManager.instance.pickPos.transform);

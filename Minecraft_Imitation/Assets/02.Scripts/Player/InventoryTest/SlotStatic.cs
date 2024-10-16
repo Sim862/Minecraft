@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class SlotStatic : MonoBehaviour
 {
+    // 이거 사용 안함.
     ItemImage item;
     public GameObject particle;
     public bool isUsing;
@@ -17,10 +18,10 @@ public class SlotStatic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        SaveItemData();
+        HighLight();
     }
 
-    void SaveItemData()
+    void HighLight()
     {
         if(transform.childCount != 4)
         {
