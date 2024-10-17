@@ -12,7 +12,6 @@ public class InventoryStatic : MonoBehaviour
     public int exceededCnt;
     int maxCnt = 64;
     public ItemImage nowItem;
-    
 
     ItemImage previous;
     ItemImage now;
@@ -68,7 +67,6 @@ public class InventoryStatic : MonoBehaviour
                         itemInSlot.ChangeItemCnt(maxCnt - itemInSlot.count);
                         itemImage.ChangeItemCnt(exceededCnt - itemImage.count);
                         InventoryPopup.instance.ChangeSameCnt(i, itemInSlot.count);
-                        
                     }
                 }
             }

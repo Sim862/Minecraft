@@ -51,7 +51,6 @@ public class EventWithBox : MonoBehaviour
         Ray camRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         RaycastHit camHitInfo = new RaycastHit();
         bool anyHit = Physics.Raycast(camRay, out camHitInfo, PlayerManager.instance.aimRange, (-1) - (1 << LayerMask.NameToLayer("ObjectParticle")));
-
         if (anyHit) onHitRayBlock = camHitInfo.transform.gameObject;// 무언가 맞았다면
         if (anyHit && Input.GetMouseButtonDown(0) && !PlayerManager.onInventory &&!PlayerManager.instance.isBow) // 좌클릭을 하면
         {
@@ -65,7 +64,6 @@ public class EventWithBox : MonoBehaviour
             {
                 onClickBlockCs.Break(test, breakPower); // 그 블럭의 Break를 호출
             }
-
             if(camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Mob")) // 좌클릭시 공격 코드.
             {
                 print(camHitInfo.transform.gameObject.name);
@@ -77,7 +75,6 @@ public class EventWithBox : MonoBehaviour
                     print(mob.currHP);
                 }
             }
-
             // effect 스폰 1회성
             if (anyHit && camHitInfo.transform.gameObject.layer == LayerMask.NameToLayer("Block"))
             {

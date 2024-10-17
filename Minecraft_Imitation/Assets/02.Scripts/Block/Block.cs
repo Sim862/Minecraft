@@ -90,7 +90,6 @@ public class Block : MonoBehaviour
         {
             StopCoroutine(checkBreak_Coroutine);
             checkBreak_Coroutine = null;
-
         }
     }
 

@@ -16,13 +16,11 @@ public class MakingSlot : MonoBehaviour
     public GameObject woodenAxeFac;
     public GameObject craftTable;
 
-    // Start is called before the first frame update
     void Awake()
     {
         takeSlot = transform.GetChild(transform.childCount - 1).gameObject;
     }
 
-    // Update is called once per frame
     void Update()
     {
 
@@ -101,14 +99,11 @@ public class MakingSlot : MonoBehaviour
                         itemImageCs.particleObjectTr = go.transform;
                         itemImageCs.particleObjectTr.gameObject.SetActive(false);
                     }
-                    
                 }
                 else if (itemImageCs.particleName == ObjectParticleData.ParticleName.CraftingTable)
                 {
                     GameObject go = Instantiate(craftTable.transform.GetChild(0).gameObject, PlayerManager.instance.pickPos.transform);
                     go.transform.localPosition = Vector3.zero;
-                    print(go.name);
-                    print(craftTable.transform.GetChild(0).gameObject.name);
                     itemImageCs.ChangeItemCnt(1);
                     itemImageCs.particleObjectTr = go.transform;
                     itemImageCs.particleObjectTr.gameObject.SetActive(false);
@@ -116,11 +111,9 @@ public class MakingSlot : MonoBehaviour
                 else
                 {
                     itemImageCs.ChangeItemCnt(combinationData.count);
-                    
                 }
                 itemImageCs.wasInTakeSlot = true;
             }
-            
         }
         else
         {
@@ -130,7 +123,4 @@ public class MakingSlot : MonoBehaviour
             }
         }
     }
-
-
-
 }
