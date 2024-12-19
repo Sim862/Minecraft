@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -25,6 +26,9 @@ public class Block : MonoBehaviour
     private IEnumerator checkBreak_Coroutine;
 
     public PositionData positionData;
+
+    public GameObject canvas;
+    public TMP_Text[] texts;
 
     private void Awake()
     {

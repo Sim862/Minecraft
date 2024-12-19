@@ -205,22 +205,6 @@ public class DataManager : MonoBehaviour
             inven_X = end_X - start_X + 1;    
         }
 
-        // x, y 비교
-        for (int i = 0; i < combinationDatas.Count; i++)
-        {
-            if (combinationDatas[i].x == inven_X)
-            {
-                if (combinationDatas[i].y == inven_Y)
-                {
-                    currectDataList.Add(combinationDatas[i]);
-                }
-            }
-        }
-        if (currectDataList.Count == 0)
-        {
-            return null;
-        }
-
         // None아닌 데이터 제일 앞으로 오게 정렬
         for (int i = 0; i < inven.Count; i++)
         {
@@ -239,6 +223,15 @@ public class DataManager : MonoBehaviour
         {
             inven.Add(ObjectParticleData.ParticleName.None);
         }
+
+        // x, y 비교
+        currectDataList = combinationDatas.Where(data => data.x == inven_X && data.y == inven_Y).ToList();
+
+        if (currectDataList.Count == 0)
+        {
+            return null;
+        }
+
 
         // x, y 축이 맞는 데이터랑 enum 비교
         for (int i = 0; i < currectDataList.Count; i++)

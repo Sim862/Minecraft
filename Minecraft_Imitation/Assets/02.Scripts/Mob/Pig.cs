@@ -27,7 +27,6 @@ public class Pig : Mob
             mobSpawnData.positionData = MapManager.instance.PositionToBlockData(transform.position);
             SetChunkData();
 
-            //print(mobSpawnData.positionData.chunk_X + " , " + mobSpawnData.positionData.chunk_Z);
             idleSoundTimer += Time.deltaTime;
             nextMovementTime -= Time.deltaTime;
             if (mobState == MobState.Idle)
@@ -42,19 +41,25 @@ public class Pig : Mob
                 }
                 if (nextMovementTime <= 0)
                 {
-                    nextMovementTime = 5;
-                    AStar_Random();
+                    nextMovementTime = 15;
+                    int x = Random.Range(1, 10);
+                    int z = Random.Range(1, 10);
+                    PositionData positionData = new PositionData(mobSpawnData.positionData.chunk_X, mobSpawnData.positionData.chunk_Z, x, mobSpawnData.positionData.blockIndex_y, z);
+                    while(MapManager.instance.GetBlock(positionData.chunk, positionData.blockIndex_x,positionData.blockIndex_y+1, positionData.blockIndex_z) != null)
+                        positionData = new PositionData(mobSpawnData.positionData.chunk_X, mobSpawnData.positionData.chunk_Z, x, mobSpawnData.positionData.blockIndex_y+1, z);
+                    AStar(positionData, null);
                     SetWayPosition();
                 }
-                else if(nextMovementTime > 5) // 랜덤값이 5보다 큰 객체는 주변 탐색
+                else if(nextMovementTime > 5) 
                 {
                     FindVisibleTargets();
                     if (targetTransform != null)
                     {
                         Rotation();
                     }
-                }
-                else // 탐색해서 무언가 찾았다면 계속 쳐다모기
+                }// 랜덤값이 5보다 큰 객체는 주변 탐색
+
+                else
                 {
                     if(targetTransform != null)
                     {
@@ -64,7 +69,7 @@ public class Pig : Mob
                             Rotation();
                         }
                     }
-                }
+                }// 탐색해서 무언가 찾았다면 계속 쳐다보기
             }
             else if (mobState == MobState.Hit)
             {
@@ -83,7 +88,6 @@ public class Pig : Mob
                     SetWayPosition();
                 }
             }
-
             Movement();
         }
     }

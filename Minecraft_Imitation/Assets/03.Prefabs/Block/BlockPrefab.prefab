@@ -136,3 +136,8 @@ MonoBehaviour:
     blockIndex_x: 0
     blockIndex_y: 0
     blockIndex_z: 0
+  canvas: {fileID: 0}
+  texts:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}

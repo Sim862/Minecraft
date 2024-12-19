@@ -10,23 +10,13 @@ using UnityEngine.UIElements;
 public class NewBehaviourScript : MonoBehaviour
 {
 
-
-    // Start is called before the first frame update
-    void Start()
+    public Transform target;
+    public float y  = 30;
+    private void Update()
     {
-        CombinationData a = DataManager.instance.GetCombinationData(new List<ObjectParticleData.ParticleName>() { 
-            ObjectParticleData.ParticleName.None,
-            ObjectParticleData.ParticleName.None,
-            ObjectParticleData.ParticleName.None,
-            ObjectParticleData.ParticleName.None,
-            ObjectParticleData.ParticleName.None,
-            ObjectParticleData.ParticleName.Wood,
-            ObjectParticleData.ParticleName.None,
-            ObjectParticleData.ParticleName.None,
-            ObjectParticleData.ParticleName.None,
-        });
-
+        transform.position = new Vector3(target.position.x, y, target.position.z);
     }
 
-  
+
+
 }

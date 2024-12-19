@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using static BlockData;
 using Random = UnityEngine.Random;
@@ -31,6 +33,11 @@ public class PositionData
         if (this.blockIndex_z != positionData.blockIndex_z)
             return false;
         return true;
+    }
+
+    public static PositionData DeepCopy(PositionData positionData)
+    {
+        return new PositionData(positionData.chunk_X, positionData.chunk_Z, positionData.blockIndex_x, positionData.blockIndex_y, positionData.blockIndex_z);
     }
 
     public Chunk chunk { get => MapManager.instance.GetChunk(chunk_X, chunk_Z); }
@@ -79,7 +86,6 @@ public class Chunk
 
     // 맵 변경사항 있는지 체크
     public bool needSave = false;
-
     // 코루틴
     public IEnumerator saveRoutine;
 
@@ -101,8 +107,6 @@ public class Chunk
             mobGameObjects.Remove(mob);
         }
     }
-
-
 
     // 변경사항이 생기면 12초 마다 저장
     private IEnumerator Coroutine_SaveChunk(Chunk chunk)
@@ -252,7 +256,6 @@ public class MapManager : MonoBehaviour
         }
         else
         {
-
             #region 왼쪽으로 이동했을떄
             if (playerPositionData.chunk_X < playerChunk.chunk_X)
             {
@@ -427,10 +430,8 @@ public class MapManager : MonoBehaviour
             #endregion
 
             playerChunk = playerPositionData.chunk;
-
             SpawnChunkMonsterData();
         }
-
     }
 
     public void Load_StartChunks()
@@ -459,6 +460,7 @@ public class MapManager : MonoBehaviour
 
     int block_y = 5;
     bool checkY = false;
+
     public void LoadChunk(int chunk_X, int chunk_Z)
     {
         if (chunk_X < 0)
@@ -484,14 +486,45 @@ public class MapManager : MonoBehaviour
         {
             chunk_Z = chunk_Z % Chunk.MAX_ChunkIndex;
         }
-        BinaryFormatter bf = new BinaryFormatter();
-        try
+
+        string path = Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary";
+        if (File.Exists(path))
         {
-            FileStream file = File.Open(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary", FileMode.Open);
-            chunkData = (ChunkData)bf.Deserialize(file);
-            file.Close();
+            using (BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open)))
+            {
+                string dataType = reader.ReadString();
+                int chunkX = reader.ReadInt32();
+                int chunkZ = reader.ReadInt32();
+                int modCount = chunkData.mobSpawnDatas.Count;
+
+                Debug.Log($"DataType: {dataType}, chunkPosition : {chunkX}:{chunkZ}, ModCount: {modCount}");
+
+                int[,,] blocks = new int[Chunk.x, Chunk.y, Chunk.z];
+
+                for (int x = 0; x < Chunk.x; x++)
+                {
+                    for (int y = 0; y < Chunk.y; y++)
+                    {
+                        for (int z = 0; z < Chunk.z; z++)
+                        {
+                            blocks[x, y, z] = reader.ReadInt32();
+                        }
+                    }
+                }
+
+                List<MobSpawnData> mobSpawnDatas = new List<MobSpawnData>();
+                for (int i = 0; i < modCount; i++)
+                {
+                    mobSpawnDatas.Add(
+                        new MobSpawnData(
+                            new MobData((MobData.MobKind)reader.ReadInt32()),
+                            new PositionData(chunkX, chunkZ, reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32())
+                        )
+                    );
+                }
+            }
         }
-        catch (FileNotFoundException error)
+        else
         {
             for (int x = 0; x < Chunk.x; x++)
             {
@@ -536,7 +569,15 @@ public class MapManager : MonoBehaviour
             }
             chunkData = new ChunkData(blocks);
         }
+        try
+        {
+            FileStream file = File.Open(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary", FileMode.Open);
+            chunkData = (ChunkData)bf.Deserialize(file);
+            file.Close();
+        }
+
     }
+
 
     public void SaveChunk(int chunk_X, int chunk_Z, Chunk chunk)
     {
@@ -559,10 +600,44 @@ public class MapManager : MonoBehaviour
         {
             chunk_Z = chunk_Z % Chunk.MAX_ChunkIndex;
         }
-        BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary");
-        bf.Serialize(file, chunk.chunkData);
-        file.Close();
+        
+        string path = Application.dataPath + "/chunkData" + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".dat";
+        using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
+        {
+            string dataType = "ChunkData";
+            int chunkX = chunk_X;
+            int chunkZ = chunk_Z;
+            int modCount = chunkData.mobSpawnDatas.Count;
+
+            writer.Write(dataType);
+
+            writer.Write(Chunk.x);
+            writer.Write(Chunk.y);
+            writer.Write(Chunk.z);
+
+            writer.Write(chunk_X);
+            writer.Write(chunk_Z);
+            writer.Write(modCount);
+
+            for (int x = 0; x < Chunk.x; x++)
+            {
+                for (int y = 0; y < Chunk.y; y++)
+                {
+                    for (int z = 0; z < Chunk.z; z++)
+                    {
+                        writer.Write(chunkData.blocksEnum[x, y, z]);
+                    }
+                }
+            }
+
+            foreach (MobSpawnData mobData in chunkData.mobSpawnDatas)
+            {
+                writer.Write((int)mobData.mobData.mobKind);
+                writer.Write(mobData.positionData.blockIndex_x);
+                writer.Write(mobData.positionData.blockIndex_y);
+                writer.Write(mobData.positionData.blockIndex_z);
+            }
+        }
     }
     private void CreateChunk(string path, Chunk chunk)
     {
@@ -705,6 +780,11 @@ public class MapManager : MonoBehaviour
             }
         }
     }
+    public Block GetBlock(Chunk chunk, int x, int y, int z)
+    {
+        return chunk.blockObjects[x, y-1, z];
+    }
+
 
     public void BreakBlock(Block block)
     {

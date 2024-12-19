@@ -188,11 +188,8 @@ public class CombinationData
     {
         this.result = result;
         this.count = count;
-
         int start_X = int.MaxValue;
         int end_X = int.MinValue;
-        int startY = int.MaxValue;
-        int endY = int.MinValue;
         bool check_Y = false;
         int count_Y = 1;
 
@@ -203,31 +200,22 @@ public class CombinationData
                 check_Y = true;
                 y = count_Y;
                 if ((i % 3) + 1 < start_X)
-                {
                     start_X = i % 3 + 1;
-                }
                 if ((i % 3) + 1 > end_X)
-                {
                     end_X = i % 3 + 1;
-                }
             }
 
             if ((i + 1) % 3 == 0)
             {
                 if (check_Y)
-                {
                     count_Y++;
-                }
             }
         }
 
         if (start_X != int.MaxValue)
-        {
             x = end_X - start_X + 1;
-        }
 
-
-        // None아닌 데이터 제일 앞으로 오게 정렬
+        // None아닌 데이터가 나올 때 까지 제거
         for (int i = 0; i < particleKinds.Count; i++)
         {
             if (particleKinds[i] != ObjectParticleData.ParticleName.None)
@@ -245,7 +233,6 @@ public class CombinationData
         {
             particleKinds.Add(ObjectParticleData.ParticleName.None);
         }
-
 
         this.particleKinds = particleKinds.ToArray();
     }
