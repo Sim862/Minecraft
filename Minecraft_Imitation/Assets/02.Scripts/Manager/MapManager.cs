@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Unity.VisualScripting;
 using UnityEngine;
 using static BlockData;
 using Random = UnityEngine.Random;
@@ -174,6 +175,10 @@ public class MapManager : MonoBehaviour
     MobSpawnData temp_MobSpawnData;
     Mob temp_Mob;
 
+    private GameObject greedyMeshingObject;
+    private MeshFilter meshFilter_GreedyMeshingObject;
+    private MeshRenderer meshRenderer_GreedyMeshingObject;
+    
     private void Awake()
     {
         if(instance != null)
@@ -190,11 +195,20 @@ public class MapManager : MonoBehaviour
     {
         Load_StartChunks();
         Transform temp = new GameObject("StartPool").transform;
-        for (int i = 0; i < 25000; i++)
+        for (int i = 0; i < 100; i++)
         {
             block = Instantiate(blockPrefab, Vector3.one * -999, Quaternion.identity, temp);
             blockPool.Enqueue(block);
         }
+
+        greedyMeshingObject = new GameObject("greedyMeshingObject");
+        meshFilter_GreedyMeshingObject = greedyMeshingObject.AddComponent<MeshFilter>();
+        meshRenderer_GreedyMeshingObject = greedyMeshingObject.AddComponent<MeshRenderer>();
+        //greedyMeshingObject.AddComponent<MeshCollider>();
+
+        Mesh mesh = new Mesh();
+        meshFilter_GreedyMeshingObject.mesh = mesh;
+
 
         playerPositionData = new PositionData(0, 0, 0, 0, 0);
         playerPositionData = GetSpawnPositionY(playerPositionData);
@@ -1059,4 +1073,153 @@ public class MapManager : MonoBehaviour
     #endregion
 
 
+
+    #region Greedy Meshing
+
+    private void InitMesh(Chunk chunk)
+    {
+        
+    }
+
+    private void EditMesh()
+    {
+
+    }
+    
+
+    #endregion
+}
+
+public class MeshData
+{
+
+
+    void GenerateMesh(ChunkData chunkData)
+    {
+        List<Vector3> vertices = new List<Vector3>();
+        List<int> triangles = new List<int>();
+        List<Vector2> uvs = new List<Vector2>();
+
+        bool[,,] visited = new bool[Chunk.x, Chunk.y, Chunk.z];
+
+        // x,y,z 방향에 대해 면을 병합
+        for (int axis = 0; axis < 3; axis++)
+        {
+            // X, Y, Z 축을 기준으로 다른 두 축(u, v)을 따라 면을 검사하는 방식
+            // axis = 0 => y, z
+            // axis = 1 => z, x
+            // axis = 2 => x, y
+            int u = (axis + 1) % 3; // y 또는 z
+            int v = (axis + 2) % 3; // z 또는 x
+
+            int[] dims = { Chunk.x, Chunk.y, Chunk.z };
+
+            int[] x = new int[3]; // 현재 블록 위치
+            int[] q = new int[3]; // 다음 블록 위치
+
+            // 병행 진행 체크
+            q[axis] = 1;
+
+            // 현재 axis 방향을 따라 한 층씩 블록을 검사
+            for (x[axis] = -1; x[axis] < dims[axis];)
+            {
+                int[,] mask = new int[dims[u], dims[v]]; // 현재 진행 면의 UV Mask 배열 초기화
+                x[axis]++;
+
+                // 블럭검사
+                for (x[u] = 0; x[u] < dims[u]; x[u]++) // axis가 0(x축)일 때 y축 검사
+                {
+                    for (x[v] = 0; x[v] < dims[v]; x[v]++) // axis가 0(x축)일 때 z축 검사
+                    {
+                        int blockCurrent = (x[axis] >= 0 && x[axis] < dims[axis]) ? chunkData.blocksEnum[x[0], x[1], x[2]] : 0;
+                        int blockNext = (x[axis] + 1 < dims[axis]) ? chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]] : 0;
+
+                        // 둘 다 없거나 있으면 면을 안그려도 됨
+                        if ((blockCurrent > 0) != (blockNext > 0))
+                        {
+                            // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
+                            mask[x[u], x[v]] = blockCurrent > 0 ? blockCurrent : -blockNext;
+                        }
+                        else
+                        {
+                            mask[x[u], x[v]] = 0;
+                        }
+                    }
+                }
+                // 마스크를 기반으로 면 병합
+                for (int i = 0; i < dims[u]; i++)
+                {
+                    for (int j = 0; j < dims[v];)
+                    {
+                        // 그릴 면이 있다면
+                        if (mask[i, j] != 0)
+                        {
+                            int w, h;
+                            // 그릴 면에서 부터 이어지는 면까지 검사
+                            for (w = 1; i + w < dims[u] && mask[i + w, j] == mask[i, j]; w++) { }
+                            // 그릴 면에서 부터 이어지는 면까지 검사
+                            for (h = 1; j + h < dims[v] && mask[i, j + h] == mask[i, j]; h++) { }
+
+                            // 면 추가
+                            //Vector3 origin = new Vector3(x[0], x[1], x[2]);
+                            Vector3 origin = Vector3.zero;
+                            origin[axis] = x[axis];
+
+                            Vector3 du = Vector3.zero, dv = Vector3.zero;
+                            du[u] = w;
+                            dv[v] = h;
+
+                            AddFace(vertices, triangles, origin, du, dv, mask[i, j] > 0);
+
+                            // 병합된 영역을 0으로 설정
+                            for (int dw = 0; dw < w; dw++)
+                                for (int dh = 0; dh < h; dh++)
+                                    mask[i + dw, j + dh] = 0;
+
+                            j += h;
+                        }
+                        else
+                        {
+                            j++;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 생성된 데이터를 Unity Mesh에 적용
+        Mesh mesh = new Mesh();
+        mesh.vertices = vertices.ToArray();
+        mesh.triangles = triangles.ToArray();
+        mesh.uv = uvs.ToArray();
+        mesh.RecalculateNormals();
+    }
+    void AddFace(List<Vector3> vertices, List<int> triangles, Vector3 pos, Vector3 du, Vector3 dv, bool frontFace)
+    {
+        int index = vertices.Count;
+
+        vertices.Add(pos);
+        vertices.Add(pos + du);
+        vertices.Add(pos + dv);
+        vertices.Add(pos + du + dv);
+
+        if (frontFace)
+        {
+            triangles.Add(index + 0);
+            triangles.Add(index + 1);
+            triangles.Add(index + 2);
+            triangles.Add(index + 1);
+            triangles.Add(index + 3);
+            triangles.Add(index + 2);
+        }
+        else
+        {
+            triangles.Add(index + 2);
+            triangles.Add(index + 1);
+            triangles.Add(index + 0);
+            triangles.Add(index + 2);
+            triangles.Add(index + 3);
+            triangles.Add(index + 1);
+        }
+    }
 }
