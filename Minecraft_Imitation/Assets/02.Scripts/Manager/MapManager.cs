@@ -1100,8 +1100,6 @@ public class MeshData
         List<int> triangles = new List<int>();
         List<Vector2> uvs = new List<Vector2>();
 
-        bool[,,] visited = new bool[Chunk.x, Chunk.y, Chunk.z];
-
         // x,y,z 방향에 대해 면을 병합
         for (int axis = 0; axis < 3; axis++)
         {
@@ -1156,22 +1154,38 @@ public class MeshData
                         {
                             int w, h;
                             // 그릴 면에서 부터 이어지는 면까지 검사
-                            for (w = 1; i + w < dims[u] && mask[i + w, j] == mask[i, j]; w++) { }
+                            for (w = 1; i + w < dims[u];) 
+                            {
+                                if(mask[i + w, j] == 0)
+                                {
+                                    break;
+                                }
+                                w++;
+                            }
                             // 그릴 면에서 부터 이어지는 면까지 검사
-                            for (h = 1; j + h < dims[v] && mask[i, j + h] == mask[i, j]; h++) { }
+                            for (h = 1; j + h < dims[v];) 
+                            {
+                                if(mask[i, j + h] == 0)
+                                {
+                                    break;
+                                }
+                                h++;
+                            }
 
                             // 면 추가
-                            //Vector3 origin = new Vector3(x[0], x[1], x[2]);
                             Vector3 origin = Vector3.zero;
                             origin[axis] = x[axis];
+                            origin[u] = i;
+                            origin[v] = j;
 
-                            Vector3 du = Vector3.zero, dv = Vector3.zero;
+                            Vector3 du = Vector3.zero;
+                            Vector3 dv = Vector3.zero;
                             du[u] = w;
                             dv[v] = h;
 
                             AddFace(vertices, triangles, origin, du, dv, mask[i, j] > 0);
 
-                            // 병합된 영역을 0으로 설정
+                            // 병합된 영역을 0으로 설정해 그릴 면에서 제외
                             for (int dw = 0; dw < w; dw++)
                                 for (int dh = 0; dh < h; dh++)
                                     mask[i + dw, j + dh] = 0;
