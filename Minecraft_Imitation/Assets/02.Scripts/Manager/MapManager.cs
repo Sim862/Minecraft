@@ -1132,7 +1132,7 @@ public class MeshData
                         int blockCurrent = (x[axis] >= 0 && x[axis] < dims[axis]) ? chunkData.blocksEnum[x[0], x[1], x[2]] : 0;
                         int blockNext = (x[axis] + 1 < dims[axis]) ? chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]] : 0;
 
-                        // 둘 다 없거나 있으면 면을 안그려도 됨
+                        // 둘 다 없거나, 있으면 면을 안그려도 됨
                         if ((blockCurrent > 0) != (blockNext > 0))
                         {
                             // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
@@ -1153,22 +1153,29 @@ public class MeshData
                         if (mask[i, j] != 0)
                         {
                             int w, h;
+ 
                             // 그릴 면에서 부터 이어지는 면까지 검사
-                            for (w = 1; i + w < dims[u];) 
+                            for (h = 0; j + h < dims[v];) 
                             {
-                                if(mask[i + w, j] == 0)
+                                if (mask[i,j] == mask[i,j+h])
                                 {
                                     break;
                                 }
-                                w++;
-                            }
-                            // 그릴 면에서 부터 이어지는 면까지 검사
-                            for (h = 1; j + h < dims[v];) 
-                            {
-                                if(mask[i, j + h] == 0)
+
+                                if ((mask[i, j + h] > 0) == (mask[i, j] > 0))
+                                {
+
+                                }
+                                else if ((mask[i, j + h] < 0) == (mask[i, j] < 0))
+                                {
+
+                                }
+                                else
                                 {
                                     break;
                                 }
+
+
                                 h++;
                             }
 
