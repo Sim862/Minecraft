@@ -77,6 +77,7 @@ public class Chunk
     public int chunk_X, chunk_Z; // 청크 위치와 파일명
     public ChunkData chunkData;
     public Block[,,] blockObjects = new Block[x, y, z]; // x, y, z
+    public bool[,,] renderList;
 
     // 맵 변경사항 있는지 체크
     public bool needSave = false;
@@ -673,14 +674,18 @@ public class MapManager : MonoBehaviour
     // 청크에 있는 모든 블럭 스폰
     private void InitChunk_CreateBlocks(Chunk chunk)
     {
+        chunk.renderList = BlockCulling(chunk.chunkData);
         for (int x = 0; x < Chunk.x; x++)
         {
             for (int y = 0; y < Chunk.y; y++)
             {
                 for (int z = 0; z < Chunk.z; z++)
                 {
-                    blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x, y, z]; // 블럭 enum 가져오기
-                    CreateBlock(chunk, blockKind, x, y, z);
+                    if (chunk.renderList[x, y, z])
+                    {
+                        blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x, y, z]; // 블럭 enum 가져오기
+                        CreateBlock(chunk, blockKind, x, y, z);
+                    }
                 }
             }
         }
@@ -1074,32 +1079,10 @@ public class MapManager : MonoBehaviour
 
 
 
-    #region Greedy Meshing
-
-    private void InitMesh(Chunk chunk)
+    #region culling
+    bool[,,] BlockCulling(ChunkData chunkData)
     {
-        
-    }
-
-    private void EditMesh()
-    {
-
-    }
-    
-
-    #endregion
-}
-
-public class MeshData
-{
-
-
-    void GenerateMesh(ChunkData chunkData)
-    {
-        List<Vector3> vertices = new List<Vector3>();
-        List<int> triangles = new List<int>();
-        List<Vector2> uvs = new List<Vector2>();
-
+        bool[,,] renderList = new bool[Chunk.x, Chunk.y, Chunk.z];
         // x,y,z 방향에 대해 면을 병합
         for (int axis = 0; axis < 3; axis++)
         {
@@ -1119,128 +1102,42 @@ public class MeshData
             q[axis] = 1;
 
             // 현재 axis 방향을 따라 한 층씩 블록을 검사
-            for (x[axis] = -1; x[axis] < dims[axis];)
+            for (x[axis] = 0; x[axis] < dims[axis]; x[axis]++)
             {
-                int[,] mask = new int[dims[u], dims[v]]; // 현재 진행 면의 UV Mask 배열 초기화
-                x[axis]++;
-
                 // 블럭검사
                 for (x[u] = 0; x[u] < dims[u]; x[u]++) // axis가 0(x축)일 때 y축 검사
                 {
                     for (x[v] = 0; x[v] < dims[v]; x[v]++) // axis가 0(x축)일 때 z축 검사
                     {
-                        int blockCurrent = (x[axis] >= 0 && x[axis] < dims[axis]) ? chunkData.blocksEnum[x[0], x[1], x[2]] : 0;
-                        int blockNext = (x[axis] + 1 < dims[axis]) ? chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]] : 0;
-
-                        // 둘 다 없거나, 있으면 면을 안그려도 됨
-                        if ((blockCurrent > 0) != (blockNext > 0))
-                        {
-                            // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
-                            mask[x[u], x[v]] = blockCurrent > 0 ? blockCurrent : -blockNext;
-                        }
+                        if (x[axis] == 0)
+                            renderList[x[0], x[1], x[2]] = true;
                         else
                         {
-                            mask[x[u], x[v]] = 0;
-                        }
-                    }
-                }
-                // 마스크를 기반으로 면 병합
-                for (int i = 0; i < dims[u]; i++)
-                {
-                    for (int j = 0; j < dims[v];)
-                    {
-                        // 그릴 면이 있다면
-                        if (mask[i, j] != 0)
-                        {
-                            int w, h;
- 
-                            // 그릴 면에서 부터 이어지는 면까지 검사
-                            for (h = 0; j + h < dims[v];) 
+                            int blockCurrent = (x[axis] >= 0 && x[axis] < dims[axis]) ? chunkData.blocksEnum[x[0], x[1], x[2]] : 0;
+                            int blockNext = (x[axis] + 1 < dims[axis]) ? chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]] : 0;
+
+                            // 둘 다 없거나, 있으면 면을 안그려도 됨
+                            if ((blockCurrent > 0) != (blockNext > 0))
                             {
-                                if (mask[i,j] == mask[i,j+h])
+                                // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
+                                if (blockCurrent > 0)
                                 {
-                                    break;
-                                }
-
-                                if ((mask[i, j + h] > 0) == (mask[i, j] > 0))
-                                {
-
-                                }
-                                else if ((mask[i, j + h] < 0) == (mask[i, j] < 0))
-                                {
-
+                                    renderList[x[0], x[1], x[2]] = true;
                                 }
                                 else
                                 {
-                                    break;
+                                    renderList[x[0] + q[0], x[1] + q[1], x[2] + q[2]] = true;
                                 }
-
-
-                                h++;
                             }
-
-                            // 면 추가
-                            Vector3 origin = Vector3.zero;
-                            origin[axis] = x[axis];
-                            origin[u] = i;
-                            origin[v] = j;
-
-                            Vector3 du = Vector3.zero;
-                            Vector3 dv = Vector3.zero;
-                            du[u] = w;
-                            dv[v] = h;
-
-                            AddFace(vertices, triangles, origin, du, dv, mask[i, j] > 0);
-
-                            // 병합된 영역을 0으로 설정해 그릴 면에서 제외
-                            for (int dw = 0; dw < w; dw++)
-                                for (int dh = 0; dh < h; dh++)
-                                    mask[i + dw, j + dh] = 0;
-
-                            j += h;
-                        }
-                        else
-                        {
-                            j++;
                         }
                     }
                 }
             }
         }
 
-        // 생성된 데이터를 Unity Mesh에 적용
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
-        mesh.uv = uvs.ToArray();
-        mesh.RecalculateNormals();
+        return renderList;
     }
-    void AddFace(List<Vector3> vertices, List<int> triangles, Vector3 pos, Vector3 du, Vector3 dv, bool frontFace)
-    {
-        int index = vertices.Count;
 
-        vertices.Add(pos);
-        vertices.Add(pos + du);
-        vertices.Add(pos + dv);
-        vertices.Add(pos + du + dv);
 
-        if (frontFace)
-        {
-            triangles.Add(index + 0);
-            triangles.Add(index + 1);
-            triangles.Add(index + 2);
-            triangles.Add(index + 1);
-            triangles.Add(index + 3);
-            triangles.Add(index + 2);
-        }
-        else
-        {
-            triangles.Add(index + 2);
-            triangles.Add(index + 1);
-            triangles.Add(index + 0);
-            triangles.Add(index + 2);
-            triangles.Add(index + 3);
-            triangles.Add(index + 1);
-        }
-    }
+    #endregion
 }
