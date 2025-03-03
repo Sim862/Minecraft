@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.ProBuilder;
 using static BlockData;
 using Random = UnityEngine.Random;
 
@@ -76,15 +77,17 @@ public class Chunk
     public Transform blockParent;
     public int chunk_X, chunk_Z; // 청크 위치와 파일명
     public ChunkData chunkData;
-    public Block[,,] blockObjects = new Block[x, y, z]; // x, y, z
-    public bool[,,] renderList;
 
     // 맵 변경사항 있는지 체크
     public bool needSave = false;
-
     // 코루틴
     public IEnumerator saveRoutine;
 
+    public Block[,,] blockObjects = new Block[x, y, z]; // x, y, z
+
+
+
+    // 몬스터
     public bool initMonster = false;
 
     public void AddMobSpawnData(MobSpawnData mobSpawnData, Mob mob)
@@ -1080,6 +1083,8 @@ public class MapManager : MonoBehaviour
 
 
     #region culling
+    
+    // Block Culling
     bool[,,] BlockCulling(ChunkData chunkData)
     {
         bool[,,] renderList = new bool[Chunk.x, Chunk.y, Chunk.z];
@@ -1139,5 +1144,133 @@ public class MapManager : MonoBehaviour
     }
 
 
+    // Block Face Culling
+
+    void BlockFaceCulling(Chunk chunk)
+    {
+        MeshFilter meshFilter;
+        MeshRenderer meshRenderer;
+        Mesh mesh;
+        Vector3[] vertices;
+        int[] triangles = new int[] 
+        { 
+            0, 2, 1, 
+            1, 2, 3 
+        };
+
+        // x,y,z 방향에 대해 면을 병합
+        for (int axis = 0; axis < 3; axis++)
+        {
+            // X, Y, Z 축을 기준으로 다른 두 축(u, v)을 따라 면을 검사하는 방식
+            // axis = 0 => y, z
+            // axis = 1 => z, x
+            // axis = 2 => x, y
+            int u = (axis + 1) % 3; // y 또는 z
+            int v = (axis + 2) % 3; // z 또는 x
+
+            int[] dims = { Chunk.x, Chunk.y, Chunk.z };
+
+            int[] x = new int[3]; // 현재 블록 위치
+            int[] q = new int[3]; // 다음 블록 위치
+
+            float[] meshPosition = new float[3];
+
+            // 병행 진행 체크
+            q[axis] = 1;
+
+            // 현재 axis 방향을 따라 한 층씩 블록을 검사
+            for (x[axis] = 0; x[axis] < dims[axis]; x[axis]++)
+            {
+                // 블럭검사
+                for (x[u] = 0; x[u] < dims[u]; x[u]++) // axis가 0(x축)일 때 y축 검사
+                {
+                    for (x[v] = 0; x[v] < dims[v]; x[v]++) // axis가 0(x축)일 때 z축 검사
+                    {
+                        int blockCurrent = (x[axis] >= 0 && x[axis] < dims[axis]) ? chunkData.blocksEnum[x[0], x[1], x[2]] : 0;
+                        int blockNext = (x[axis] + 1 < dims[axis]) ? chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]] : 0;
+
+                        // 둘 다 없거나, 있으면 면을 안그려도 됨
+                        if ((blockCurrent > 0) != (blockNext > 0))
+                        {
+                            // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
+                            if (blockCurrent > 0)
+                            {
+                                if (chunk.blockObjects[x[0], x[1], x[2]] == null)
+                                {
+                                    blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0], x[1], x[2]]; // 블럭 enum 가져오기
+                                    CreateBlock(chunk, blockKind, x[0], x[1], x[2]);
+                                }
+                                GameObject face = new GameObject();
+                                face.transform.SetParent(chunk.blockObjects[x[0], x[1], x[2]].transform);
+                                face.transform.localPosition = Vector3.zero;
+                                meshFilter = face.AddComponent<MeshFilter>();
+                                meshRenderer = face.AddComponent<MeshRenderer>();
+
+                                mesh = new Mesh();
+                                vertices = new Vector3[4];
+
+                                vertices[0] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
+
+                                meshPosition[u] = 0.5f;
+                                vertices[1] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
+
+                                meshPosition[u] = -0.5f;
+                                meshPosition[v] = 0.5f;
+                                vertices[2] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
+
+                                meshPosition[u] = 0.5f;
+                                meshPosition[v] = 0.5f;
+                                vertices[3] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
+
+                                mesh.vertices = vertices;
+                                mesh.triangles = triangles;
+
+                                meshFilter.mesh = mesh;
+                            }
+                            else
+                            {
+                                if (chunk.blockObjects[x[0] + q[0], x[1] + q[1], x[2] + q[2]] == null)
+                                {
+                                    blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]]; // 블럭 enum 가져오기
+                                    CreateBlock(chunk, blockKind, x[0] + q[0], x[1] + q[1], x[2] + q[2]);
+                                }
+
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+    void AddFace(List<Vector3> vertices, List<int> triangles, Vector3 pos, Vector3 du, Vector3 dv, bool frontFace)
+    {
+        int index = vertices.Count;
+
+        vertices.Add(pos);
+        vertices.Add(pos + du);
+        vertices.Add(pos + dv);
+        vertices.Add(pos + du + dv);
+
+        if (frontFace)
+        {
+            triangles.Add(index + 0);
+            triangles.Add(index + 1);
+            triangles.Add(index + 2);
+            triangles.Add(index + 1);
+            triangles.Add(index + 3);
+            triangles.Add(index + 2);
+        }
+        else
+        {
+            triangles.Add(index + 2);
+            triangles.Add(index + 1);
+            triangles.Add(index + 0);
+            triangles.Add(index + 2);
+            triangles.Add(index + 3);
+            triangles.Add(index + 1);
+        }
+    }
     #endregion
 }
