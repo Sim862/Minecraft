@@ -466,7 +466,7 @@ public class MapManager : MonoBehaviour
                     playerChunk = temp_Chunk;
                 }
                 chunks.Add(temp_Chunk);
-                InitChunk_CreateBlocks(temp_Chunk);
+                BlockFaceCulling(temp_Chunk);
                 StartCoroutine(temp_Chunk.saveRoutine);
                 index++;
             }
@@ -670,29 +670,11 @@ public class MapManager : MonoBehaviour
         LoadChunk(x, z);
         temp_Chunk = new Chunk(x, z, chunkData);
         chunks.Add(temp_Chunk);
-        InitChunk_CreateBlocks(temp_Chunk);
+        BlockFaceCulling(temp_Chunk);
         StartCoroutine(temp_Chunk.saveRoutine);
     }
 
-    // 청크에 있는 모든 블럭 스폰
-    private void InitChunk_CreateBlocks(Chunk chunk)
-    {
-        chunk.renderList = BlockCulling(chunk.chunkData);
-        for (int x = 0; x < Chunk.x; x++)
-        {
-            for (int y = 0; y < Chunk.y; y++)
-            {
-                for (int z = 0; z < Chunk.z; z++)
-                {
-                    if (chunk.renderList[x, y, z])
-                    {
-                        blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x, y, z]; // 블럭 enum 가져오기
-                        CreateBlock(chunk, blockKind, x, y, z);
-                    }
-                }
-            }
-        }
-    }
+
     // 특정 블럭 생성
     public void CreateBlock(Chunk chunk, BlockData.BlockName blockKind, int x, int y, int z)
     {
@@ -1146,18 +1128,32 @@ public class MapManager : MonoBehaviour
 
     // Block Face Culling
 
+    public Material material;
     void BlockFaceCulling(Chunk chunk)
     {
         MeshFilter meshFilter;
         MeshRenderer meshRenderer;
         Mesh mesh;
         Vector3[] vertices;
-        int[] triangles = new int[] 
-        { 
-            0, 2, 1, 
-            1, 2, 3 
+
+        int[] triangles_outside = new int[]
+        {
+            0, 2, 1,
+            1, 2, 3
+        };
+        int[] triangles_inside = new int[]
+        {
+            1, 2, 0,
+            3, 2, 1
         };
 
+        Vector2[] uv = new Vector2[]
+        {
+            new Vector2(0f, 0f),
+            new Vector2(0f, 1f),
+            new Vector2(1f, 0f),
+            new Vector2(1f, 1f)
+        };
         // x,y,z 방향에 대해 면을 병합
         for (int axis = 0; axis < 3; axis++)
         {
@@ -1192,6 +1188,31 @@ public class MapManager : MonoBehaviour
                         // 둘 다 없거나, 있으면 면을 안그려도 됨
                         if ((blockCurrent > 0) != (blockNext > 0))
                         {
+                            GameObject face = new GameObject();
+                            meshFilter = face.AddComponent<MeshFilter>();
+                            meshRenderer = face.AddComponent<MeshRenderer>();
+                            mesh = new Mesh();
+                            vertices = new Vector3[4];
+
+                            meshPosition[axis] = -0.5f;
+                            meshPosition[u] = -0.5f;
+                            meshPosition[v] = -0.5f;
+
+                            vertices[0] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
+
+                            meshPosition[u] = 0.5f;
+                            vertices[1] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
+
+                            meshPosition[u] = -0.5f;
+                            meshPosition[v] = 0.5f;
+                            vertices[2] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
+
+                            meshPosition[u] = 0.5f;
+                            meshPosition[v] = 0.5f;
+                            vertices[3] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
+
+                            mesh.vertices = vertices;
+
                             // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
                             if (blockCurrent > 0)
                             {
@@ -1200,32 +1221,8 @@ public class MapManager : MonoBehaviour
                                     blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0], x[1], x[2]]; // 블럭 enum 가져오기
                                     CreateBlock(chunk, blockKind, x[0], x[1], x[2]);
                                 }
-                                GameObject face = new GameObject();
                                 face.transform.SetParent(chunk.blockObjects[x[0], x[1], x[2]].transform);
-                                face.transform.localPosition = Vector3.zero;
-                                meshFilter = face.AddComponent<MeshFilter>();
-                                meshRenderer = face.AddComponent<MeshRenderer>();
-
-                                mesh = new Mesh();
-                                vertices = new Vector3[4];
-
-                                vertices[0] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
-
-                                meshPosition[u] = 0.5f;
-                                vertices[1] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
-
-                                meshPosition[u] = -0.5f;
-                                meshPosition[v] = 0.5f;
-                                vertices[2] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
-
-                                meshPosition[u] = 0.5f;
-                                meshPosition[v] = 0.5f;
-                                vertices[3] = new Vector3(meshPosition[0], meshPosition[1], meshPosition[2]);
-
-                                mesh.vertices = vertices;
-                                mesh.triangles = triangles;
-
-                                meshFilter.mesh = mesh;
+                                mesh.triangles = triangles_inside;
                             }
                             else
                             {
@@ -1234,9 +1231,15 @@ public class MapManager : MonoBehaviour
                                     blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]]; // 블럭 enum 가져오기
                                     CreateBlock(chunk, blockKind, x[0] + q[0], x[1] + q[1], x[2] + q[2]);
                                 }
-
+                                face.transform.SetParent(chunk.blockObjects[x[0] + q[0], x[1] + q[1], x[2] + q[2]].transform);
+                                mesh.triangles = triangles_outside;
                             }
 
+                            mesh.uv = uv;
+                            meshFilter.sharedMesh = mesh;
+                            face.transform.localPosition = Vector3.zero;
+                            meshRenderer.sharedMaterial = material;
+                           
                         }
                     }
                 }

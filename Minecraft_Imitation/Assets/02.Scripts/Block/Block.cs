@@ -50,7 +50,7 @@ public class Block : MonoBehaviour
     public void InitBlock(BlockData blockData, PositionData positionData)
     {
         this.blockData = new BlockData(blockData);
-        this.meshRenderer.material = blockData.material;
+        //this.meshRenderer.material = blockData.material;
         this.positionData = positionData;
 
         broken = false;

@@ -3139,6 +3139,7 @@ MonoBehaviour:
   objectHeight: 2
   fallHeight: 3
   canJump: 0
+  material: {fileID: 2100000, guid: 8acbba4e7930f484694d8312223cfc4b, type: 2}
 --- !u!4 &1511012255
 Transform:
   m_ObjectHideFlags: 0
