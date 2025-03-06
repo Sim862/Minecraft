@@ -3139,7 +3139,7 @@ MonoBehaviour:
   objectHeight: 2
   fallHeight: 3
   canJump: 0
-  material: {fileID: 2100000, guid: 8acbba4e7930f484694d8312223cfc4b, type: 2}
+  face_Prefab: {fileID: 8780800459061751574, guid: 3e1835405d827f74d8b7393a46bc5fe5, type: 3}
 --- !u!4 &1511012255
 Transform:
   m_ObjectHideFlags: 0

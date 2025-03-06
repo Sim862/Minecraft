@@ -53,6 +53,7 @@ public class BlockData : GameObjectData
         this.brockBreakSound = blockData.brockBreakSound;
         this.brockBrokenSound = blockData.brockBrokenSound;
         this.objectParticle = blockData.objectParticle;
+        this.material = blockData.material;
     }
     public enum BlockName
     {
