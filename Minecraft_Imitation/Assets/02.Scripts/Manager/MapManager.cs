@@ -1162,8 +1162,38 @@ public class MapManager : MonoBehaviour
                         int blockCurrent = (x[axis] >= 0 && x[axis] < dims[axis]) ? chunkData.blocksEnum[x[0], x[1], x[2]] : 0;
                         int blockNext = (x[axis] + 1 < dims[axis]) ? chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]] : 0;
 
+                        if (blockCurrent != 0 && x[axis] == 0)
+                        {
+                            Transform face = Instantiate(face_Prefab).transform;
+
+                            // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
+                            if (blockCurrent > 0)
+                            {
+                                if (chunk.blockObjects[x[0], x[1], x[2]] == null)
+                                {
+                                    blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0], x[1], x[2]]; // 블럭 enum 가져오기
+                                    CreateBlock(chunk, blockKind, x[0], x[1], x[2]);
+                                }
+                                face.GetComponent<MeshRenderer>().material = chunk.blockObjects[x[0], x[1], x[2]].blockData.material;
+                                face.transform.SetParent(chunk.blockObjects[x[0], x[1], x[2]].transform);
+                                if (axis == 0)
+                                {
+                                    face.transform.localPosition = new Vector3(-0.5f, 0, 0);
+                                    face.transform.localRotation = Quaternion.Euler(new Vector3(0, 90, 0));
+                                }
+                                else if (axis == 1)
+                                {
+                                    face.transform.localPosition = new Vector3(0, -0.5f, 0);
+                                    face.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
+                                }
+                                else if (axis == 2)
+                                {
+                                    face.transform.localPosition = new Vector3(0, 0, -0.5f);
+                                }
+                            }
+                        }
                         // 둘 다 없거나, 있으면 면을 안그려도 됨
-                        if ((blockCurrent > 0) != (blockNext > 0))
+                        else if ((blockCurrent > 0) != (blockNext > 0))
                         {
                             Transform face = Instantiate(face_Prefab).transform;
 
@@ -1180,7 +1210,7 @@ public class MapManager : MonoBehaviour
                                 if (axis == 0)
                                 {
                                     face.transform.localPosition = new Vector3(0.5f, 0, 0);
-                                    face.transform.localRotation = Quaternion.Euler(new Vector3(0,-90,0));
+                                    face.transform.localRotation = Quaternion.Euler(new Vector3(0, -90, 0));
                                 }
                                 else if (axis == 1)
                                 {
