@@ -1195,7 +1195,7 @@ public class MapManager : MonoBehaviour
                         // 둘 다 없거나, 있으면 면을 안그려도 됨
                         else if ((blockCurrent > 0) != (blockNext > 0))
                         {
-                            Transform face = Instantiate(face_Prefab).transform;
+                            Transform face = null;
 
                             // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
                             if (blockCurrent > 0)
@@ -1205,6 +1205,22 @@ public class MapManager : MonoBehaviour
                                     blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0], x[1], x[2]]; // 블럭 enum 가져오기
                                     CreateBlock(chunk, blockKind, x[0], x[1], x[2]);
                                 }
+
+                                foreach (var item in chunk.blockObjects[x[0], x[1], x[2]].faces)
+                                {
+                                    if (item.active)
+                                    {
+                                        print("it");
+                                        face = item.transform;
+                                        break;
+                                    }
+                                }
+
+                                if(face == null)
+                                {
+                                    face = Instantiate(face_Prefab).transform;
+                                }
+
                                 face.GetComponent<MeshRenderer>().material = chunk.blockObjects[x[0], x[1], x[2]].blockData.material;
                                 face.transform.SetParent(chunk.blockObjects[x[0], x[1], x[2]].transform);
                                 if (axis == 0)
@@ -1231,6 +1247,22 @@ public class MapManager : MonoBehaviour
                                     blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]]; // 블럭 enum 가져오기
                                     CreateBlock(chunk, blockKind, x[0] + q[0], x[1] + q[1], x[2] + q[2]);
                                 }
+
+                                foreach (var item in chunk.blockObjects[x[0] + q[0], x[1] + q[1], x[2] + q[2]].faces)
+                                {
+                                    if (item.active)
+                                    {
+                                        print("it");
+                                        face = item.transform;
+                                        break;
+                                    }
+                                }
+
+                                if (face == null)
+                                {
+                                    face = Instantiate(face_Prefab).transform;
+                                }
+
                                 face.GetComponent<MeshRenderer>().material = chunk.blockObjects[x[0] + q[0], x[1] + q[1], x[2] + q[2]].blockData.material;
                                 face.transform.SetParent(chunk.blockObjects[x[0] + q[0], x[1] + q[1], x[2] + q[2]].transform);
                                 if (axis == 0)

@@ -16,12 +16,7 @@ public class Spider : Mob
         renderers = GetComponentsInChildren<Renderer>();
     }
 
-    void Update()
-    {
-        LifeCycle();
-    }
-
-    public void LifeCycle()
+    protected override void LifeCycle()
     {
         if (alive)
         {

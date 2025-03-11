@@ -26,6 +26,8 @@ public class Block : MonoBehaviour
 
     public PositionData positionData;
 
+    public List<GameObject> faces = new List<GameObject>();
+
     private void Awake()
     {
         meshRenderer = GetComponent<MeshRenderer>();

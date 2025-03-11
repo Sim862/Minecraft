@@ -147,7 +147,7 @@ public class Mob : MonoBehaviour
     public Sound.AudioClipName deathSound;
     #endregion
 
-
+    protected virtual void LifeCycle(){}
 
     private void Awake()
     {
@@ -158,6 +158,11 @@ public class Mob : MonoBehaviour
             headDefaultRotation = head.rotation;
         }
         Renderer renderer = GetComponentInChildren<Renderer>();
+    }
+
+    void Update()
+    {
+        LifeCycle();
     }
 
     private void OnDestroy()
