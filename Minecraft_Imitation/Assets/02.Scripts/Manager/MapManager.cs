@@ -1,11 +1,11 @@
+using OpenCover.Framework.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Unity.VisualScripting;
+using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.ProBuilder;
 using static BlockData;
 using Random = UnityEngine.Random;
 
@@ -128,7 +128,7 @@ public class Chunk
 [Serializable]
 public class ChunkData
 {
-    public ChunkData(int[,,] blocksEnum, List<MobSpawnData> mobSpawnDatas = null)
+    public ChunkData(BlockName[,,] blocksEnum, List<MobSpawnData> mobSpawnDatas = null)
     {
         this.blocksEnum = blocksEnum;
         if(mobSpawnDatas == null)
@@ -137,7 +137,7 @@ public class ChunkData
         }
     }
 
-    public int[,,] blocksEnum = new int[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
+    public BlockName[,,] blocksEnum = new BlockName[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
     public List<MobSpawnData> mobSpawnDatas;
 }
 
@@ -157,16 +157,17 @@ public class MobSpawnData
 public class MapManager : MonoBehaviour
 {
     public static MapManager instance;
-    
-    public static Queue<Block> blockPool = new Queue<Block>(12*12*125 *10);
+
+    public static Queue<Block> blockPool = new Queue<Block>(12 * 12 * 125);
+    private Queue<GameObject> facePool = new Queue<GameObject>(12 * 12 * 125 * 6);
+    private static Queue<ChunkData> loadChunks = new Queue<ChunkData>();
 
     public Block blockPrefab;
 
     public PositionData playerPositionData;
     private List<Chunk> chunks = new List<Chunk>();
     private Chunk playerChunk;
-    public int[,,] blocks = new int[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
-    public ChunkData chunkData;
+    public BlockData.BlockName[,,] blocks = new BlockData.BlockName[Chunk.x, Chunk.y, Chunk.z]; // x, y, z
     private BlockData blockData;
     private BlockData.BlockName blockKind;
     private Block block;
@@ -199,6 +200,7 @@ public class MapManager : MonoBehaviour
     {
         Load_StartChunks();
         Transform temp = new GameObject("StartPool").transform;
+        Transform face;
         for (int i = 0; i < 100; i++)
         {
             block = Instantiate(blockPrefab, Vector3.one * -999, Quaternion.identity, temp);
@@ -217,6 +219,7 @@ public class MapManager : MonoBehaviour
         playerPositionData = new PositionData(0, 0, 0, 0, 0);
         playerPositionData = GetSpawnPositionY(playerPositionData);
         PlayerManager.instance.player.transform.position = GetObjectPosition(playerPositionData.chunk, playerPositionData.blockIndex_x, playerPositionData.blockIndex_y, playerPositionData.blockIndex_z);
+
     }
 
     public bool createBlock = false;
@@ -241,6 +244,7 @@ public class MapManager : MonoBehaviour
         //    //CreateBlock(chunks[chunkIndex], blockKind1, (int)chunkBlockIndex.x, (int)chunkBlockIndex.y, (int)chunkBlockIndex.z);
         //}
         UpdateLoadChunk();
+        UpdateLoadChunk_Cor();
     }
 
     private void OnDestroy()
@@ -254,23 +258,32 @@ public class MapManager : MonoBehaviour
 
     #region Chunk Load, Save 메서드
 
+    IEnumerator loadChunk;
+
+    private void UpdateLoadChunk_Cor()
+    {
+        if (loadChunk == null && loadChunkMethods.Count > 0)
+        {
+            loadChunk = loadChunkMethods.Dequeue();
+            StartCoroutine(loadChunk);
+        }
+    }
+
     public void UpdateLoadChunk()
     {
-        if (playerPositionData.chunk == playerChunk)
+        if (playerPositionData.chunk == playerChunk && loadChunk == null)
         {
-            for (int i = chunks.Count-1; i >= 0; i--)
+            for (int i = chunks.Count - 1; i >= 0; i--)
             {
-                if (Vector3.Distance(GetObjectPosition(chunks[i],6,playerPositionData.blockIndex_y,6), PlayerManager.instance.player.transform.position) > 50)
+                if (Vector3.Distance(GetObjectPosition(chunks[i], 6, playerPositionData.blockIndex_y, 6), PlayerManager.instance.player.transform.position) > 50)
                 {
                     Remove_Chunk(chunks[i]);
                     chunks.RemoveAt(i);
                 }
             }
-            return;
         }
         else
         {
-
             #region 왼쪽으로 이동했을떄
             if (playerPositionData.chunk_X < playerChunk.chunk_X)
             {
@@ -459,8 +472,7 @@ public class MapManager : MonoBehaviour
         {
             for (int x = -2; x < 3; x++)
             {
-                LoadChunk(x+ playerPositionData.chunk_X, z + playerPositionData.chunk_Z); // 청크파일 로드 후 blocks에서 블럭 데이터 셋팅
-                temp_Chunk = new Chunk((int)(x), (int)(z), chunkData);
+                temp_Chunk = new Chunk((int)(x), (int)(z), LoadChunk(x + playerPositionData.chunk_X, z + playerPositionData.chunk_Z));
                 if(x == 0  && z == 0)
                 {
                     playerChunk = temp_Chunk;
@@ -477,8 +489,10 @@ public class MapManager : MonoBehaviour
 
     int block_y = 5;
     bool checkY = false;
-    public void LoadChunk(int chunk_X, int chunk_Z)
+    public ChunkData LoadChunk(int chunk_X, int chunk_Z)
     {
+        BlockName blockName;
+        ChunkData chunkData;
         if (chunk_X < 0)
         {
             chunk_X = chunk_X % Chunk.MAX_ChunkIndex;
@@ -505,7 +519,7 @@ public class MapManager : MonoBehaviour
         BinaryFormatter bf = new BinaryFormatter();
         try
         {
-            FileStream file = File.Open(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary", FileMode.Open);
+            FileStream file = System.IO.File.Open(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary", FileMode.Open);
             chunkData = (ChunkData)bf.Deserialize(file);
             file.Close();
         }
@@ -518,42 +532,44 @@ public class MapManager : MonoBehaviour
                     if (y < block_y)
                     {
                         if (y == 0)
-                            value = (int)BlockData.BlockName.Stone;
+                            blockName = BlockData.BlockName.Stone;
                         else
                         {
                             if (Random.value < 0.01f)
                             {
-                                value = (int)BlockData.BlockName.DiamondOre;
+                                blockName = BlockData.BlockName.DiamondOre;
                             }
                             else if (Random.value < 0.05f)
                             {
-                                value = (int)BlockData.BlockName.GoldOre;
+                                blockName = BlockData.BlockName.GoldOre;
                             }
                             else if (Random.value < 0.1)
                             {
-                                value = (int)BlockData.BlockName.IronOre;
+                                blockName = BlockData.BlockName.IronOre;
                             }
                             else
                             {
-                                value = (int)BlockData.BlockName.Stone;
+                                blockName = BlockData.BlockName.Stone;
                             }
                         }
                     }
                     else if (y < block_y + 3)
                     {
-                        value = (int)BlockData.BlockName.Dirt;
+                        blockName = BlockData.BlockName.Dirt;
                     }
                     else
-                        value = (int)BlockData.BlockName.None;
+                        blockName = BlockData.BlockName.None;
 
                     for (int z = 0; z < Chunk.z; z++)
                     {
-                        blocks[x, y, z] = value;
+                        blocks[x, y, z] = blockName;
                     }
                 }
             }
             chunkData = new ChunkData(blocks);
         }
+
+        return chunkData;
     }
 
     public void SaveChunk(int chunk_X, int chunk_Z, Chunk chunk)
@@ -578,12 +594,13 @@ public class MapManager : MonoBehaviour
             chunk_Z = chunk_Z % Chunk.MAX_ChunkIndex;
         }
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary");
+        FileStream file = System.IO.File.Create(Application.dataPath + "/Chunk" + (chunk_X) + "_" + (chunk_Z) + ".binary");
         bf.Serialize(file, chunk.chunkData);
         file.Close();
     }
     private void CreateChunk(string path, Chunk chunk)
     {
+        BlockName blockName = BlockName.None;
         for (int x = 0; x < Chunk.x; x++)
         {
             for (int y = 0; y < Chunk.y; y++)
@@ -596,28 +613,28 @@ public class MapManager : MonoBehaviour
                     {
                         if(Random.value < 0.1f)
                         {
-                            value = (int)BlockData.BlockName.DiamondOre;
+                            blockName = BlockData.BlockName.DiamondOre;
                         }
                         else if(Random.value < 0.5f)
                         {
-                            value = (int)BlockData.BlockName.GoldOre;
+                            blockName = BlockData.BlockName.GoldOre;
                         }
                         else if(Random.value < 1)
                         {
-                            value = (int)BlockData.BlockName.IronOre;
+                            blockName = BlockData.BlockName.IronOre;
                         }
                     }
                 }
                 else if (y < block_y + 3)
                 {
-                    value = (int)BlockData.BlockName.Dirt;
+                    blockName = BlockData.BlockName.Dirt;
                 }
                 else
-                    value = (int)BlockData.BlockName.None;
+                    blockName = BlockData.BlockName.None;
 
                 for (int z = 0; z < Chunk.z; z++)
                 {
-                    blocks[x, y, z] = value;
+                    blocks[x, y, z] = blockName;
                 }
 
             }
@@ -643,7 +660,7 @@ public class MapManager : MonoBehaviour
         ChunkData chunkData = new ChunkData(blocks);
 
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(Application.dataPath + "/" + path + ".binary");
+        FileStream file = System.IO.File.Create(Application.dataPath + "/" + path + ".binary");
         bf.Serialize(file, chunkData);
         file.Close();
     }
@@ -651,39 +668,47 @@ public class MapManager : MonoBehaviour
     #endregion
 
     #region 생성 관련 메서드
-
-    //public void SetPlayerSpawnPosition()
-    //{
-    //    for (int i = Chunk.y-1; i >= 0; i--)
-    //    {
-    //        if(chunks[4].blocksEnum[11,i,11] != 0) // 위에서 부터 블럭이 있는지 검사한 후 땅이 나오면 스폰 위치 설정
-    //        {
-    //            DataManager.instance.playerData.spawnPosition =  chunks[4].blockObjects[11,i,11].transform.position + Vector3.up;
-    //            return;
-    //        }
-    //    }
-    //}
-
+    Queue<IEnumerator> loadChunkMethods = new Queue<IEnumerator>();
 
     private void InitChunk(int x, int z)
     {
-        LoadChunk(x, z);
-        temp_Chunk = new Chunk(x, z, chunkData);
-        chunks.Add(temp_Chunk);
-        BlockFaceCulling(temp_Chunk);
-        StartCoroutine(temp_Chunk.saveRoutine);
+        loadChunkMethods.Enqueue(GenerateChunkAsync(x, z));
+    }
+
+    private async Task InitChunk_Task(int x, int z)
+    {
+        loadChunks.Enqueue(LoadChunk(x, z));
+    }
+
+    private IEnumerator GenerateChunkAsync(int x, int z)
+    {
+        yield return InitChunk_Task(x, z);
+
+        if (loadChunks.Count > 0)
+        {
+            temp_Chunk = new Chunk(x, z, loadChunks.Dequeue());
+            chunks.Add(temp_Chunk);
+            BlockFaceCulling(temp_Chunk);
+            StartCoroutine(temp_Chunk.saveRoutine);
+        }
+
+        yield return new WaitForEndOfFrame();
+        loadChunk = null;
     }
 
 
     // 특정 블럭 생성
     public void CreateBlock(Chunk chunk, BlockData.BlockName blockKind, int x, int y, int z)
     {
+        if (chunk.blockObjects[x, y, z] != null)
+            return;
+
         if (blockKind != 0)
         {
             if (!DataManager.instance.blockDictionary.ContainsKey(blockKind)) // 블럭 dictonary에 해당 블럭 데이터 없으면 메서드 탈출
                 return;
 
-            chunk.chunkData.blocksEnum[x, y, z] = (int)blockKind;
+            chunk.chunkData.blocksEnum[x, y, z] = blockKind;
             blockPosition = new Vector3(chunk.chunk_X * Chunk.x + x, y + Chunk.defaultY, chunk.chunk_Z * Chunk.z + z); // index 값을 사용해 위치
             blockData = DataManager.instance.blockDictionary[blockKind]; // 블럭 dictonary에서 해당되는 블럭 데이터 가져오기
 
@@ -716,6 +741,14 @@ public class MapManager : MonoBehaviour
         chunk.chunkData.blocksEnum[block.positionData.blockIndex_x, block.positionData.blockIndex_y, block.positionData.blockIndex_z] = 0;
         chunk.blockObjects[block.positionData.blockIndex_x, block.positionData.blockIndex_y, block.positionData.blockIndex_z] = null;
         block.gameObject.SetActive(false);
+
+        foreach (var item in block.faces)
+        {
+            item.SetActive(false);
+            facePool.Enqueue(item);
+        }
+
+        block.faces.Clear();
         blockPool.Enqueue(block);
     }
 
@@ -909,7 +942,7 @@ public class MapManager : MonoBehaviour
         {
             print(positionData.blockIndex_x + " , " + positionData.blockIndex_y);
         }
-        int e;
+        BlockName e;
         try
         {
             e = positionData.chunk.chunkData.blocksEnum[positionData.blockIndex_x, positionData.blockIndex_y + objectHeight, positionData.blockIndex_z];
@@ -1100,8 +1133,8 @@ public class MapManager : MonoBehaviour
                             renderList[x[0], x[1], x[2]] = true;
                         else
                         {
-                            int blockCurrent = (x[axis] >= 0 && x[axis] < dims[axis]) ? chunkData.blocksEnum[x[0], x[1], x[2]] : 0;
-                            int blockNext = (x[axis] + 1 < dims[axis]) ? chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]] : 0;
+                            BlockName blockCurrent = (x[axis] >= 0 && x[axis] < dims[axis]) ? chunkData.blocksEnum[x[0], x[1], x[2]] : 0;
+                            BlockName blockNext = (x[axis] + 1 < dims[axis]) ? chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]] : 0;
 
                             // 둘 다 없거나, 있으면 면을 안그려도 됨
                             if ((blockCurrent > 0) != (blockNext > 0))
@@ -1129,163 +1162,199 @@ public class MapManager : MonoBehaviour
     // Block Face Culling
 
     public GameObject face_Prefab;
+
+    GameObject GetFace()
+    {
+        if(facePool.Count > 0)
+        {
+            return facePool.Dequeue();
+        }
+        else
+        {
+            return Instantiate(face_Prefab);
+        }
+    }
+
     void BlockFaceCulling(Chunk chunk)
     {
-        // x,y,z 방향에 대해 면을 병합
-        for (int axis = 0; axis < 3; axis++)
+        Transform face = null;
+        Block block;
+        bool check;
+
+        for (int x = 0; x < Chunk.x; x++)
         {
-            // X, Y, Z 축을 기준으로 다른 두 축(u, v)을 따라 면을 검사하는 방식
-            // axis = 0 => y, z
-            // axis = 1 => z, x
-            // axis = 2 => x, y
-            int u = (axis + 1) % 3; // y 또는 z
-            int v = (axis + 2) % 3; // z 또는 x
-
-            int[] dims = { Chunk.x, Chunk.y, Chunk.z };
-
-            int[] x = new int[3]; // 현재 블록 위치
-            int[] q = new int[3]; // 다음 블록 위치
-
-            float[] meshPosition = new float[3];
-
-            // 병행 진행 체크
-            q[axis] = 1;
-
-            // 현재 axis 방향을 따라 한 층씩 블록을 검사
-            for (x[axis] = 0; x[axis] < dims[axis]; x[axis]++)
+            for (int y = 0; y < Chunk.y; y++)
             {
-                // 블럭검사
-                for (x[u] = 0; x[u] < dims[u]; x[u]++) // axis가 0(x축)일 때 y축 검사
+                for (int z = 0; z < Chunk.z; z++)
                 {
-                    for (x[v] = 0; x[v] < dims[v]; x[v]++) // axis가 0(x축)일 때 z축 검사
+                    // 블럭이 있을때
+                    if (chunk.chunkData.blocksEnum[x, y, z] != 0)
                     {
-                        int blockCurrent = (x[axis] >= 0 && x[axis] < dims[axis]) ? chunkData.blocksEnum[x[0], x[1], x[2]] : 0;
-                        int blockNext = (x[axis] + 1 < dims[axis]) ? chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]] : 0;
+                        blockKind = chunk.chunkData.blocksEnum[x, y, z];
+                        CreateBlock(chunk, blockKind, x, y, z);
+                        block = chunk.blockObjects[x, y, z];
 
-                        if (blockCurrent != 0 && x[axis] == 0)
+                        // face가 필요한지 확인
+                        check = x - 1 < 0;
+                        if (!check)
+                            if (chunk.chunkData.blocksEnum[x - 1, y, z] == 0)
+                                check = true;
+                        if (check)
                         {
-                            Transform face = Instantiate(face_Prefab).transform;
+                            face = GetFace().transform;
 
-                            // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
-                            if (blockCurrent > 0)
-                            {
-                                if (chunk.blockObjects[x[0], x[1], x[2]] == null)
-                                {
-                                    blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0], x[1], x[2]]; // 블럭 enum 가져오기
-                                    CreateBlock(chunk, blockKind, x[0], x[1], x[2]);
-                                }
-                                face.GetComponent<MeshRenderer>().material = chunk.blockObjects[x[0], x[1], x[2]].blockData.material;
-                                face.transform.SetParent(chunk.blockObjects[x[0], x[1], x[2]].transform);
-                                if (axis == 0)
-                                {
-                                    face.transform.localPosition = new Vector3(-0.5f, 0, 0);
-                                    face.transform.localRotation = Quaternion.Euler(new Vector3(0, 90, 0));
-                                }
-                                else if (axis == 1)
-                                {
-                                    face.transform.localPosition = new Vector3(0, -0.5f, 0);
-                                    face.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
-                                }
-                                else if (axis == 2)
-                                {
-                                    face.transform.localPosition = new Vector3(0, 0, -0.5f);
-                                }
-                            }
+                            face.position = block.transform.position + (Vector3.right * -0.5f);
+                            face.eulerAngles = new Vector3(0, 90, 0);
+
+                            face.SetParent(block.transform);
+                            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
                         }
-                        // 둘 다 없거나, 있으면 면을 안그려도 됨
-                        else if ((blockCurrent > 0) != (blockNext > 0))
+
+                        check = y - 1 < 0;
+                        if (!check)
+                            if (chunk.chunkData.blocksEnum[x, y - 1, z] == 0)
+                                check = true;
+                        if (check)
                         {
-                            Transform face = null;
+                            face = GetFace().transform;
 
-                            // 출력할 면 지정 블럭 있으면 바깥면, 없으면 안쪽면
-                            if (blockCurrent > 0)
-                            {
-                                if (chunk.blockObjects[x[0], x[1], x[2]] == null)
-                                {
-                                    blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0], x[1], x[2]]; // 블럭 enum 가져오기
-                                    CreateBlock(chunk, blockKind, x[0], x[1], x[2]);
-                                }
+                            face.position = block.transform.position + (Vector3.up * -0.5f);
+                            face.eulerAngles = new Vector3(-90, 0, 0);
 
-                                foreach (var item in chunk.blockObjects[x[0], x[1], x[2]].faces)
-                                {
-                                    if (item.active)
-                                    {
-                                        print("it");
-                                        face = item.transform;
-                                        break;
-                                    }
-                                }
+                            face.SetParent(block.transform);
+                            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+                        }
 
-                                if(face == null)
-                                {
-                                    face = Instantiate(face_Prefab).transform;
-                                }
+                        check = z - 1 < 0;
+                        if (!check)
+                            if (chunk.chunkData.blocksEnum[x, y, z - 1] == 0)
+                                check = true;
+                        if (check)
+                        {
+                            face = GetFace().transform;
 
-                                face.GetComponent<MeshRenderer>().material = chunk.blockObjects[x[0], x[1], x[2]].blockData.material;
-                                face.transform.SetParent(chunk.blockObjects[x[0], x[1], x[2]].transform);
-                                if (axis == 0)
-                                {
-                                    face.transform.localPosition = new Vector3(0.5f, 0, 0);
-                                    face.transform.localRotation = Quaternion.Euler(new Vector3(0, -90, 0));
-                                }
-                                else if (axis == 1)
-                                {
-                                    face.transform.localPosition = new Vector3(0, 0.5f, 0);
-                                    face.transform.localRotation = Quaternion.Euler(new Vector3(90, 0, 0));
-                                }
-                                else if (axis == 2)
-                                {
-                                    face.transform.localPosition = new Vector3(0, 0, 0.5f);
-                                    face.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
-                                }
+                            face.position = block.transform.position + (Vector3.forward * -0.5f);
+                            face.eulerAngles = Vector3.zero;
 
-                            }
-                            else
-                            {
-                                if (chunk.blockObjects[x[0] + q[0], x[1] + q[1], x[2] + q[2]] == null)
-                                {
-                                    blockKind = (BlockData.BlockName)chunk.chunkData.blocksEnum[x[0] + q[0], x[1] + q[1], x[2] + q[2]]; // 블럭 enum 가져오기
-                                    CreateBlock(chunk, blockKind, x[0] + q[0], x[1] + q[1], x[2] + q[2]);
-                                }
+                            face.SetParent(block.transform);
+                            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+                        }
 
-                                foreach (var item in chunk.blockObjects[x[0] + q[0], x[1] + q[1], x[2] + q[2]].faces)
-                                {
-                                    if (item.active)
-                                    {
-                                        print("it");
-                                        face = item.transform;
-                                        break;
-                                    }
-                                }
+                        // 청크 끝부분
+                        if (x == Chunk.x - 1)
+                        {
+                            blockKind = chunk.chunkData.blocksEnum[x, y, z];
+                            CreateBlock(chunk, blockKind, x, y, z);
+                            block = chunk.blockObjects[x, y, z];
 
-                                if (face == null)
-                                {
-                                    face = Instantiate(face_Prefab).transform;
-                                }
+                            face = GetFace().transform;
+                            
+                            face.position = block.transform.position + (Vector3.right * 0.5f);
+                            face.eulerAngles = new Vector3(0, -90, 0);
 
-                                face.GetComponent<MeshRenderer>().material = chunk.blockObjects[x[0] + q[0], x[1] + q[1], x[2] + q[2]].blockData.material;
-                                face.transform.SetParent(chunk.blockObjects[x[0] + q[0], x[1] + q[1], x[2] + q[2]].transform);
-                                if (axis == 0)
-                                {
-                                    face.transform.localPosition = new Vector3(-0.5f, 0, 0);
-                                    face.transform.localRotation = Quaternion.Euler(new Vector3(0, 90, 0));
-                                }
-                                else if (axis == 1)
-                                {
-                                    face.transform.localPosition = new Vector3(0, -0.5f, 0);
-                                    face.transform.localRotation = Quaternion.Euler(new Vector3(-90, 0, 0));
-                                }
-                                else if (axis == 2)
-                                {
-                                    face.transform.localPosition = new Vector3(0, 0, -0.5f);
-                                }
-                            }
+                            face.SetParent(block.transform);
+                            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+                        }
+
+                        if (y == Chunk.y - 1) 
+                        {
+                            blockKind = chunk.chunkData.blocksEnum[x, y, z];
+                            CreateBlock(chunk, blockKind, x, y, z);
+                            block = chunk.blockObjects[x, y, z];
+
+                            face = GetFace().transform;
+
+                            face.position = block.transform.position + (Vector3.up * 0.5f);
+                            face.eulerAngles = new Vector3(90, 0, 0);
+
+                            face.SetParent(block.transform);
+                            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+                        }
+
+                        if (z == Chunk.z - 1)
+                        {
+                            blockKind = chunk.chunkData.blocksEnum[x, y, z];
+                            CreateBlock(chunk, blockKind, x, y, z);
+                            block = chunk.blockObjects[x, y, z];
+
+                            face = GetFace().transform;
+
+                            face.position = block.transform.position + (Vector3.forward * 0.5f);
+                            face.eulerAngles = new Vector3(0, 180, 0);
+
+                            face.SetParent(block.transform);
+                            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+                        }
+                    }
+                    else
+                    {
+                        check = x - 1 >= 0;
+                        if (check)
+                            if (chunk.chunkData.blocksEnum[x - 1, y, z] == 0)
+                                check = false;
+                        if (check)
+                        {
+                            blockKind = chunk.chunkData.blocksEnum[x - 1, y, z];
+                            CreateBlock(chunk, blockKind, x - 1, y, z);
+                            block = chunk.blockObjects[x - 1, y, z];
+
+                            face = GetFace().transform;
+                            
+                            face.position = block.transform.position + (Vector3.right * 0.5f);
+                            face.eulerAngles = new Vector3(0, -90, 0);
+
+                            face.SetParent(block.transform);
+                            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+                        }
+
+                        check = y - 1 >= 0;
+                        if (check)
+                            if (chunk.chunkData.blocksEnum[x, y - 1, z] == 0)
+                                check = false;
+                        if (check)
+                        {
+                            blockKind = chunk.chunkData.blocksEnum[x, y - 1, z];
+                            CreateBlock(chunk, blockKind, x, y - 1, z);
+                            block = chunk.blockObjects[x, y - 1, z];
+
+                            face = GetFace().transform;
+
+                            face.position = block.transform.position + (Vector3.up * 0.5f);
+                            face.eulerAngles = new Vector3(90, 0, 0);
+
+                            face.SetParent(block.transform);
+                            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+                        }
+
+                        check = x - 1 >= 0;
+                        if (check)
+                            if (chunk.chunkData.blocksEnum[x - 1, y, z] == 0)
+                                check = false;
+                        if (check)
+                        {
+                            blockKind = chunk.chunkData.blocksEnum[x - 1, y, z];
+                            CreateBlock(chunk, blockKind, x - 1, y, z);
+                            block = chunk.blockObjects[x - 1, y, z];
+
+                            face = GetFace().transform;
+
+                            face.position = block.transform.position + (Vector3.forward * 0.5f);
+                            face.eulerAngles = new Vector3(0, 180, 0);
+
+                            face.SetParent(block.transform);
+                            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
                         }
                     }
                 }
             }
         }
-
     }
     void AddFace(List<Vector3> vertices, List<int> triangles, Vector3 pos, Vector3 du, Vector3 dv, bool frontFace)
     {

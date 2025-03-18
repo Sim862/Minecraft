@@ -328,7 +328,7 @@ public class Mob : MonoBehaviour
         return (x + y + z)* 10;
     }
 
-    public int blockEnum;
+    public BlockData.BlockName blockEnum;
     protected void SetWayPosition()
     {
         if (wayPoints.Count > 0)
