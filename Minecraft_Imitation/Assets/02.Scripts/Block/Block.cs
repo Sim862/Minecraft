@@ -26,7 +26,8 @@ public class Block : MonoBehaviour
 
     public PositionData positionData;
 
-    public List<GameObject> faces = new List<GameObject>();
+    // 0 = -x, 1 = +x, 2 = -y, 3 = +y, 4 = -z, 5 = +z 
+    public GameObject[] faces;
 
     private void Awake()
     {
@@ -66,6 +67,8 @@ public class Block : MonoBehaviour
         {
             tag = "Block";
         }
+
+        faces = new GameObject[6];
     }
 
     public void Break(BlockData.BlockType blockType, float Power) // 한번만 호출하면 블럭 체력 까이기 시작. 피 까이는 상태.

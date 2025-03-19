@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.ProBuilder;
 using static BlockData;
 using Random = UnityEngine.Random;
 
@@ -723,6 +724,112 @@ public class MapManager : MonoBehaviour
                 block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // 블럭 오브젝트 생성
             }
             block.InitBlock(blockData, new PositionData(chunk.chunk_X,chunk.chunk_Z,x,y,z)); // 블럭 데이터의 설정값으로 블럭 오브젝트 설정
+
+            // 블럭이 있을때
+            // face가 필요한지 확인
+            bool check = x - 1 < 0;
+            Transform face;
+            if (!check)
+                if (chunk.chunkData.blocksEnum[x - 1, y, z] == 0)
+                    check = true;
+            if (check)
+            {
+                face = GetFace().transform;
+                block.faces[0] = face.gameObject;
+
+                face.position = block.transform.position + (Vector3.right * -0.5f);
+                face.eulerAngles = new Vector3(0, 90, 0);
+
+                face.SetParent(block.transform);
+                face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+            }
+
+            check = y - 1 < 0;
+            if (!check)
+                if (chunk.chunkData.blocksEnum[x, y - 1, z] == 0)
+                    check = true;
+            if (check)
+            {
+                face = GetFace().transform;
+                block.faces[2] = face.gameObject;
+
+                face.position = block.transform.position + (Vector3.up * -0.5f);
+                face.eulerAngles = new Vector3(-90, 0, 0);
+
+                face.SetParent(block.transform);
+                face.GetComponent<MeshRenderer>().material = block.blockData.material;
+            }
+
+            check = z - 1 < 0;
+            if (!check)
+                if (chunk.chunkData.blocksEnum[x, y, z - 1] == 0)
+                    check = true;
+            if (check)
+            {
+                face = GetFace().transform;
+                block.faces[4] = face.gameObject;
+
+                face.position = block.transform.position + (Vector3.forward * -0.5f);
+                face.eulerAngles = Vector3.zero;
+
+                face.SetParent(block.transform);
+                face.GetComponent<MeshRenderer>().material = block.blockData.material;
+            }
+
+            check = x >= Chunk.x - 1;
+            if (!check)
+            {
+                check = chunk.chunkData.blocksEnum[x + 1, y, z] == 0;
+            }
+            if (check)
+            {
+                face = GetFace().transform;
+                block.faces[1] = face.gameObject;
+
+                face.position = block.transform.position + (Vector3.right * 0.5f);
+                face.eulerAngles = new Vector3(0, -90, 0);
+
+                face.SetParent(block.transform);
+                face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+            }
+
+            check = y >= Chunk.y - 1;
+            if (!check)
+            {
+                check = chunk.chunkData.blocksEnum[x, y + 1, z] == 0;
+            }
+            if (check)
+            {
+                face = GetFace().transform;
+                block.faces[3] = face.gameObject;
+
+                face.position = block.transform.position + (Vector3.up * 0.5f);
+                face.eulerAngles = new Vector3(90, 0, 0);
+
+                face.SetParent(block.transform);
+                face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+            }
+
+            check = z >= Chunk.z - 1;
+            if (!check)
+            {
+                check = chunk.chunkData.blocksEnum[x, y, z + 1] == 0;
+            }
+            if (check)
+            {
+                face = GetFace().transform;
+                block.faces[5] = face.gameObject;
+
+                face.position = block.transform.position + (Vector3.forward * 0.5f);
+                face.eulerAngles = new Vector3(0, 180, 0);
+
+                face.SetParent(block.transform);
+                face.GetComponent<MeshRenderer>().material = block.blockData.material;
+            }
+
             chunk.blockObjects[x, y, z] = block; // 블럭 3차원 배열에 블럭 오브젝트 저장
             chunk.needSave = true;
         }
@@ -737,6 +844,141 @@ public class MapManager : MonoBehaviour
 
     public void BreakBlock(Block block)
     {
+        Transform face;
+
+        int x = block.positionData.blockIndex_x;
+        int y = block.positionData.blockIndex_y;
+        int z = block.positionData.blockIndex_z;
+
+        bool check = x - 1 >= 0;
+        if (check)
+            if (block.positionData.chunk.chunkData.blocksEnum[x - 1, y, z] == 0)
+                check = false;
+        if (check)
+        {
+            blockKind = block.positionData.chunk.chunkData.blocksEnum[x - 1, y, z];
+            CreateBlock(block.positionData.chunk, blockKind, x - 1, y, z);
+            block = block.positionData.chunk.blockObjects[x - 1, y, z];
+
+            face = GetFace().transform;
+            block.faces[1] = face.gameObject;
+
+            face.position = block.transform.position + (Vector3.right * 0.5f);
+            face.eulerAngles = new Vector3(0, -90, 0);
+
+            face.SetParent(block.transform);
+            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+        }
+
+        check = y - 1 >= 0;
+        if (check)
+            if (block.positionData.chunk.chunkData.blocksEnum[x, y - 1, z] == 0)
+                check = false;
+        if (check)
+        {
+            blockKind = block.positionData.chunk.chunkData.blocksEnum[x, y - 1, z];
+            CreateBlock(block.positionData.chunk, blockKind, x, y - 1, z);
+            block = block.positionData.chunk.blockObjects[x, y - 1, z];
+
+            face = GetFace().transform;
+            block.faces[3] = face.gameObject;
+
+            face.position = block.transform.position + (Vector3.up * 0.5f);
+            face.eulerAngles = new Vector3(90, 0, 0);
+
+            face.SetParent(block.transform);
+            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+        }
+
+        check = x - 1 >= 0;
+        if (check)
+            if (block.positionData.chunk.chunkData.blocksEnum[x - 1, y, z] == 0)
+                check = false;
+        if (check)
+        {
+            blockKind = block.positionData.chunk.chunkData.blocksEnum[x - 1, y, z];
+            CreateBlock(block.positionData.chunk, blockKind, x - 1, y, z);
+            block = block.positionData.chunk.blockObjects[x - 1, y, z];
+
+            face = GetFace().transform;
+            block.faces[5] = face.gameObject;
+
+            face.position = block.transform.position + (Vector3.forward * 0.5f);
+            face.eulerAngles = new Vector3(0, 180, 0);
+
+            face.SetParent(block.transform);
+            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+        }
+
+
+        check = x >= Chunk.x - 1;
+        if (!check)
+        {
+            check =  block.positionData.chunk.chunkData.blocksEnum[x + 1, y, z] == 0;
+        }
+        if (check)
+        {
+            blockKind = block.positionData.chunk.chunkData.blocksEnum[x + 1, y, z];
+            CreateBlock(block.positionData.chunk, blockKind, x + 1, y, z);
+            block = block.positionData.chunk.blockObjects[x + 1, y, z];
+
+            face = GetFace().transform;
+            block.faces[1] = face.gameObject;
+
+            face.position = block.transform.position + (Vector3.right * 0.5f);
+            face.eulerAngles = new Vector3(0, -90, 0);
+
+            face.SetParent(block.transform);
+            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+        }
+
+        check = y >= Chunk.y - 1;
+        if (!check)
+        {
+            check = block.positionData.chunk.chunkData.blocksEnum[x, y+1, z] == 0;
+        }
+        if (check)
+        {
+            blockKind = block.positionData.chunk.chunkData.blocksEnum[x, y + 1, z];
+            CreateBlock(block.positionData.chunk, blockKind, x, y + 1, z);
+            block = block.positionData.chunk.blockObjects[x, y + 1, z];
+
+            face = GetFace().transform;
+            block.faces[3] = face.gameObject;
+
+            face.position = block.transform.position + (Vector3.up * 0.5f);
+            face.eulerAngles = new Vector3(90, 0, 0);
+
+            face.SetParent(block.transform);
+            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+
+        }
+
+        check = z >= Chunk.z - 1;
+        if (!check)
+        {
+            check = block.positionData.chunk.chunkData.blocksEnum[x, y, z + 1] == 0;
+        }
+        if (check)
+        {
+            blockKind = block.positionData.chunk.chunkData.blocksEnum[x, y, z + 1];
+            CreateBlock(block.positionData.chunk, blockKind, x, y, z + 1);
+            block = block.positionData.chunk.blockObjects[x, y, z + 1];
+
+            face = GetFace().transform;
+            block.faces[5] = face.gameObject;
+
+            face.position = block.transform.position + (Vector3.forward * 0.5f);
+            face.eulerAngles = new Vector3(0, 180, 0);
+
+            face.SetParent(block.transform);
+            face.GetComponent<MeshRenderer>().material = block.blockData.material;
+        }
+
         Chunk chunk = block.positionData.chunk;
         chunk.chunkData.blocksEnum[block.positionData.blockIndex_x, block.positionData.blockIndex_y, block.positionData.blockIndex_z] = 0;
         chunk.blockObjects[block.positionData.blockIndex_x, block.positionData.blockIndex_y, block.positionData.blockIndex_z] = null;
@@ -748,8 +990,8 @@ public class MapManager : MonoBehaviour
             facePool.Enqueue(item);
         }
 
-        block.faces.Clear();
         blockPool.Enqueue(block);
+
     }
 
     public void Remove_Chunk(Chunk chunk) // 사각형 블럭만 가능
@@ -1202,6 +1444,7 @@ public class MapManager : MonoBehaviour
                         if (check)
                         {
                             face = GetFace().transform;
+                            block.faces[0] = face.gameObject;
 
                             face.position = block.transform.position + (Vector3.right * -0.5f);
                             face.eulerAngles = new Vector3(0, 90, 0);
@@ -1218,6 +1461,7 @@ public class MapManager : MonoBehaviour
                         if (check)
                         {
                             face = GetFace().transform;
+                            block.faces[2] = face.gameObject;
 
                             face.position = block.transform.position + (Vector3.up * -0.5f);
                             face.eulerAngles = new Vector3(-90, 0, 0);
@@ -1233,6 +1477,7 @@ public class MapManager : MonoBehaviour
                         if (check)
                         {
                             face = GetFace().transform;
+                            block.faces[4] = face.gameObject;
 
                             face.position = block.transform.position + (Vector3.forward * -0.5f);
                             face.eulerAngles = Vector3.zero;
@@ -1249,7 +1494,8 @@ public class MapManager : MonoBehaviour
                             block = chunk.blockObjects[x, y, z];
 
                             face = GetFace().transform;
-                            
+                            block.faces[1] = face.gameObject;
+
                             face.position = block.transform.position + (Vector3.right * 0.5f);
                             face.eulerAngles = new Vector3(0, -90, 0);
 
@@ -1265,6 +1511,7 @@ public class MapManager : MonoBehaviour
                             block = chunk.blockObjects[x, y, z];
 
                             face = GetFace().transform;
+                            block.faces[3] = face.gameObject;
 
                             face.position = block.transform.position + (Vector3.up * 0.5f);
                             face.eulerAngles = new Vector3(90, 0, 0);
@@ -1281,6 +1528,7 @@ public class MapManager : MonoBehaviour
                             block = chunk.blockObjects[x, y, z];
 
                             face = GetFace().transform;
+                            block.faces[5] = face.gameObject;
 
                             face.position = block.transform.position + (Vector3.forward * 0.5f);
                             face.eulerAngles = new Vector3(0, 180, 0);
@@ -1303,7 +1551,8 @@ public class MapManager : MonoBehaviour
                             block = chunk.blockObjects[x - 1, y, z];
 
                             face = GetFace().transform;
-                            
+                            block.faces[1] = face.gameObject;
+
                             face.position = block.transform.position + (Vector3.right * 0.5f);
                             face.eulerAngles = new Vector3(0, -90, 0);
 
@@ -1323,6 +1572,7 @@ public class MapManager : MonoBehaviour
                             block = chunk.blockObjects[x, y - 1, z];
 
                             face = GetFace().transform;
+                            block.faces[3] = face.gameObject;
 
                             face.position = block.transform.position + (Vector3.up * 0.5f);
                             face.eulerAngles = new Vector3(90, 0, 0);
@@ -1343,6 +1593,7 @@ public class MapManager : MonoBehaviour
                             block = chunk.blockObjects[x - 1, y, z];
 
                             face = GetFace().transform;
+                            block.faces[5] = face.gameObject;
 
                             face.position = block.transform.position + (Vector3.forward * 0.5f);
                             face.eulerAngles = new Vector3(0, 180, 0);
