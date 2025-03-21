@@ -699,7 +699,7 @@ public class MapManager : MonoBehaviour
 
 
     // 특정 블럭 생성
-    public void CreateBlock(Chunk chunk, BlockData.BlockName blockKind, int x, int y, int z)
+    public void CreateBlock(Chunk chunk, BlockData.BlockName blockKind, int x, int y, int z, bool init = true)
     {
         if (chunk.blockObjects[x, y, z] != null)
             return;
@@ -724,6 +724,12 @@ public class MapManager : MonoBehaviour
                 block = Instantiate(blockPrefab, blockPosition, Quaternion.identity, chunk.blockParent); // 블럭 오브젝트 생성
             }
             block.InitBlock(blockData, new PositionData(chunk.chunk_X,chunk.chunk_Z,x,y,z)); // 블럭 데이터의 설정값으로 블럭 오브젝트 설정
+
+            chunk.blockObjects[x, y, z] = block; // 블럭 3차원 배열에 블럭 오브젝트 저장
+            chunk.needSave = true;
+
+            if (init)
+                return;
 
             // 블럭이 있을때
             // face가 필요한지 확인
@@ -829,9 +835,6 @@ public class MapManager : MonoBehaviour
                 face.SetParent(block.transform);
                 face.GetComponent<MeshRenderer>().material = block.blockData.material;
             }
-
-            chunk.blockObjects[x, y, z] = block; // 블럭 3차원 배열에 블럭 오브젝트 저장
-            chunk.needSave = true;
         }
         else
         {
@@ -982,14 +985,18 @@ public class MapManager : MonoBehaviour
         Chunk chunk = block.positionData.chunk;
         chunk.chunkData.blocksEnum[block.positionData.blockIndex_x, block.positionData.blockIndex_y, block.positionData.blockIndex_z] = 0;
         chunk.blockObjects[block.positionData.blockIndex_x, block.positionData.blockIndex_y, block.positionData.blockIndex_z] = null;
-        block.gameObject.SetActive(false);
+
 
         foreach (var item in block.faces)
         {
-            item.SetActive(false);
-            facePool.Enqueue(item);
+            if (item != null)
+            {
+                item.SetActive(false);
+                facePool.Enqueue(item);
+            }
         }
 
+        block.gameObject.SetActive(false);
         blockPool.Enqueue(block);
 
     }
@@ -1017,6 +1024,15 @@ public class MapManager : MonoBehaviour
                     block = chunk.blockObjects[x, y, z];
                     if (block != null)
                     {
+                        foreach (var item in block.faces)
+                        {
+                            if (item != null)
+                            {
+                                item.SetActive(false);
+                                facePool.Enqueue(item);
+                            }
+                        }
+
                         blockPool.Enqueue(block);
                     }
                 }
@@ -1409,7 +1425,9 @@ public class MapManager : MonoBehaviour
     {
         if(facePool.Count > 0)
         {
-            return facePool.Dequeue();
+            GameObject face = facePool.Dequeue();
+            face.SetActive(true);
+            return face;
         }
         else
         {

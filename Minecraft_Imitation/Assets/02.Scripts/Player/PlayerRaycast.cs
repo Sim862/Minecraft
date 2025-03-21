@@ -146,7 +146,7 @@ public class PlayerRaycast : MonoBehaviour
                 PositionData positionData = MapManager.instance.PositionToBlockData(newBlockPos);
                 print(positionData.blockIndex_x + " , " + positionData.blockIndex_y + " . " + positionData.blockIndex_z) ;
                 BlockData.BlockName blockKind = DataManager.instance.ParticleToBlockKind(nowItemImage.particleName);
-                MapManager.instance.CreateBlock(positionData.chunk, blockKind, positionData.blockIndex_x,positionData.blockIndex_y,positionData.blockIndex_z);
+                MapManager.instance.CreateBlock(positionData.chunk, blockKind, positionData.blockIndex_x,positionData.blockIndex_y,positionData.blockIndex_z, false);
             }
         }
     }
