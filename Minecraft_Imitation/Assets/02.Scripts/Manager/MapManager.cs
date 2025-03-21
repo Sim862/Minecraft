@@ -161,7 +161,7 @@ public class MapManager : MonoBehaviour
 
     public static Queue<Block> blockPool = new Queue<Block>(12 * 12 * 125);
     private Queue<GameObject> facePool = new Queue<GameObject>(12 * 12 * 125 * 6);
-    private static Queue<ChunkData> loadChunks = new Queue<ChunkData>();
+    private ChunkData loadChunkData;
 
     public Block blockPrefab;
 
@@ -259,20 +259,20 @@ public class MapManager : MonoBehaviour
 
     #region Chunk Load, Save 메서드
 
-    IEnumerator loadChunk;
+    IEnumerator loadChunk_Cor;
 
     private void UpdateLoadChunk_Cor()
     {
-        if (loadChunk == null && loadChunkMethods.Count > 0)
+        if (loadChunk_Cor == null && loadChunkMethods.Count > 0)
         {
-            loadChunk = loadChunkMethods.Dequeue();
-            StartCoroutine(loadChunk);
+            loadChunk_Cor = loadChunkMethods.Dequeue();
+            StartCoroutine(loadChunk_Cor);
         }
     }
 
     public void UpdateLoadChunk()
     {
-        if (playerPositionData.chunk == playerChunk && loadChunk == null)
+        if (playerPositionData.chunk == playerChunk && loadChunk_Cor == null)
         {
             for (int i = chunks.Count - 1; i >= 0; i--)
             {
@@ -676,25 +676,30 @@ public class MapManager : MonoBehaviour
         loadChunkMethods.Enqueue(GenerateChunkAsync(x, z));
     }
 
+    private object _lock = new object();
+
     private async Task InitChunk_Task(int x, int z)
     {
-        loadChunks.Enqueue(LoadChunk(x, z));
+        lock(_lock)
+        {
+            loadChunkData = LoadChunk(x, z);
+        }
     }
 
     private IEnumerator GenerateChunkAsync(int x, int z)
     {
         yield return InitChunk_Task(x, z);
 
-        if (loadChunks.Count > 0)
+        if (loadChunkData != null)
         {
-            temp_Chunk = new Chunk(x, z, loadChunks.Dequeue());
+            temp_Chunk = new Chunk(x, z, loadChunkData);
             chunks.Add(temp_Chunk);
             BlockFaceCulling(temp_Chunk);
             StartCoroutine(temp_Chunk.saveRoutine);
         }
 
         yield return new WaitForEndOfFrame();
-        loadChunk = null;
+        loadChunk_Cor = null;
     }
 
 
